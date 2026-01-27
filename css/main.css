@@ -1,0 +1,20 @@
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+.material-symbols-outlined.filled {
+    font-variation-settings: 'FILL' 1;
+}
+.view-section { display: none; }
+.view-section.active { display: block; }
+
+.calendar-gradient {
+    background: linear-gradient(180deg, rgba(71, 235, 180, 0.05) 0%, rgba(17, 33, 28, 0) 100%);
+}
+.glass-card {
+    background: rgba(28, 38, 35, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
