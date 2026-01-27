@@ -304,6 +304,48 @@ button[type="submit"]:hover {
     box-shadow: var(--shadow-md), 0 0 0 3px rgba(108, 92, 231, 0.1);
 }
 
+/* Navigation Tabs */
+.nav-tabs-container {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0;
+}
+
+.nav-tab {
+    background: none;
+    border: none;
+    font-size: 1.1rem;
+    font-weight: var(--font-weight-medium);
+    color: var(--text-secondary);
+    padding: var(--spacing-sm) var(--spacing-md);
+    cursor: pointer;
+    position: relative;
+    transition: color 0.3s ease;
+}
+
+.nav-tab:hover {
+    color: var(--primary-color);
+}
+
+.nav-tab.active {
+    color: var(--primary-color);
+    font-weight: var(--font-weight-bold);
+}
+
+.nav-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -2px; /* Aligns with container border */
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: var(--primary-color);
+    border-radius: 3px 3px 0 0;
+}
+
 /* Gallery & Filtering */
 #filter-section {
     display: flex;
