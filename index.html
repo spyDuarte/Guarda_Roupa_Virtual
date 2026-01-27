@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ritinha's Virtual Wardrobe</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <header>
+        <h1>Ritinha's Virtual Wardrobe</h1>
+    </header>
+
+    <main>
+        <!-- Add Item Section -->
+        <section id="add-item-section">
+            <h2>Add Item</h2>
+            <form id="add-item-form">
+                <input type="text" id="item-name" placeholder="Item Name" required>
+                <input type="text" id="item-image" placeholder="Image URL">
+                <select id="item-category" required>
+                    <option value="" disabled selected>Select Category</option>
+                    <option value="tops">Tops</option>
+                    <option value="bottoms">Bottoms</option>
+                    <option value="shoes">Shoes</option>
+                    <option value="accessories">Accessories</option>
+                </select>
+                <button type="submit">Add to Wardrobe</button>
+            </form>
+        </section>
+
+        <!-- Filter Section -->
+        <section id="filter-section">
+            <button class="filter-btn" data-category="all">All</button>
+            <button class="filter-btn" data-category="tops">Tops</button>
+            <button class="filter-btn" data-category="bottoms">Bottoms</button>
+            <button class="filter-btn" data-category="shoes">Shoes</button>
+            <button class="filter-btn" data-category="accessories">Accessories</button>
+        </section>
+
+        <!-- Gallery Section -->
+        <section id="gallery-section">
+            <div id="gallery-grid" class="gallery-grid">
+                <!-- Items will be injected here by script.js -->
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2024 Ritinha's Wardrobe. All rights reserved.</p>
+    </footer>
+</body>
+</html>
