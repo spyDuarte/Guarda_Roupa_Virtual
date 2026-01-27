@@ -1,11 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Auth Check ---
-    const currentUser = localStorage.getItem('currentUser');
-    if (!currentUser) {
-        window.location.href = 'login.html';
-        return;
-    }
-
     // --- State ---
     let wardrobeItems = JSON.parse(localStorage.getItem('wardrobeItems')) || [];
     let outfits = JSON.parse(localStorage.getItem('outfits')) || [];
@@ -27,10 +20,17 @@ document.addEventListener('DOMContentLoaded', () => {
         gallery: document.getElementById('view-gallery'),
         planner: document.getElementById('view-planner'),
         profile: document.getElementById('view-profile'),
-        addItem: document.getElementById('view-add-item')
+        addItem: document.getElementById('view-add-item'),
+        login: document.getElementById('view-login'),
+        registration: document.getElementById('view-registration'),
+        onboardingCreate: document.getElementById('view-onboarding-create'),
+        onboardingOrganize: document.getElementById('view-onboarding-organize'),
+        onboardingPlan: document.getElementById('view-onboarding-plan'),
+        weatherStyle: document.getElementById('view-weather-style')
     };
 
     const navButtons = document.querySelectorAll('.nav-btn');
+    const bottomNav = document.getElementById('bottom-nav');
     const fabAddItem = document.getElementById('fab-add-item');
     const planOutfitBtn = document.getElementById('plan-outfit-btn');
     const logoutBtn = document.getElementById('logout-btn');
@@ -71,12 +71,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const filterChips = document.querySelectorAll('.filter-chip');
     const galleryAddBtn = document.getElementById('gallery-add-btn');
     const galleryTitle = document.getElementById('gallery-title');
+    const galleryBackBtn = document.getElementById('gallery-back-btn');
 
     // Dashboard Elements
     const totalItemsCount = document.getElementById('total-items-count');
     const mostWornCarousel = document.getElementById('most-worn-carousel');
     const categoryCards = document.querySelectorAll('.category-card');
     const categoryLink = document.querySelector('.category-link');
+    const weatherWidget = document.getElementById('weather-widget');
 
     // Modal Elements
     const itemModal = document.getElementById('item-modal');
@@ -91,6 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const toastContainer = document.getElementById('toast-container');
 
     // --- Initialization ---
+    checkAuth();
     updateStats();
     renderMostWorn();
     renderGallery();
@@ -99,11 +102,21 @@ document.addEventListener('DOMContentLoaded', () => {
          renderOutfits();
     }
 
+    // --- Auth Logic ---
+    function checkAuth() {
+        const currentUser = localStorage.getItem('currentUser');
+        if (currentUser) {
+            switchView('dashboard');
+        } else {
+            switchView('login');
+        }
+    }
+
     // --- Navigation Logic ---
     function switchView(targetViewId) {
         // Hide all views except add-item (which is overlay)
         Object.keys(views).forEach(key => {
-            if (key !== 'addItem') {
+            if (views[key] && key !== 'addItem') {
                 views[key].classList.remove('active');
             }
         });
@@ -113,7 +126,15 @@ document.addEventListener('DOMContentLoaded', () => {
             views[targetViewId].classList.add('active');
         }
 
-        // Update Bottom Nav
+        // Handle Bottom Nav Visibility
+        const fullScreenViews = ['login', 'registration', 'onboardingCreate', 'onboardingOrganize', 'onboardingPlan', 'weatherStyle'];
+        if (fullScreenViews.includes(targetViewId)) {
+            if (bottomNav) bottomNav.classList.add('hidden');
+        } else {
+            if (bottomNav) bottomNav.classList.remove('hidden');
+        }
+
+        // Update Bottom Nav State
         navButtons.forEach(btn => {
             const btnTarget = btn.getAttribute('data-target');
             const icon = btn.querySelector('.material-symbols-outlined');
@@ -148,7 +169,134 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Event Delegation for Gallery Grid
+    if (galleryBackBtn) {
+        galleryBackBtn.addEventListener('click', () => {
+            switchView('dashboard');
+        });
+    }
+
+    // --- New View Event Listeners ---
+
+    // Login View
+    const loginView = views.login;
+    if (loginView) {
+        const loginBtn = loginView.querySelector('button.bg-primary'); // "Log In" button
+        const createAccountLink = loginView.querySelector('a[href="#"]'); // "Create an Account" link (last one) or identify by text
+
+        if (loginBtn) {
+            loginBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                // Mock Login
+                const emailInput = loginView.querySelector('input[type="email"]');
+                if (emailInput && emailInput.value) {
+                    localStorage.setItem('currentUser', emailInput.value);
+                    switchView('dashboard');
+                    showToast('Welcome back!');
+                } else {
+                    showToast('Please enter an email.', 'error');
+                }
+            });
+        }
+
+        // Find "Create an Account" link - it's likely the last anchor tag in the view
+        const links = loginView.querySelectorAll('a');
+        links.forEach(link => {
+            if (link.textContent.includes('Create an Account')) {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    switchView('registration');
+                });
+            }
+        });
+    }
+
+    // Registration View
+    const regView = views.registration;
+    if (regView) {
+        const createAccountBtn = regView.querySelector('button.bg-primary');
+        const signInLink = regView.querySelector('a[href="#"]'); // "Sign in" link
+
+        if (createAccountBtn) {
+            createAccountBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                // Mock Registration
+                localStorage.setItem('currentUser', 'New User');
+                switchView('onboardingCreate');
+            });
+        }
+
+        const links = regView.querySelectorAll('a');
+        links.forEach(link => {
+            if (link.textContent.includes('Sign in')) {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    switchView('login');
+                });
+            }
+        });
+
+        // Back button in registration
+        const backBtn = regView.querySelector('button.rounded-full');
+        if (backBtn) {
+             backBtn.addEventListener('click', () => switchView('login'));
+        }
+    }
+
+    // Onboarding Create
+    const obCreateView = views.onboardingCreate;
+    if (obCreateView) {
+        const skipBtn = obCreateView.querySelector('button p.text-primary').parentElement;
+        const continueBtn = obCreateView.querySelector('button.bg-primary');
+
+        if (skipBtn) skipBtn.addEventListener('click', () => switchView('dashboard'));
+        if (continueBtn) continueBtn.addEventListener('click', () => switchView('onboardingOrganize'));
+    }
+
+    // Onboarding Organize
+    const obOrganizeView = views.onboardingOrganize;
+    if (obOrganizeView) {
+        const skipBtn = obOrganizeView.querySelector('button.text-[#9db8af]');
+        const nextBtn = obOrganizeView.querySelector('button.bg-primary');
+
+        if (skipBtn) skipBtn.addEventListener('click', () => switchView('dashboard'));
+        if (nextBtn) nextBtn.addEventListener('click', () => switchView('onboardingPlan'));
+    }
+
+    // Onboarding Plan
+    const obPlanView = views.onboardingPlan;
+    if (obPlanView) {
+        const getStartedBtn = obPlanView.querySelector('button.bg-primary');
+        const backBtn = obPlanView.querySelector('button span.material-symbols-outlined').parentElement; // Arrow back
+
+        if (getStartedBtn) getStartedBtn.addEventListener('click', () => switchView('dashboard'));
+        if (backBtn) backBtn.addEventListener('click', () => switchView('onboardingOrganize'));
+    }
+
+    // Weather View Logic
+    // Attach listener to Dashboard Weather Widget
+    if (weatherWidget) {
+        weatherWidget.addEventListener('click', (e) => {
+            // Check if clicked plan outfit button
+            if (e.target.closest('#plan-outfit-btn')) return;
+            switchView('weatherStyle');
+        });
+    }
+
+    // Weather View Internal Navigation (Custom Bottom Nav)
+    const weatherView = views.weatherStyle;
+    if (weatherView) {
+        const bottomNavItems = weatherView.querySelectorAll('.fixed.bottom-0 .flex.flex-col');
+        // 0: Weather, 1: Closet, 2: Add Item, 3: Planner, 4: Profile
+        if (bottomNavItems.length >= 5) {
+             bottomNavItems[1].addEventListener('click', () => switchView('gallery'));
+             bottomNavItems[2].addEventListener('click', () => openAddItemOverlay());
+             bottomNavItems[3].addEventListener('click', () => switchView('planner'));
+             bottomNavItems[4].addEventListener('click', () => switchView('profile'));
+        }
+    }
+
+
+    // --- Existing Event Listeners ---
     if (galleryGrid) {
         galleryGrid.addEventListener('click', (e) => {
             const card = e.target.closest('.group');
@@ -162,7 +310,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Event Delegation for Most Worn Carousel
     if (mostWornCarousel) {
         mostWornCarousel.addEventListener('click', (e) => {
             const card = e.target.closest('.group');
@@ -182,7 +329,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Category Cards in Dashboard
     categoryCards.forEach(card => {
         card.addEventListener('click', () => {
             const cat = card.getAttribute('data-category');
@@ -204,7 +350,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Outfit Selection Logic ---
     const selectionBar = document.getElementById('selection-bar');
-    const bottomNav = document.getElementById('bottom-nav');
     const selectionCountEl = document.getElementById('selection-count');
     const cancelSelectionBtn = document.getElementById('cancel-selection-btn');
     const saveOutfitBtn = document.getElementById('save-outfit-btn');
@@ -315,15 +460,12 @@ document.addEventListener('DOMContentLoaded', () => {
         selectedCategoryInput.value = '';
     }
 
-    // Category Selection in Add Item
     categoryChips.forEach(chip => {
         chip.addEventListener('click', () => {
-            // Deselect all
             categoryChips.forEach(c => {
                 c.classList.remove('bg-primary', 'text-background-dark', 'font-bold');
                 c.classList.add('bg-white', 'dark:bg-white/5', 'text-gray-600', 'dark:text-gray-300');
             });
-            // Select clicked
             chip.classList.remove('bg-white', 'dark:bg-white/5', 'text-gray-600', 'dark:text-gray-300');
             chip.classList.add('bg-primary', 'text-background-dark', 'font-bold');
 
@@ -331,7 +473,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Image Preview
     if (itemFileInput) {
         itemFileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
@@ -339,7 +480,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const reader = new FileReader();
                 reader.onload = function(event) {
                     addItemPreview.style.backgroundImage = `url('${event.target.result}')`;
-                    // Clear URL input if file is selected
                     if (itemImageUrl) itemImageUrl.value = '';
                 };
                 reader.readAsDataURL(file);
@@ -356,7 +496,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Save Item
     function handleSaveItem() {
         const name = itemNameInput.value.trim();
         const category = selectedCategoryInput.value;
@@ -364,11 +503,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const size = itemSizeInput.value.trim();
         const notes = itemNotesInput.value.trim();
 
-        // Get Image
         let imageSrc = '';
         const bgImage = addItemPreview.style.backgroundImage;
         if (bgImage && bgImage !== 'none') {
-            // Extract URL from url("...")
             imageSrc = bgImage.slice(5, -2);
         }
 
@@ -395,7 +532,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showToast('Item added to closet!', 'success');
         closeAddItemOverlay();
         updateStats();
-        renderGallery(); // Re-render gallery
+        renderGallery();
     }
 
     if (saveItemBtn) saveItemBtn.addEventListener('click', handleSaveItem);
@@ -461,7 +598,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const div = document.createElement('div');
             div.className = 'group flex flex-col gap-2 cursor-pointer';
 
-            // Image Container
             const imgContainer = document.createElement('div');
             imgContainer.className = 'relative w-full aspect-[3/4] rounded-xl overflow-hidden bg-white dark:bg-surface-dark shadow-sm border border-slate-100 dark:border-white/5';
 
@@ -471,7 +607,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             imgContainer.appendChild(imgBg);
 
-            // Selection Visuals
             if (isSelectionMode) {
                 if (selectedOutfitItems.includes(item.id)) {
                     imgContainer.classList.add('ring-4', 'ring-primary');
@@ -484,7 +619,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // Info Container
             const infoDiv = document.createElement('div');
 
             const nameP = document.createElement('p');
@@ -518,7 +652,6 @@ document.addEventListener('DOMContentLoaded', () => {
             totalOutfitsCount.textContent = outfits.length;
         }
 
-        // Update category counts
         const categories = ['tops', 'bottoms', 'shoes', 'accessories'];
         categories.forEach(cat => {
             const count = wardrobeItems.filter(i => i.category === cat).length;
@@ -531,7 +664,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!mostWornCarousel) return;
         mostWornCarousel.innerHTML = '';
 
-        // Sort by usageCount descending and take top 5
         const items = [...wardrobeItems]
             .sort((a, b) => (b.usageCount || 0) - (a.usageCount || 0))
             .slice(0, 5);
@@ -548,7 +680,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const div = document.createElement('div');
             div.className = 'min-w-[140px] flex flex-col gap-2 group cursor-pointer';
 
-            // Image Container
             const imgContainer = document.createElement('div');
             imgContainer.className = 'relative w-full aspect-[3/4] rounded-xl overflow-hidden bg-white dark:bg-surface-dark shadow-sm border border-gray-100 dark:border-gray-800';
 
@@ -563,7 +694,6 @@ document.addEventListener('DOMContentLoaded', () => {
             imgContainer.appendChild(badge);
             imgContainer.appendChild(imgBg);
 
-            // Info Container
             const infoDiv = document.createElement('div');
 
             const nameP = document.createElement('p');
@@ -587,7 +717,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Planner Logic ---
-
     function renderOutfits() {
         if (!outfitsGrid) return;
         outfitsGrid.innerHTML = '';
@@ -600,19 +729,16 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Sort by newest first
         const sortedOutfits = [...outfits].sort((a, b) => new Date(b.dateCreated) - new Date(a.dateCreated));
 
         sortedOutfits.forEach(outfit => {
             const card = document.createElement('div');
             card.className = 'bg-white dark:bg-surface-dark p-3 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 flex gap-3';
 
-            // Preview Images (max 3)
             const previewDiv = document.createElement('div');
             previewDiv.className = 'flex -space-x-4 overflow-hidden shrink-0';
 
             const itemIds = outfit.items || [];
-            // Get item objects
             const items = itemIds.map(id => wardrobeItems.find(i => i.id === id)).filter(Boolean);
 
             items.slice(0, 3).forEach(item => {
@@ -622,7 +748,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 previewDiv.appendChild(img);
             });
 
-            // Info
             const infoDiv = document.createElement('div');
             infoDiv.className = 'flex-1 flex flex-col justify-center';
 
@@ -637,7 +762,6 @@ document.addEventListener('DOMContentLoaded', () => {
             infoDiv.appendChild(title);
             infoDiv.appendChild(date);
 
-            // Delete Button
             const deleteBtn = document.createElement('button');
             deleteBtn.className = 'text-gray-400 hover:text-red-500 transition-colors p-2';
             deleteBtn.innerHTML = '<span class="material-symbols-outlined text-lg">delete</span>';
@@ -680,7 +804,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (modalTitle) modalTitle.textContent = item.name;
 
         if (modalDetailsText) {
-            modalDetailsText.innerHTML = ''; // Clear existing
+            modalDetailsText.innerHTML = '';
 
             const details = [
                 { label: 'Category', value: item.category },
@@ -714,7 +838,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Close modal on outside click
     window.addEventListener('click', (e) => {
         if (e.target === itemModal) {
             itemModal.classList.add('hidden');
@@ -746,7 +869,7 @@ document.addEventListener('DOMContentLoaded', () => {
         logoutBtn.addEventListener('click', (e) => {
             e.preventDefault();
             localStorage.removeItem('currentUser');
-            window.location.href = 'login.html';
+            switchView('login');
         });
     }
 
@@ -820,14 +943,12 @@ document.addEventListener('DOMContentLoaded', () => {
             profileAvatarPreview.style.backgroundImage = `url('${userProfile.avatar}')`;
         }
 
-        // Update Dashboard Header
         const headerName = document.querySelector('.text-lg.font-bold');
         if (headerName) headerName.textContent = userProfile.name;
 
         const headerAvatar = document.querySelector('.bg-center.bg-no-repeat.aspect-square.bg-cover.rounded-full.size-10');
         if (headerAvatar) headerAvatar.style.backgroundImage = `url('${userProfile.avatar}')`;
 
-        // Update Theme UI
         if (userProfile.theme === 'dark') {
             document.documentElement.classList.add('dark');
             if (themeToggleBtn) {
