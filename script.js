@@ -88,6 +88,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Functions
+    function showToast(message, type = 'info') {
+        const toastContainer = document.getElementById('toast-container');
+        if (!toastContainer) return;
+
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.textContent = message;
+
+        toastContainer.appendChild(toast);
+
+        // Remove after animation (3s total)
+        setTimeout(() => {
+            toast.remove();
+        }, 3000);
+    }
+
     function handleAddItem(e) {
         e.preventDefault();
 
@@ -101,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const file = itemFileInput && itemFileInput.files[0];
 
         if (!name || !category) {
-            alert('Please fill in Name and Category fields.');
+            showToast('Please fill in Name and Category fields.', 'error');
             return;
         }
 
@@ -131,6 +147,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Close modal
             if (addItemModal) addItemModal.style.display = 'none';
+
+            showToast('Item added successfully!', 'success');
         };
 
         if (file) {
@@ -172,6 +190,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const itemElement = document.createElement('div');
             itemElement.classList.add('wardrobe-item');
 
+            // Category Badge
+            const badge = document.createElement('span');
+            badge.classList.add('category-badge');
+            badge.textContent = item.category;
+
             // Create Image
             const img = document.createElement('img');
             img.src = item.image || 'https://via.placeholder.com/200?text=No+Image';
@@ -186,20 +209,39 @@ document.addEventListener('DOMContentLoaded', () => {
             h3.textContent = item.name;
 
             const p = document.createElement('p');
-            p.textContent = item.category;
+            p.textContent = item.brand || item.category; // Show brand if available, else category
 
             const btn = document.createElement('button');
             btn.classList.add('delete-btn');
-            btn.textContent = 'Delete';
+            btn.setAttribute('aria-label', 'Delete Item');
+            btn.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+            `;
             btn.onclick = function(e) {
                 e.stopPropagation(); // Prevent opening modal
                 deleteItem(item.id);
             };
 
-            infoDiv.appendChild(h3);
-            infoDiv.appendChild(p);
-            infoDiv.appendChild(btn);
+            const headerDiv = document.createElement('div');
+            headerDiv.style.display = 'flex';
+            headerDiv.style.justifyContent = 'space-between';
+            headerDiv.style.alignItems = 'start';
+            headerDiv.style.width = '100%';
 
+            const textDiv = document.createElement('div');
+            textDiv.style.overflow = 'hidden';
+            textDiv.appendChild(h3);
+            textDiv.appendChild(p);
+
+            headerDiv.appendChild(textDiv);
+            headerDiv.appendChild(btn);
+
+            infoDiv.appendChild(headerDiv);
+
+            itemElement.appendChild(badge);
             itemElement.appendChild(img);
             itemElement.appendChild(infoDiv);
 
@@ -271,6 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
             wardrobeItems = wardrobeItems.filter(item => item.id !== id);
             saveItems();
             renderGallery();
+            showToast('Item deleted.', 'info');
         }
     }
 });
