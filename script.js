@@ -12,9 +12,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const galleryGrid = document.getElementById('gallery-grid');
     const filterButtons = document.querySelectorAll('.filter-btn');
     const searchInput = document.getElementById('search-input');
-    const modal = document.getElementById('item-modal');
-    const modalCloseBtn = document.querySelector('.close-btn');
+
+    // Modals & Buttons
+    const itemModal = document.getElementById('item-modal');
+    const closeItemModalBtn = document.getElementById('close-item-modal');
     const modalDetails = document.getElementById('modal-details');
+
+    const addItemModal = document.getElementById('add-item-modal');
+    const closeAddModalBtn = document.getElementById('close-add-modal');
+    const fabAddItem = document.getElementById('fab-add-item');
+    const heroAddBtn = document.getElementById('hero-add-btn');
 
     // State
     let wardrobeItems = JSON.parse(localStorage.getItem('wardrobeItems')) || [];
@@ -47,15 +54,36 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Modal Event Listeners
-    if (modalCloseBtn) {
-        modalCloseBtn.onclick = function() {
-            modal.style.display = "none";
+    function openAddModal() {
+        if (addItemModal) addItemModal.style.display = 'block';
+    }
+
+    function closeAllModals() {
+        if (itemModal) itemModal.style.display = 'none';
+        if (addItemModal) addItemModal.style.display = 'none';
+    }
+
+    if (fabAddItem) fabAddItem.onclick = openAddModal;
+    if (heroAddBtn) heroAddBtn.onclick = openAddModal;
+
+    if (closeItemModalBtn) {
+        closeItemModalBtn.onclick = function() {
+            if (itemModal) itemModal.style.display = "none";
+        }
+    }
+
+    if (closeAddModalBtn) {
+        closeAddModalBtn.onclick = function() {
+            if (addItemModal) addItemModal.style.display = "none";
         }
     }
 
     window.onclick = function(event) {
-        if (event.target == modal) {
-            modal.style.display = "none";
+        if (event.target == itemModal) {
+            itemModal.style.display = "none";
+        }
+        if (event.target == addItemModal) {
+            addItemModal.style.display = "none";
         }
     }
 
@@ -100,6 +128,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Reset form
             addItemForm.reset();
+
+            // Close modal
+            if (addItemModal) addItemModal.style.display = 'none';
         };
 
         if (file) {
@@ -232,7 +263,7 @@ document.addEventListener('DOMContentLoaded', () => {
         modalDetails.appendChild(pColor);
         modalDetails.appendChild(pNotes);
 
-        modal.style.display = "block";
+        if (itemModal) itemModal.style.display = "block";
     }
 
     function deleteItem(id) {
