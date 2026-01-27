@@ -1,36 +1,61 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // DOM Elements
-    const addItemForm = document.getElementById('add-item-form');
-    const itemNameInput = document.getElementById('item-name');
-    const itemImageInput = document.getElementById('item-image');
-    const itemFileInput = document.getElementById('item-file');
-    const itemCategorySelect = document.getElementById('item-category');
-    const itemBrandInput = document.getElementById('item-brand');
-    const itemSizeInput = document.getElementById('item-size');
-    const itemColorInput = document.getElementById('item-color');
-    const itemNotesInput = document.getElementById('item-notes');
-    const galleryGrid = document.getElementById('gallery-grid');
-    const filterButtons = document.querySelectorAll('.filter-btn');
-    const searchInput = document.getElementById('search-input');
-
-    // Modals & Buttons
-    const itemModal = document.getElementById('item-modal');
-    const closeItemModalBtn = document.getElementById('close-item-modal');
-    const modalDetails = document.getElementById('modal-details');
-
-    const addItemModal = document.getElementById('add-item-modal');
-    const closeAddModalBtn = document.getElementById('close-add-modal');
-    const fabAddItem = document.getElementById('fab-add-item');
-    const heroAddBtn = document.getElementById('hero-add-btn');
-
-    // Navigation Tabs
-    const navTabs = document.querySelectorAll('.nav-tab');
-    const filterSection = document.getElementById('filter-section');
-
-    // State
+    // --- State ---
     let wardrobeItems = JSON.parse(localStorage.getItem('wardrobeItems')) || [];
+    let currentView = 'dashboard';
     let currentCategory = 'all';
-    let currentView = 'wardrobe'; // 'wardrobe' or 'looks'
+    let currentSearch = '';
+
+    // --- DOM Elements ---
+    const views = {
+        dashboard: document.getElementById('view-dashboard'),
+        gallery: document.getElementById('view-gallery'),
+        'add-item': document.getElementById('view-add-item')
+    };
+
+    const navButtons = document.querySelectorAll('.nav-btn');
+    const fabAddBtn = document.getElementById('fab-add-btn');
+    const planOutfitBtn = document.getElementById('plan-outfit-btn');
+
+    // Dashboard
+    const totalItemsCount = document.getElementById('total-items-count');
+    const totalOutfitsCount = document.getElementById('total-outfits-count');
+    const seeAllCatsBtn = document.getElementById('see-all-cats-btn');
+    const categoryCards = document.querySelectorAll('.category-card');
+
+    // Gallery
+    const galleryGrid = document.getElementById('gallery-grid');
+    const galleryTitle = document.getElementById('gallery-title');
+    const galleryBackBtn = document.getElementById('gallery-back-btn');
+    const galleryAddBtn = document.getElementById('gallery-add-btn');
+    const searchInput = document.getElementById('search-input');
+    const galleryFilters = document.getElementById('gallery-filters');
+    const filterChips = document.querySelectorAll('.filter-chip');
+
+    // Add Item
+    const addCloseBtn = document.getElementById('add-close-btn');
+    const addSaveBtn = document.getElementById('add-save-btn');
+    const addUploadBtn = document.getElementById('add-upload-btn');
+    const addFileInput = document.getElementById('add-file-input');
+    const addImagePreview = document.getElementById('add-image-preview');
+
+    // Inputs
+    const inputName = document.getElementById('add-name-input');
+    const inputCategory = document.getElementById('add-category-select');
+    const inputBrand = document.getElementById('add-brand-input');
+    const inputSize = document.getElementById('add-size-input');
+    const inputNotes = document.getElementById('add-notes-input');
+    const inputImageUrl = document.getElementById('add-image-url');
+
+    // Modal
+    const itemModal = document.getElementById('item-modal');
+    const modalBackdrop = document.getElementById('modal-backdrop');
+    const modalCloseBtn = document.getElementById('modal-close-btn');
+    const modalImage = document.getElementById('modal-image');
+    const modalTitle = document.getElementById('modal-title');
+    const modalBrand = document.getElementById('modal-brand');
+    const modalSize = document.getElementById('modal-size');
+    const modalCategory = document.getElementById('modal-category');
+    const modalNotes = document.getElementById('modal-notes');
 
     const categoryLabels = {
         'tops': 'Parte de Cima',
@@ -40,321 +65,304 @@ document.addEventListener('DOMContentLoaded', () => {
         'look': 'Look Completo'
     };
 
-    // Initial Render
-    renderGallery();
+    // --- Init ---
+    renderDashboard();
 
-    // Event Listeners
-    if (addItemForm) {
-        addItemForm.addEventListener('submit', handleAddItem);
-    }
-
-    if (searchInput) {
-        searchInput.addEventListener('input', () => {
-            renderGallery();
+    // --- Navigation Logic ---
+    function switchView(viewName, filter = null) {
+        // Hide all views
+        Object.values(views).forEach(el => {
+            if (el) el.classList.add('hidden');
         });
-    }
 
-    navTabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            navTabs.forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-            currentView = tab.getAttribute('data-view');
-
-            // Toggle filter section visibility
-            if (currentView === 'looks') {
-                filterSection.style.display = 'none';
-            } else {
-                filterSection.style.display = 'flex';
+        // Show target view
+        if (viewName === 'outfits') {
+            views.gallery.classList.remove('hidden');
+            currentCategory = 'look';
+            galleryTitle.textContent = 'Meus Looks';
+            updateFilterChips('look');
+            galleryFilters.classList.add('hidden');
+        } else if (viewName === 'gallery') {
+            views.gallery.classList.remove('hidden');
+            galleryTitle.textContent = 'Meu Guarda-Roupa';
+            galleryFilters.classList.remove('hidden');
+            if (filter) {
+                currentCategory = filter;
+                updateFilterChips(filter);
+            } else if (currentCategory === 'look') {
+                currentCategory = 'all';
+                updateFilterChips('all');
             }
+        } else if (views[viewName]) {
+            views[viewName].classList.remove('hidden');
+        }
 
-            // Reset filter
-            currentCategory = 'all';
-            filterButtons.forEach(b => b.classList.remove('active'));
-            // Set 'All' button active
-            const allBtn = document.querySelector('.filter-btn[data-category="all"]');
-            if (allBtn) allBtn.classList.add('active');
+        currentView = viewName;
 
-            renderGallery();
+        // Update Bottom Nav
+        navButtons.forEach(btn => {
+            const btnView = btn.dataset.view;
+            const icon = btn.querySelector('.material-symbols-outlined');
+            const label = btn.querySelector('p');
+
+            if (btnView === viewName) {
+                btn.classList.replace('text-slate-400', 'text-primary');
+                btn.classList.replace('dark:text-slate-500', 'dark:text-primary');
+                icon.classList.add('filled');
+                label.classList.replace('font-semibold', 'font-bold');
+            } else {
+                btn.classList.replace('text-primary', 'text-slate-400');
+                btn.classList.replace('dark:text-primary', 'dark:text-slate-500');
+                icon.classList.remove('filled');
+                label.classList.replace('font-bold', 'font-semibold');
+            }
         });
-    });
 
-    filterButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            // Remove active class from all buttons
-            filterButtons.forEach(b => b.classList.remove('active'));
-            // Add active class to clicked button
-            btn.classList.add('active');
-
-            currentCategory = btn.getAttribute('data-category');
+        if (viewName === 'dashboard') {
+            renderDashboard();
+        } else if (viewName === 'gallery' || viewName === 'outfits') {
             renderGallery();
+        } else if (viewName === 'add-item') {
+            resetAddForm();
+        }
+    }
+
+    // --- Render Functions ---
+    function renderDashboard() {
+        const items = wardrobeItems.filter(i => i.category !== 'look').length;
+        const outfits = wardrobeItems.filter(i => i.category === 'look').length;
+
+        if (totalItemsCount) totalItemsCount.textContent = items;
+        if (totalOutfitsCount) totalOutfitsCount.textContent = outfits;
+    }
+
+    function renderGallery() {
+        galleryGrid.innerHTML = '';
+
+        const filtered = wardrobeItems.filter(item => {
+            const matchesCategory = currentCategory === 'all' || item.category === currentCategory;
+            const matchesSearch = item.name.toLowerCase().includes(currentSearch.toLowerCase()) ||
+                                  (item.brand && item.brand.toLowerCase().includes(currentSearch.toLowerCase()));
+            return matchesCategory && matchesSearch;
         });
-    });
 
-    // Modal Event Listeners
-    function openAddModal() {
-        if (addItemModal) addItemModal.style.display = 'block';
-    }
-
-    function closeAllModals() {
-        if (itemModal) itemModal.style.display = 'none';
-        if (addItemModal) addItemModal.style.display = 'none';
-    }
-
-    if (fabAddItem) fabAddItem.onclick = openAddModal;
-    if (heroAddBtn) heroAddBtn.onclick = openAddModal;
-
-    if (closeItemModalBtn) {
-        closeItemModalBtn.onclick = function() {
-            if (itemModal) itemModal.style.display = "none";
-        }
-    }
-
-    if (closeAddModalBtn) {
-        closeAddModalBtn.onclick = function() {
-            if (addItemModal) addItemModal.style.display = "none";
-        }
-    }
-
-    window.onclick = function(event) {
-        if (event.target == itemModal) {
-            itemModal.style.display = "none";
-        }
-        if (event.target == addItemModal) {
-            addItemModal.style.display = "none";
-        }
-    }
-
-    // Functions
-    function showToast(message, type = 'info') {
-        const toastContainer = document.getElementById('toast-container');
-        if (!toastContainer) return;
-
-        const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
-        toast.textContent = message;
-
-        toastContainer.appendChild(toast);
-
-        // Remove after animation (3s total)
-        setTimeout(() => {
-            toast.remove();
-        }, 3000);
-    }
-
-    function handleAddItem(e) {
-        e.preventDefault();
-
-        const name = itemNameInput.value.trim();
-        const imageURL = itemImageInput.value.trim();
-        const category = itemCategorySelect.value;
-        const brand = itemBrandInput.value.trim();
-        const size = itemSizeInput.value.trim();
-        const color = itemColorInput.value.trim();
-        const notes = itemNotesInput.value.trim();
-        const file = itemFileInput && itemFileInput.files[0];
-
-        if (!name || !category) {
-            showToast('Por favor, preencha o Nome e a Categoria.', 'error');
+        if (filtered.length === 0) {
+            const emptyMsg = document.createElement('p');
+            emptyMsg.className = "col-span-2 text-center text-gray-500 mt-10";
+            emptyMsg.textContent = "Nenhuma peça encontrada.";
+            galleryGrid.appendChild(emptyMsg);
             return;
         }
 
-        const addItem = (imageSrc) => {
+        filtered.forEach(item => {
+            const el = document.createElement('div');
+            el.className = 'group flex flex-col gap-2 relative';
+            el.onclick = () => openItemModal(item);
+
+            const imgContainer = document.createElement('div');
+            imgContainer.className = 'relative w-full aspect-[3/4] rounded-xl overflow-hidden bg-white dark:bg-surface-dark shadow-sm border border-slate-100 dark:border-white/5';
+
+            const imgDiv = document.createElement('div');
+            imgDiv.className = 'absolute inset-0 bg-center bg-no-repeat bg-cover transition-transform duration-500 group-hover:scale-105';
+            imgDiv.style.backgroundImage = `url("${item.image || 'https://via.placeholder.com/400x500?text=Sem+Imagem'}")`;
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'delete-btn absolute top-2 right-2 p-2 rounded-full bg-white/70 dark:bg-black/40 backdrop-blur-md text-slate-400 hover:text-red-500 transition-colors';
+            deleteBtn.innerHTML = '<span class="material-symbols-outlined text-[20px]">delete</span>';
+            deleteBtn.onclick = (e) => {
+                e.stopPropagation();
+                deleteItem(item.id);
+            };
+
+            const sizeBadge = document.createElement('div');
+            sizeBadge.className = 'absolute bottom-2 right-2 bg-black/60 text-white text-[10px] px-2 py-1 rounded-md backdrop-blur-sm';
+            sizeBadge.textContent = item.size || '-';
+
+            imgContainer.appendChild(imgDiv);
+            imgContainer.appendChild(deleteBtn);
+            imgContainer.appendChild(sizeBadge);
+
+            const infoDiv = document.createElement('div');
+
+            const nameP = document.createElement('p');
+            nameP.className = 'text-slate-900 dark:text-white text-sm font-bold leading-tight truncate';
+            nameP.textContent = item.name;
+
+            const brandP = document.createElement('p');
+            brandP.className = 'text-slate-500 dark:text-slate-400 text-xs font-medium mt-0.5';
+            brandP.textContent = item.brand || 'Sem Marca';
+
+            infoDiv.appendChild(nameP);
+            infoDiv.appendChild(brandP);
+
+            el.appendChild(imgContainer);
+            el.appendChild(infoDiv);
+
+            galleryGrid.appendChild(el);
+        });
+    }
+
+    function updateFilterChips(activeCategory) {
+        filterChips.forEach(chip => {
+            const chipCat = chip.dataset.category;
+            if (chipCat === activeCategory) {
+                chip.classList.add('active', 'bg-primary', 'text-slate-900', 'font-semibold', 'shadow-sm', 'shadow-primary/20');
+                chip.classList.remove('bg-white', 'dark:bg-surface-dark', 'border', 'border-slate-200', 'dark:border-white/10', 'text-slate-700', 'dark:text-slate-200');
+            } else {
+                chip.classList.remove('active', 'bg-primary', 'text-slate-900', 'font-semibold', 'shadow-sm', 'shadow-primary/20');
+                chip.classList.add('bg-white', 'dark:bg-surface-dark', 'border', 'border-slate-200', 'dark:border-white/10', 'text-slate-700', 'dark:text-slate-200');
+            }
+        });
+    }
+
+    // --- Action Functions ---
+    function resetAddForm() {
+        inputName.value = '';
+        inputBrand.value = '';
+        inputSize.value = '';
+        inputNotes.value = '';
+        inputCategory.value = 'tops';
+        inputImageUrl.value = '';
+        addFileInput.value = '';
+        addImagePreview.style.backgroundImage = "url('https://via.placeholder.com/400x500?text=Sem+Imagem')";
+        addImagePreview.dataset.base64 = '';
+    }
+
+    function deleteItem(id) {
+        if(confirm('Tem certeza que deseja excluir esta peça?')) {
+            wardrobeItems = wardrobeItems.filter(item => item.id !== id);
+            localStorage.setItem('wardrobeItems', JSON.stringify(wardrobeItems));
+            renderDashboard();
+            renderGallery();
+        }
+    }
+
+    function openItemModal(item) {
+        modalTitle.textContent = item.name;
+        modalBrand.textContent = item.brand || '-';
+        modalSize.textContent = item.size || '-';
+        modalCategory.textContent = categoryLabels[item.category] || item.category;
+        modalNotes.textContent = item.notes || '-';
+        modalImage.src = item.image || 'https://via.placeholder.com/400x500?text=Sem+Imagem';
+
+        itemModal.classList.remove('hidden');
+    }
+
+    function closeItemModal() {
+        itemModal.classList.add('hidden');
+    }
+
+    // --- Event Listeners ---
+
+    navButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            switchView(btn.dataset.view);
+        });
+    });
+
+    if (fabAddBtn) fabAddBtn.addEventListener('click', () => switchView('add-item'));
+    if (planOutfitBtn) planOutfitBtn.addEventListener('click', () => switchView('outfits'));
+    if (seeAllCatsBtn) seeAllCatsBtn.addEventListener('click', () => switchView('gallery'));
+
+    categoryCards.forEach(card => {
+        card.addEventListener('click', () => {
+            const cat = card.dataset.category;
+            switchView('gallery', cat);
+        });
+    });
+
+    if (galleryBackBtn) galleryBackBtn.addEventListener('click', () => switchView('dashboard'));
+    if (galleryAddBtn) galleryAddBtn.addEventListener('click', () => switchView('add-item'));
+
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            currentSearch = e.target.value;
+            renderGallery();
+        });
+    }
+
+    filterChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+            currentCategory = chip.dataset.category;
+            updateFilterChips(currentCategory);
+            renderGallery();
+        });
+    });
+
+    if (addCloseBtn) addCloseBtn.addEventListener('click', () => switchView('dashboard'));
+
+    if (addUploadBtn) {
+        addUploadBtn.addEventListener('click', () => {
+            addFileInput.click();
+        });
+    }
+
+    if (addFileInput) {
+        addFileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const base64 = event.target.result;
+                    addImagePreview.style.backgroundImage = `url('${base64}')`;
+                    addImagePreview.dataset.base64 = base64;
+                    inputImageUrl.value = ''; // Clear URL input if file is selected
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    if (inputImageUrl) {
+        inputImageUrl.addEventListener('input', (e) => {
+             const url = e.target.value;
+             if (url) {
+                 addImagePreview.style.backgroundImage = `url('${url}')`;
+                 addImagePreview.dataset.base64 = ''; // Clear base64 if URL is entered
+             }
+        });
+    }
+
+    if (addSaveBtn) {
+        addSaveBtn.addEventListener('click', () => {
+            const name = inputName.value.trim();
+            const category = inputCategory.value;
+
+            if (!name) {
+                alert('Por favor, insira um nome.');
+                return;
+            }
+
+            // Prioritize Image URL, then Base64, then Placeholder
+            let imageSrc = inputImageUrl.value.trim();
+            if (!imageSrc) {
+                imageSrc = addImagePreview.dataset.base64 || 'https://via.placeholder.com/400x500?text=Sem+Imagem';
+            }
+
             const newItem = {
                 id: Date.now(),
                 name: name,
-                image: imageSrc,
                 category: category,
-                brand: brand,
-                size: size,
-                color: color,
-                notes: notes,
+                brand: inputBrand.value.trim(),
+                size: inputSize.value.trim(),
+                notes: inputNotes.value.trim(),
+                image: imageSrc,
                 dateAdded: new Date().toISOString()
             };
 
             wardrobeItems.push(newItem);
-            saveItems();
+            localStorage.setItem('wardrobeItems', JSON.stringify(wardrobeItems));
 
-            // Re-render based on current active filter
-            renderGallery();
-
-            console.log('Item added:', newItem);
-
-            // Reset form
-            addItemForm.reset();
-
-            // Close modal
-            if (addItemModal) addItemModal.style.display = 'none';
-
-            showToast('Peça adicionada com sucesso!', 'success');
-        };
-
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                addItem(event.target.result);
-            };
-            reader.readAsDataURL(file);
-        } else {
-            addItem(imageURL);
-        }
-    }
-
-    function saveItems() {
-        localStorage.setItem('wardrobeItems', JSON.stringify(wardrobeItems));
-    }
-
-    function renderGallery() {
-        if (!galleryGrid) return;
-
-        galleryGrid.innerHTML = '';
-
-        const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
-
-        const filteredItems = wardrobeItems.filter(item => {
-            // View Filter (Wardrobe vs Looks)
-            if (currentView === 'wardrobe' && item.category === 'look') return false;
-            if (currentView === 'looks' && item.category !== 'look') return false;
-
-            const matchesCategory = currentCategory === 'all' || item.category === currentCategory;
-            const matchesSearch = item.name.toLowerCase().includes(searchTerm);
-            return matchesCategory && matchesSearch;
-        });
-
-        if (filteredItems.length === 0) {
-            const p = document.createElement('p');
-            p.textContent = 'Nenhuma peça encontrada.';
-            galleryGrid.appendChild(p);
-            return;
-        }
-
-        filteredItems.forEach(item => {
-            const itemElement = document.createElement('div');
-            itemElement.classList.add('wardrobe-item');
-
-            // Category Badge
-            const badge = document.createElement('span');
-            badge.classList.add('category-badge');
-            badge.textContent = categoryLabels[item.category] || item.category;
-
-            // Create Image
-            const img = document.createElement('img');
-            img.src = item.image || 'https://via.placeholder.com/200?text=No+Image';
-            img.alt = item.name;
-            img.onerror = function() { this.src = 'https://via.placeholder.com/200?text=No+Image'; };
-
-            // Create Info Div
-            const infoDiv = document.createElement('div');
-            infoDiv.classList.add('wardrobe-item-info');
-
-            const h3 = document.createElement('h3');
-            h3.textContent = item.name;
-
-            const p = document.createElement('p');
-            p.textContent = item.brand || categoryLabels[item.category] || item.category;
-
-            const btn = document.createElement('button');
-            btn.classList.add('delete-btn');
-            btn.setAttribute('aria-label', 'Delete Item');
-            btn.innerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="3 6 5 6 21 6"></polyline>
-                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                </svg>
-            `;
-            btn.onclick = function(e) {
-                e.stopPropagation(); // Prevent opening modal
-                deleteItem(item.id);
-            };
-
-            const headerDiv = document.createElement('div');
-            headerDiv.style.display = 'flex';
-            headerDiv.style.justifyContent = 'space-between';
-            headerDiv.style.alignItems = 'start';
-            headerDiv.style.width = '100%';
-
-            const textDiv = document.createElement('div');
-            textDiv.style.overflow = 'hidden';
-            textDiv.appendChild(h3);
-            textDiv.appendChild(p);
-
-            headerDiv.appendChild(textDiv);
-            headerDiv.appendChild(btn);
-
-            infoDiv.appendChild(headerDiv);
-
-            itemElement.appendChild(badge);
-            itemElement.appendChild(img);
-            itemElement.appendChild(infoDiv);
-
-            // Open modal on click
-            itemElement.onclick = function() {
-                openModal(item);
-            };
-
-            galleryGrid.appendChild(itemElement);
+            if (category === 'look') {
+                switchView('outfits');
+            } else {
+                switchView('gallery', category);
+            }
         });
     }
 
-    function openModal(item) {
-        if (!modalDetails) return;
+    // Modal Events
+    if (modalCloseBtn) modalCloseBtn.addEventListener('click', closeItemModal);
+    if (modalBackdrop) modalBackdrop.addEventListener('click', closeItemModal);
 
-        modalDetails.innerHTML = ''; // Clear previous content
-
-        const img = document.createElement('img');
-        img.src = item.image || 'https://via.placeholder.com/200?text=No+Image';
-        img.alt = item.name;
-        img.onerror = function() { this.src = 'https://via.placeholder.com/200?text=No+Image'; };
-
-        const h2 = document.createElement('h2');
-        h2.textContent = item.name;
-
-        const pCategory = document.createElement('p');
-        const strongCategory = document.createElement('strong');
-        strongCategory.textContent = 'Categoria: ';
-        pCategory.appendChild(strongCategory);
-        pCategory.appendChild(document.createTextNode(categoryLabels[item.category] || item.category));
-
-        const pBrand = document.createElement('p');
-        const strongBrand = document.createElement('strong');
-        strongBrand.textContent = 'Marca: ';
-        pBrand.appendChild(strongBrand);
-        pBrand.appendChild(document.createTextNode(item.brand || '-'));
-
-        const pSize = document.createElement('p');
-        const strongSize = document.createElement('strong');
-        strongSize.textContent = 'Tamanho: ';
-        pSize.appendChild(strongSize);
-        pSize.appendChild(document.createTextNode(item.size || '-'));
-
-        const pColor = document.createElement('p');
-        const strongColor = document.createElement('strong');
-        strongColor.textContent = 'Cor: ';
-        pColor.appendChild(strongColor);
-        pColor.appendChild(document.createTextNode(item.color || '-'));
-
-        const pNotes = document.createElement('p');
-        const strongNotes = document.createElement('strong');
-        strongNotes.textContent = 'Notas: ';
-        pNotes.appendChild(strongNotes);
-        pNotes.appendChild(document.createTextNode(item.notes || '-'));
-
-        modalDetails.appendChild(img);
-        modalDetails.appendChild(h2);
-        modalDetails.appendChild(pCategory);
-        modalDetails.appendChild(pBrand);
-        modalDetails.appendChild(pSize);
-        modalDetails.appendChild(pColor);
-        modalDetails.appendChild(pNotes);
-
-        if (itemModal) itemModal.style.display = "block";
-    }
-
-    function deleteItem(id) {
-        if (confirm('Tem certeza que deseja excluir esta peça?')) {
-            wardrobeItems = wardrobeItems.filter(item => item.id !== id);
-            saveItems();
-            renderGallery();
-            showToast('Peça removida.', 'info');
-        }
-    }
 });
