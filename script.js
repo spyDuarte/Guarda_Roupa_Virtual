@@ -1,57 +1,495 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Auth Check
+    // --- Auth Check ---
     const currentUser = localStorage.getItem('currentUser');
     if (!currentUser) {
         window.location.href = 'login.html';
         return;
     }
 
-    // DOM Elements
-    const logoutBtn = document.getElementById('logout-btn');
-    const addItemForm = document.getElementById('add-item-form');
-    const itemNameInput = document.getElementById('item-name');
-    const itemImageInput = document.getElementById('item-image');
-    const itemFileInput = document.getElementById('item-file');
-    const itemCategorySelect = document.getElementById('item-category');
-    const itemBrandInput = document.getElementById('item-brand');
-    const itemSizeInput = document.getElementById('item-size');
-    const itemColorInput = document.getElementById('item-color');
-    const itemNotesInput = document.getElementById('item-notes');
-    const galleryGrid = document.getElementById('gallery-grid');
-    const filterButtons = document.querySelectorAll('.filter-btn');
-    const searchInput = document.getElementById('search-input');
-
-    // Modals & Buttons
-    const itemModal = document.getElementById('item-modal');
-    const closeItemModalBtn = document.getElementById('close-item-modal');
-    const modalDetails = document.getElementById('modal-details');
-
-    const addItemModal = document.getElementById('add-item-modal');
-    const closeAddModalBtn = document.getElementById('close-add-modal');
-    const fabAddItem = document.getElementById('fab-add-item');
-    const heroAddBtn = document.getElementById('hero-add-btn');
-
-    // Navigation Tabs
-    const navTabs = document.querySelectorAll('.nav-tab');
-    const filterSection = document.getElementById('filter-section');
-
-    // State
+    // --- State ---
     let wardrobeItems = JSON.parse(localStorage.getItem('wardrobeItems')) || [];
     let currentCategory = 'all';
-    let currentView = 'wardrobe'; // 'wardrobe' or 'looks'
 
-    const categoryLabels = {
-        'tops': 'Parte de Cima',
-        'bottoms': 'Parte de Baixo',
-        'shoes': 'Sapatos',
-        'accessories': 'Acessórios',
-        'look': 'Look Completo'
+    // --- DOM Elements ---
+    const views = {
+        dashboard: document.getElementById('view-dashboard'),
+        gallery: document.getElementById('view-gallery'),
+        planner: document.getElementById('view-planner'),
+        profile: document.getElementById('view-profile'),
+        addItem: document.getElementById('view-add-item')
     };
 
-    // Initial Render
+    const navButtons = document.querySelectorAll('.nav-btn');
+    const fabAddItem = document.getElementById('fab-add-item');
+    const planOutfitBtn = document.getElementById('plan-outfit-btn');
+    const logoutBtn = document.getElementById('logout-btn');
+
+    // Add Item Form Elements
+    const closeAddItemBtn = document.getElementById('close-add-item-btn');
+    const saveItemBtn = document.getElementById('save-item-btn');
+    const addToClosetBtn = document.getElementById('add-to-closet-btn');
+    const itemFileInput = document.getElementById('item-file-input');
+    const itemImageUrl = document.getElementById('item-image-url');
+    const addItemPreview = document.getElementById('add-item-preview');
+    const categoryChips = document.querySelectorAll('.category-select-chip');
+    const selectedCategoryInput = document.getElementById('selected-category');
+    const itemNameInput = document.getElementById('item-name');
+    const itemBrandInput = document.getElementById('item-brand');
+    const itemSizeInput = document.getElementById('item-size');
+    const itemNotesInput = document.getElementById('item-notes');
+
+    // Gallery Elements
+    const galleryGrid = document.getElementById('gallery-grid');
+    const gallerySearch = document.getElementById('gallery-search');
+    const filterChips = document.querySelectorAll('.filter-chip');
+    const galleryAddBtn = document.getElementById('gallery-add-btn');
+    const galleryTitle = document.getElementById('gallery-title');
+
+    // Dashboard Elements
+    const totalItemsCount = document.getElementById('total-items-count');
+    const mostWornCarousel = document.getElementById('most-worn-carousel');
+    const categoryCards = document.querySelectorAll('.category-card');
+    const categoryLink = document.querySelector('.category-link');
+
+    // Modal Elements
+    const itemModal = document.getElementById('item-modal');
+    const closeItemModalBtn = document.getElementById('close-item-modal');
+    const modalImage = document.getElementById('modal-image');
+    const modalTitle = document.getElementById('modal-title');
+    const modalDetailsText = document.getElementById('modal-details-text');
+    const deleteItemBtn = document.getElementById('delete-item-btn');
+    let currentModalItemId = null;
+
+    // Toast Container
+    const toastContainer = document.getElementById('toast-container');
+
+    // --- Initialization ---
+    updateStats();
+    renderMostWorn();
     renderGallery();
 
-    // Event Listeners
+    // --- Navigation Logic ---
+    function switchView(targetViewId) {
+        // Hide all views except add-item (which is overlay)
+        Object.keys(views).forEach(key => {
+            if (key !== 'addItem') {
+                views[key].classList.remove('active');
+            }
+        });
+
+        // Show target view
+        if (views[targetViewId]) {
+            views[targetViewId].classList.add('active');
+        }
+
+        // Update Bottom Nav
+        navButtons.forEach(btn => {
+            const btnTarget = btn.getAttribute('data-target');
+            const icon = btn.querySelector('.material-symbols-outlined');
+
+            if (btnTarget === targetViewId) {
+                btn.classList.remove('text-gray-400', 'dark:text-gray-500');
+                btn.classList.add('text-primary');
+                icon.classList.add('fill-current');
+            } else {
+                btn.classList.add('text-gray-400', 'dark:text-gray-500');
+                btn.classList.remove('text-primary');
+                icon.classList.remove('fill-current');
+            }
+        });
+    }
+
+    navButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            switchView(btn.getAttribute('data-target'));
+        });
+    });
+
+    if (fabAddItem) {
+        fabAddItem.addEventListener('click', () => {
+            openAddItemOverlay();
+        });
+    }
+
+    if (galleryAddBtn) {
+        galleryAddBtn.addEventListener('click', () => {
+            openAddItemOverlay();
+        });
+    }
+
+    if (planOutfitBtn) {
+        planOutfitBtn.addEventListener('click', () => {
+            switchView('planner');
+        });
+    }
+
+    // Category Cards in Dashboard
+    categoryCards.forEach(card => {
+        card.addEventListener('click', () => {
+            const cat = card.getAttribute('data-category');
+            currentCategory = cat;
+            updateFilterChips();
+            renderGallery();
+            switchView('gallery');
+        });
+    });
+
+    if (categoryLink) {
+        categoryLink.addEventListener('click', () => {
+            currentCategory = 'all';
+            updateFilterChips();
+            renderGallery();
+            switchView('gallery');
+        });
+    }
+
+    // --- Add Item Logic ---
+    function openAddItemOverlay() {
+        views.addItem.classList.remove('hidden');
+        resetAddItemForm();
+    }
+
+    function closeAddItemOverlay() {
+        views.addItem.classList.add('hidden');
+    }
+
+    if (closeAddItemBtn) closeAddItemBtn.addEventListener('click', closeAddItemOverlay);
+
+    function resetAddItemForm() {
+        if (itemFileInput) itemFileInput.value = '';
+        if (itemImageUrl) itemImageUrl.value = '';
+        if (addItemPreview) addItemPreview.style.backgroundImage = "url('https://via.placeholder.com/400x500?text=No+Image')";
+        if (itemNameInput) itemNameInput.value = '';
+        if (itemBrandInput) itemBrandInput.value = '';
+        if (itemSizeInput) itemSizeInput.value = '';
+        if (itemNotesInput) itemNotesInput.value = '';
+
+        categoryChips.forEach(c => {
+            c.classList.remove('bg-primary', 'text-background-dark', 'font-bold');
+            c.classList.add('bg-white', 'dark:bg-white/5', 'text-gray-600', 'dark:text-gray-300');
+        });
+        selectedCategoryInput.value = '';
+    }
+
+    // Category Selection in Add Item
+    categoryChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+            // Deselect all
+            categoryChips.forEach(c => {
+                c.classList.remove('bg-primary', 'text-background-dark', 'font-bold');
+                c.classList.add('bg-white', 'dark:bg-white/5', 'text-gray-600', 'dark:text-gray-300');
+            });
+            // Select clicked
+            chip.classList.remove('bg-white', 'dark:bg-white/5', 'text-gray-600', 'dark:text-gray-300');
+            chip.classList.add('bg-primary', 'text-background-dark', 'font-bold');
+
+            selectedCategoryInput.value = chip.getAttribute('data-value');
+        });
+    });
+
+    // Image Preview
+    if (itemFileInput) {
+        itemFileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    addItemPreview.style.backgroundImage = `url('${event.target.result}')`;
+                    // Clear URL input if file is selected
+                    if (itemImageUrl) itemImageUrl.value = '';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    if (itemImageUrl) {
+        itemImageUrl.addEventListener('input', (e) => {
+            const url = e.target.value.trim();
+            if (url) {
+                addItemPreview.style.backgroundImage = `url('${url}')`;
+            }
+        });
+    }
+
+    // Save Item
+    function handleSaveItem() {
+        const name = itemNameInput.value.trim();
+        const category = selectedCategoryInput.value;
+        const brand = itemBrandInput.value.trim();
+        const size = itemSizeInput.value.trim();
+        const notes = itemNotesInput.value.trim();
+
+        // Get Image
+        let imageSrc = '';
+        const bgImage = addItemPreview.style.backgroundImage;
+        if (bgImage && bgImage !== 'none') {
+            // Extract URL from url("...")
+            imageSrc = bgImage.slice(5, -2);
+        }
+
+        if (!name || !category) {
+            showToast('Please enter a name and select a category.', 'error');
+            return;
+        }
+
+        const newItem = {
+            id: Date.now(),
+            name: name,
+            category: category,
+            brand: brand,
+            size: size,
+            notes: notes,
+            image: imageSrc,
+            dateAdded: new Date().toISOString(),
+            usageCount: 0
+        };
+
+        wardrobeItems.push(newItem);
+        saveItems();
+
+        showToast('Item added to closet!', 'success');
+        closeAddItemOverlay();
+        updateStats();
+        renderGallery(); // Re-render gallery
+    }
+
+    if (saveItemBtn) saveItemBtn.addEventListener('click', handleSaveItem);
+    if (addToClosetBtn) addToClosetBtn.addEventListener('click', handleSaveItem);
+
+    // --- Gallery Logic ---
+    function updateFilterChips() {
+        filterChips.forEach(chip => {
+            const cat = chip.getAttribute('data-category');
+            if (cat === currentCategory) {
+                chip.classList.remove('bg-white', 'dark:bg-surface-dark', 'border');
+                chip.classList.add('bg-primary', 'text-slate-900', 'font-semibold');
+                chip.classList.remove('text-slate-700', 'dark:text-slate-200');
+            } else {
+                chip.classList.add('bg-white', 'dark:bg-surface-dark', 'border');
+                chip.classList.remove('bg-primary', 'text-slate-900', 'font-semibold');
+                chip.classList.add('text-slate-700', 'dark:text-slate-200');
+            }
+        });
+
+        if (galleryTitle) {
+            galleryTitle.textContent = currentCategory === 'all' ? 'Closet' : currentCategory.charAt(0).toUpperCase() + currentCategory.slice(1);
+        }
+    }
+
+    filterChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+            currentCategory = chip.getAttribute('data-category');
+            updateFilterChips();
+            renderGallery();
+        });
+    });
+
+    if (gallerySearch) {
+        gallerySearch.addEventListener('input', () => {
+            renderGallery();
+        });
+    }
+
+    function renderGallery() {
+        if (!galleryGrid) return;
+
+        galleryGrid.innerHTML = '';
+
+        const searchTerm = gallerySearch ? gallerySearch.value.toLowerCase().trim() : '';
+
+        const filteredItems = wardrobeItems.filter(item => {
+            const matchesCategory = currentCategory === 'all' || item.category === currentCategory;
+            const matchesSearch = item.name.toLowerCase().includes(searchTerm) ||
+                                  (item.brand && item.brand.toLowerCase().includes(searchTerm));
+            return matchesCategory && matchesSearch;
+        });
+
+        if (filteredItems.length === 0) {
+            const noItemsDiv = document.createElement('div');
+            noItemsDiv.className = 'col-span-2 text-center text-gray-500 py-10';
+            noItemsDiv.textContent = 'No items found.';
+            galleryGrid.appendChild(noItemsDiv);
+            return;
+        }
+
+        filteredItems.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'group flex flex-col gap-2 cursor-pointer';
+
+            // Image Container
+            const imgContainer = document.createElement('div');
+            imgContainer.className = 'relative w-full aspect-[3/4] rounded-xl overflow-hidden bg-white dark:bg-surface-dark shadow-sm border border-slate-100 dark:border-white/5';
+
+            const imgBg = document.createElement('div');
+            imgBg.className = 'absolute inset-0 bg-center bg-no-repeat bg-cover transition-transform duration-500 group-hover:scale-105';
+            imgBg.style.backgroundImage = `url("${item.image || 'https://via.placeholder.com/200?text=No+Image'}")`;
+
+            imgContainer.appendChild(imgBg);
+
+            // Info Container
+            const infoDiv = document.createElement('div');
+
+            const nameP = document.createElement('p');
+            nameP.className = 'text-slate-900 dark:text-white text-sm font-bold leading-tight truncate';
+            nameP.textContent = item.name;
+
+            const brandP = document.createElement('p');
+            brandP.className = 'text-slate-500 dark:text-slate-400 text-xs font-medium mt-0.5';
+            brandP.textContent = item.brand || item.category;
+
+            infoDiv.appendChild(nameP);
+            infoDiv.appendChild(brandP);
+
+            div.appendChild(imgContainer);
+            div.appendChild(infoDiv);
+
+            div.addEventListener('click', () => openItemModal(item));
+
+            galleryGrid.appendChild(div);
+        });
+    }
+
+    // --- Dashboard Logic ---
+    function updateStats() {
+        if (totalItemsCount) {
+            totalItemsCount.textContent = wardrobeItems.length;
+        }
+
+        // Update category counts
+        const categories = ['tops', 'bottoms', 'shoes', 'accessories'];
+        categories.forEach(cat => {
+            const count = wardrobeItems.filter(i => i.category === cat).length;
+            const el = document.querySelector(`.item-count-${cat}`);
+            if (el) el.textContent = `${count} items`;
+        });
+    }
+
+    function renderMostWorn() {
+        if (!mostWornCarousel) return;
+        mostWornCarousel.innerHTML = '';
+
+        // For now, just show first 5 items
+        const items = wardrobeItems.slice(0, 5);
+
+        if (items.length === 0) {
+             const p = document.createElement('p');
+             p.className = 'text-gray-500 text-sm pl-4';
+             p.textContent = 'Add items to see them here.';
+             mostWornCarousel.appendChild(p);
+             return;
+        }
+
+        items.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'min-w-[140px] flex flex-col gap-2 group cursor-pointer';
+
+            // Image Container
+            const imgContainer = document.createElement('div');
+            imgContainer.className = 'relative w-full aspect-[3/4] rounded-xl overflow-hidden bg-white dark:bg-surface-dark shadow-sm border border-gray-100 dark:border-gray-800';
+
+            const badge = document.createElement('div');
+            badge.className = 'absolute top-2 right-2 bg-black/60 backdrop-blur-md text-white text-[10px] px-2 py-0.5 rounded-full font-bold z-10';
+            badge.textContent = `${item.usageCount || 0}x`;
+
+            const imgBg = document.createElement('div');
+            imgBg.className = 'w-full h-full bg-center bg-no-repeat bg-cover group-hover:scale-105 transition-transform duration-300';
+            imgBg.style.backgroundImage = `url("${item.image || 'https://via.placeholder.com/200?text=No+Image'}")`;
+
+            imgContainer.appendChild(badge);
+            imgContainer.appendChild(imgBg);
+
+            // Info Container
+            const infoDiv = document.createElement('div');
+
+            const nameP = document.createElement('p');
+            nameP.className = 'text-[#111815] dark:text-white text-sm font-bold truncate';
+            nameP.textContent = item.name;
+
+            const brandP = document.createElement('p');
+            brandP.className = 'text-gray-500 dark:text-gray-400 text-xs';
+            brandP.textContent = item.brand || item.category;
+
+            infoDiv.appendChild(nameP);
+            infoDiv.appendChild(brandP);
+
+            div.appendChild(imgContainer);
+            div.appendChild(infoDiv);
+
+            div.addEventListener('click', () => openItemModal(item));
+            mostWornCarousel.appendChild(div);
+        });
+    }
+
+    // --- Modal Logic ---
+    function openItemModal(item) {
+        currentModalItemId = item.id;
+        if (modalImage) modalImage.src = item.image || 'https://via.placeholder.com/200?text=No+Image';
+        if (modalTitle) modalTitle.textContent = item.name;
+
+        if (modalDetailsText) {
+            modalDetailsText.innerHTML = ''; // Clear existing
+
+            const details = [
+                { label: 'Category', value: item.category },
+                { label: 'Brand', value: item.brand || '-' },
+                { label: 'Size', value: item.size || '-' },
+                { label: 'Notes', value: item.notes || '-' }
+            ];
+
+            details.forEach(detail => {
+                const p = document.createElement('div');
+                p.className = 'mb-1';
+
+                const strong = document.createElement('strong');
+                strong.className = 'font-medium text-gray-900 dark:text-white mr-1';
+                strong.textContent = detail.label + ':';
+
+                const span = document.createElement('span');
+                span.textContent = detail.value;
+
+                p.appendChild(strong);
+                p.appendChild(span);
+                modalDetailsText.appendChild(p);
+            });
+        }
+        itemModal.classList.remove('hidden');
+    }
+
+    if (closeItemModalBtn) {
+        closeItemModalBtn.addEventListener('click', () => {
+            itemModal.classList.add('hidden');
+        });
+    }
+
+    // Close modal on outside click
+    window.addEventListener('click', (e) => {
+        if (e.target === itemModal) {
+            itemModal.classList.add('hidden');
+        }
+    });
+
+    if (deleteItemBtn) {
+        deleteItemBtn.addEventListener('click', () => {
+            if (currentModalItemId) {
+                if (confirm('Are you sure you want to delete this item?')) {
+                    deleteItem(currentModalItemId);
+                    itemModal.classList.add('hidden');
+                }
+            }
+        });
+    }
+
+    function deleteItem(id) {
+        wardrobeItems = wardrobeItems.filter(item => item.id !== id);
+        saveItems();
+        updateStats();
+        renderGallery();
+        renderMostWorn();
+        showToast('Item deleted.', 'info');
+    }
+
+    // --- Logout ---
     if (logoutBtn) {
         logoutBtn.addEventListener('click', (e) => {
             e.preventDefault();
@@ -60,317 +498,30 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    if (addItemForm) {
-        addItemForm.addEventListener('submit', handleAddItem);
-    }
-
-    if (searchInput) {
-        searchInput.addEventListener('input', () => {
-            renderGallery();
-        });
-    }
-
-    navTabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            navTabs.forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-            currentView = tab.getAttribute('data-view');
-
-            // Toggle filter section visibility
-            if (currentView === 'looks') {
-                filterSection.style.display = 'none';
-            } else {
-                filterSection.style.display = 'flex';
-            }
-
-            // Reset filter
-            currentCategory = 'all';
-            filterButtons.forEach(b => b.classList.remove('active'));
-            // Set 'All' button active
-            const allBtn = document.querySelector('.filter-btn[data-category="all"]');
-            if (allBtn) allBtn.classList.add('active');
-
-            renderGallery();
-        });
-    });
-
-    filterButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            // Remove active class from all buttons
-            filterButtons.forEach(b => b.classList.remove('active'));
-            // Add active class to clicked button
-            btn.classList.add('active');
-
-            currentCategory = btn.getAttribute('data-category');
-            renderGallery();
-        });
-    });
-
-    // Modal Event Listeners
-    function openAddModal() {
-        if (addItemModal) addItemModal.style.display = 'block';
-    }
-
-    function closeAllModals() {
-        if (itemModal) itemModal.style.display = 'none';
-        if (addItemModal) addItemModal.style.display = 'none';
-    }
-
-    if (fabAddItem) fabAddItem.onclick = openAddModal;
-    if (heroAddBtn) heroAddBtn.onclick = openAddModal;
-
-    if (closeItemModalBtn) {
-        closeItemModalBtn.onclick = function() {
-            if (itemModal) itemModal.style.display = "none";
+    // --- Helpers ---
+    function saveItems() {
+        try {
+            localStorage.setItem('wardrobeItems', JSON.stringify(wardrobeItems));
+        } catch (e) {
+            console.error(e);
+            showToast('Failed to save data. Storage might be full.', 'error');
         }
     }
 
-    if (closeAddModalBtn) {
-        closeAddModalBtn.onclick = function() {
-            if (addItemModal) addItemModal.style.display = "none";
-        }
-    }
-
-    window.onclick = function(event) {
-        if (event.target == itemModal) {
-            itemModal.style.display = "none";
-        }
-        if (event.target == addItemModal) {
-            addItemModal.style.display = "none";
-        }
-    }
-
-    // Functions
     function showToast(message, type = 'info') {
-        const toastContainer = document.getElementById('toast-container');
         if (!toastContainer) return;
 
         const toast = document.createElement('div');
-        toast.className = `toast ${type}`;
+        const bgClass = type === 'error' ? 'bg-red-500' : (type === 'success' ? 'bg-green-500' : 'bg-gray-800');
+
+        toast.className = `${bgClass} text-white px-4 py-3 rounded-lg shadow-lg text-sm font-medium transition-opacity duration-300 flex items-center justify-between`;
         toast.textContent = message;
 
         toastContainer.appendChild(toast);
 
-        // Remove after animation (3s total)
         setTimeout(() => {
-            toast.remove();
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 300);
         }, 3000);
-    }
-
-    function handleAddItem(e) {
-        e.preventDefault();
-
-        const name = itemNameInput.value.trim();
-        const imageURL = itemImageInput.value.trim();
-        const category = itemCategorySelect.value;
-        const brand = itemBrandInput.value.trim();
-        const size = itemSizeInput.value.trim();
-        const color = itemColorInput.value.trim();
-        const notes = itemNotesInput.value.trim();
-        const file = itemFileInput && itemFileInput.files[0];
-
-        if (!name || !category) {
-            showToast('Por favor, preencha o Nome e a Categoria.', 'error');
-            return;
-        }
-
-        const addItem = (imageSrc) => {
-            const newItem = {
-                id: Date.now(),
-                name: name,
-                image: imageSrc,
-                category: category,
-                brand: brand,
-                size: size,
-                color: color,
-                notes: notes,
-                dateAdded: new Date().toISOString()
-            };
-
-            wardrobeItems.push(newItem);
-            saveItems();
-
-            // Re-render based on current active filter
-            renderGallery();
-
-            console.log('Item added:', newItem);
-
-            // Reset form
-            addItemForm.reset();
-
-            // Close modal
-            if (addItemModal) addItemModal.style.display = 'none';
-
-            showToast('Peça adicionada com sucesso!', 'success');
-        };
-
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                addItem(event.target.result);
-            };
-            reader.readAsDataURL(file);
-        } else {
-            addItem(imageURL);
-        }
-    }
-
-    function saveItems() {
-        localStorage.setItem('wardrobeItems', JSON.stringify(wardrobeItems));
-    }
-
-    function renderGallery() {
-        if (!galleryGrid) return;
-
-        galleryGrid.innerHTML = '';
-
-        const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
-
-        const filteredItems = wardrobeItems.filter(item => {
-            // View Filter (Wardrobe vs Looks)
-            if (currentView === 'wardrobe' && item.category === 'look') return false;
-            if (currentView === 'looks' && item.category !== 'look') return false;
-
-            const matchesCategory = currentCategory === 'all' || item.category === currentCategory;
-            const matchesSearch = item.name.toLowerCase().includes(searchTerm);
-            return matchesCategory && matchesSearch;
-        });
-
-        if (filteredItems.length === 0) {
-            const p = document.createElement('p');
-            p.textContent = 'Nenhuma peça encontrada.';
-            galleryGrid.appendChild(p);
-            return;
-        }
-
-        filteredItems.forEach(item => {
-            const itemElement = document.createElement('div');
-            itemElement.classList.add('wardrobe-item');
-
-            // Category Badge
-            const badge = document.createElement('span');
-            badge.classList.add('category-badge');
-            badge.textContent = categoryLabels[item.category] || item.category;
-
-            // Create Image
-            const img = document.createElement('img');
-            img.src = item.image || 'https://via.placeholder.com/200?text=No+Image';
-            img.alt = item.name;
-            img.onerror = function() { this.src = 'https://via.placeholder.com/200?text=No+Image'; };
-
-            // Create Info Div
-            const infoDiv = document.createElement('div');
-            infoDiv.classList.add('wardrobe-item-info');
-
-            const h3 = document.createElement('h3');
-            h3.textContent = item.name;
-
-            const p = document.createElement('p');
-            p.textContent = item.brand || categoryLabels[item.category] || item.category;
-
-            const btn = document.createElement('button');
-            btn.classList.add('delete-btn');
-            btn.setAttribute('aria-label', 'Delete Item');
-            btn.innerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="3 6 5 6 21 6"></polyline>
-                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                </svg>
-            `;
-            btn.onclick = function(e) {
-                e.stopPropagation(); // Prevent opening modal
-                deleteItem(item.id);
-            };
-
-            const headerDiv = document.createElement('div');
-            headerDiv.style.display = 'flex';
-            headerDiv.style.justifyContent = 'space-between';
-            headerDiv.style.alignItems = 'start';
-            headerDiv.style.width = '100%';
-
-            const textDiv = document.createElement('div');
-            textDiv.style.overflow = 'hidden';
-            textDiv.appendChild(h3);
-            textDiv.appendChild(p);
-
-            headerDiv.appendChild(textDiv);
-            headerDiv.appendChild(btn);
-
-            infoDiv.appendChild(headerDiv);
-
-            itemElement.appendChild(badge);
-            itemElement.appendChild(img);
-            itemElement.appendChild(infoDiv);
-
-            // Open modal on click
-            itemElement.onclick = function() {
-                openModal(item);
-            };
-
-            galleryGrid.appendChild(itemElement);
-        });
-    }
-
-    function openModal(item) {
-        if (!modalDetails) return;
-
-        modalDetails.innerHTML = ''; // Clear previous content
-
-        const img = document.createElement('img');
-        img.src = item.image || 'https://via.placeholder.com/200?text=No+Image';
-        img.alt = item.name;
-        img.onerror = function() { this.src = 'https://via.placeholder.com/200?text=No+Image'; };
-
-        const h2 = document.createElement('h2');
-        h2.textContent = item.name;
-
-        const pCategory = document.createElement('p');
-        const strongCategory = document.createElement('strong');
-        strongCategory.textContent = 'Categoria: ';
-        pCategory.appendChild(strongCategory);
-        pCategory.appendChild(document.createTextNode(categoryLabels[item.category] || item.category));
-
-        const pBrand = document.createElement('p');
-        const strongBrand = document.createElement('strong');
-        strongBrand.textContent = 'Marca: ';
-        pBrand.appendChild(strongBrand);
-        pBrand.appendChild(document.createTextNode(item.brand || '-'));
-
-        const pSize = document.createElement('p');
-        const strongSize = document.createElement('strong');
-        strongSize.textContent = 'Tamanho: ';
-        pSize.appendChild(strongSize);
-        pSize.appendChild(document.createTextNode(item.size || '-'));
-
-        const pColor = document.createElement('p');
-        const strongColor = document.createElement('strong');
-        strongColor.textContent = 'Cor: ';
-        pColor.appendChild(strongColor);
-        pColor.appendChild(document.createTextNode(item.color || '-'));
-
-        const pNotes = document.createElement('p');
-        const strongNotes = document.createElement('strong');
-        strongNotes.textContent = 'Notas: ';
-        pNotes.appendChild(strongNotes);
-        pNotes.appendChild(document.createTextNode(item.notes || '-'));
-
-        modalDetails.appendChild(img);
-        modalDetails.appendChild(h2);
-        modalDetails.appendChild(pCategory);
-        modalDetails.appendChild(pBrand);
-        modalDetails.appendChild(pSize);
-        modalDetails.appendChild(pColor);
-        modalDetails.appendChild(pNotes);
-
-        if (itemModal) itemModal.style.display = "block";
-    }
-
-    function deleteItem(id) {
-        if (confirm('Tem certeza que deseja excluir esta peça?')) {
-            wardrobeItems = wardrobeItems.filter(item => item.id !== id);
-            saveItems();
-            renderGallery();
-            showToast('Peça removida.', 'info');
-        }
     }
 });
