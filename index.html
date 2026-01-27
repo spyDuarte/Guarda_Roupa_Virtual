@@ -3,38 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ritinha's Virtual Wardrobe</title>
+    <title>Guarda-Roupa Virtual da Ritinha</title>
     <link rel="stylesheet" href="style.css">
     <script src="script.js" defer></script>
 </head>
 <body>
     <header>
         <div class="header-container">
-            <h1>Ritinha's Virtual Wardrobe</h1>
+            <h1>Guarda-Roupa Virtual da Ritinha</h1>
         </div>
     </header>
 
     <!-- Hero Section -->
     <section id="hero">
         <div class="hero-content">
-            <h1>Your Personal Style, Organized.</h1>
-            <p>Manage your wardrobe, plan outfits, and rediscover your favorite clothes effortlessly.</p>
-            <button id="hero-add-btn" class="cta-button">Add New Item</button>
+            <h1>Seu Estilo Pessoal, Organizado.</h1>
+            <p>Gerencie seu guarda-roupa, planeje looks e redescubra suas roupas favoritas.</p>
+            <button id="hero-add-btn" class="cta-button">Adicionar Nova Peça</button>
         </div>
     </section>
 
     <main>
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs-container">
+            <button class="nav-tab active" data-view="wardrobe">Guarda-Roupa</button>
+            <button class="nav-tab" data-view="looks">Looks</button>
+        </div>
+
         <!-- Filter Section -->
         <section id="filter-section">
             <div id="search-bar-container">
-                <input type="text" id="search-input" placeholder="Search items...">
+                <input type="text" id="search-input" placeholder="Buscar peças...">
             </div>
             <div class="filter-buttons-group">
-                <button class="filter-btn" data-category="all">All</button>
-                <button class="filter-btn" data-category="tops">Tops</button>
-                <button class="filter-btn" data-category="bottoms">Bottoms</button>
-                <button class="filter-btn" data-category="shoes">Shoes</button>
-                <button class="filter-btn" data-category="accessories">Accessories</button>
+                <button class="filter-btn active" data-category="all">Tudo</button>
+                <button class="filter-btn" data-category="tops">Parte de Cima</button>
+                <button class="filter-btn" data-category="bottoms">Parte de Baixo</button>
+                <button class="filter-btn" data-category="shoes">Sapatos</button>
+                <button class="filter-btn" data-category="accessories">Acessórios</button>
             </div>
         </section>
 
@@ -47,7 +53,7 @@
     </main>
 
     <footer>
-        <p>&copy; 2024 Ritinha's Wardrobe. All rights reserved.</p>
+        <p>&copy; 2024 Guarda-Roupa da Ritinha. Todos os direitos reservados.</p>
     </footer>
 
     <!-- View Item Modal -->
@@ -64,32 +70,33 @@
     <div id="add-item-modal" class="modal">
         <div class="modal-content">
             <span class="close-btn" id="close-add-modal">&times;</span>
-            <h2>Add New Item</h2>
+            <h2>Adicionar Nova Peça</h2>
             <form id="add-item-form" novalidate>
-                <input type="text" id="item-name" placeholder="Item Name" required>
+                <input type="text" id="item-name" placeholder="Nome da Peça" required>
                 <div class="image-input-group">
-                    <input type="text" id="item-image" placeholder="Image URL">
-                    <span>OR</span>
+                    <input type="text" id="item-image" placeholder="URL da Imagem">
+                    <span>OU</span>
                     <input type="file" id="item-file" accept="image/*">
                 </div>
                 <select id="item-category" required>
-                    <option value="" disabled selected>Select Category</option>
-                    <option value="tops">Tops</option>
-                    <option value="bottoms">Bottoms</option>
-                    <option value="shoes">Shoes</option>
-                    <option value="accessories">Accessories</option>
+                    <option value="" disabled selected>Selecione a Categoria</option>
+                    <option value="tops">Parte de Cima</option>
+                    <option value="bottoms">Parte de Baixo</option>
+                    <option value="shoes">Sapatos</option>
+                    <option value="accessories">Acessórios</option>
+                    <option value="look">Look Completo</option>
                 </select>
-                <input type="text" id="item-brand" placeholder="Brand">
-                <input type="text" id="item-size" placeholder="Size">
-                <input type="text" id="item-color" placeholder="Color">
-                <textarea id="item-notes" placeholder="Notes (optional)" rows="2"></textarea>
-                <button type="submit">Add to Wardrobe</button>
+                <input type="text" id="item-brand" placeholder="Marca">
+                <input type="text" id="item-size" placeholder="Tamanho">
+                <input type="text" id="item-color" placeholder="Cor">
+                <textarea id="item-notes" placeholder="Notas (opcional)" rows="2"></textarea>
+                <button type="submit">Adicionar</button>
             </form>
         </div>
     </div>
 
     <!-- Floating Action Button -->
-    <button id="fab-add-item" class="fab" aria-label="Add Item">
+    <button id="fab-add-item" class="fab" aria-label="Adicionar Item">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="12" y1="5" x2="12" y2="19"></line>
             <line x1="5" y1="12" x2="19" y2="12"></line>

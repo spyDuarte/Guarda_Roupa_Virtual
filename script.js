@@ -23,9 +23,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const fabAddItem = document.getElementById('fab-add-item');
     const heroAddBtn = document.getElementById('hero-add-btn');
 
+    // Navigation Tabs
+    const navTabs = document.querySelectorAll('.nav-tab');
+    const filterSection = document.getElementById('filter-section');
+
     // State
     let wardrobeItems = JSON.parse(localStorage.getItem('wardrobeItems')) || [];
     let currentCategory = 'all';
+    let currentView = 'wardrobe'; // 'wardrobe' or 'looks'
+
+    const categoryLabels = {
+        'tops': 'Parte de Cima',
+        'bottoms': 'Parte de Baixo',
+        'shoes': 'Sapatos',
+        'accessories': 'Acessórios',
+        'look': 'Look Completo'
+    };
 
     // Initial Render
     renderGallery();
@@ -40,6 +53,30 @@ document.addEventListener('DOMContentLoaded', () => {
             renderGallery();
         });
     }
+
+    navTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            navTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            currentView = tab.getAttribute('data-view');
+
+            // Toggle filter section visibility
+            if (currentView === 'looks') {
+                filterSection.style.display = 'none';
+            } else {
+                filterSection.style.display = 'flex';
+            }
+
+            // Reset filter
+            currentCategory = 'all';
+            filterButtons.forEach(b => b.classList.remove('active'));
+            // Set 'All' button active
+            const allBtn = document.querySelector('.filter-btn[data-category="all"]');
+            if (allBtn) allBtn.classList.add('active');
+
+            renderGallery();
+        });
+    });
 
     filterButtons.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -117,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const file = itemFileInput && itemFileInput.files[0];
 
         if (!name || !category) {
-            showToast('Please fill in Name and Category fields.', 'error');
+            showToast('Por favor, preencha o Nome e a Categoria.', 'error');
             return;
         }
 
@@ -148,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Close modal
             if (addItemModal) addItemModal.style.display = 'none';
 
-            showToast('Item added successfully!', 'success');
+            showToast('Peça adicionada com sucesso!', 'success');
         };
 
         if (file) {
@@ -174,6 +211,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
 
         const filteredItems = wardrobeItems.filter(item => {
+            // View Filter (Wardrobe vs Looks)
+            if (currentView === 'wardrobe' && item.category === 'look') return false;
+            if (currentView === 'looks' && item.category !== 'look') return false;
+
             const matchesCategory = currentCategory === 'all' || item.category === currentCategory;
             const matchesSearch = item.name.toLowerCase().includes(searchTerm);
             return matchesCategory && matchesSearch;
@@ -181,7 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (filteredItems.length === 0) {
             const p = document.createElement('p');
-            p.textContent = 'No items found matching your criteria.';
+            p.textContent = 'Nenhuma peça encontrada.';
             galleryGrid.appendChild(p);
             return;
         }
@@ -193,7 +234,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Category Badge
             const badge = document.createElement('span');
             badge.classList.add('category-badge');
-            badge.textContent = item.category;
+            badge.textContent = categoryLabels[item.category] || item.category;
 
             // Create Image
             const img = document.createElement('img');
@@ -209,7 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
             h3.textContent = item.name;
 
             const p = document.createElement('p');
-            p.textContent = item.brand || item.category; // Show brand if available, else category
+            p.textContent = item.brand || categoryLabels[item.category] || item.category;
 
             const btn = document.createElement('button');
             btn.classList.add('delete-btn');
@@ -269,31 +310,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const pCategory = document.createElement('p');
         const strongCategory = document.createElement('strong');
-        strongCategory.textContent = 'Category: ';
+        strongCategory.textContent = 'Categoria: ';
         pCategory.appendChild(strongCategory);
-        pCategory.appendChild(document.createTextNode(item.category));
+        pCategory.appendChild(document.createTextNode(categoryLabels[item.category] || item.category));
 
         const pBrand = document.createElement('p');
         const strongBrand = document.createElement('strong');
-        strongBrand.textContent = 'Brand: ';
+        strongBrand.textContent = 'Marca: ';
         pBrand.appendChild(strongBrand);
         pBrand.appendChild(document.createTextNode(item.brand || '-'));
 
         const pSize = document.createElement('p');
         const strongSize = document.createElement('strong');
-        strongSize.textContent = 'Size: ';
+        strongSize.textContent = 'Tamanho: ';
         pSize.appendChild(strongSize);
         pSize.appendChild(document.createTextNode(item.size || '-'));
 
         const pColor = document.createElement('p');
         const strongColor = document.createElement('strong');
-        strongColor.textContent = 'Color: ';
+        strongColor.textContent = 'Cor: ';
         pColor.appendChild(strongColor);
         pColor.appendChild(document.createTextNode(item.color || '-'));
 
         const pNotes = document.createElement('p');
         const strongNotes = document.createElement('strong');
-        strongNotes.textContent = 'Notes: ';
+        strongNotes.textContent = 'Notas: ';
         pNotes.appendChild(strongNotes);
         pNotes.appendChild(document.createTextNode(item.notes || '-'));
 
@@ -309,11 +350,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function deleteItem(id) {
-        if (confirm('Are you sure you want to delete this item?')) {
+        if (confirm('Tem certeza que deseja excluir esta peça?')) {
             wardrobeItems = wardrobeItems.filter(item => item.id !== id);
             saveItems();
             renderGallery();
-            showToast('Item deleted.', 'info');
+            showToast('Peça removida.', 'info');
         }
     }
 });
