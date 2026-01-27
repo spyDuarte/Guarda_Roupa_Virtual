@@ -18,7 +18,11 @@
             <h2>Add Item</h2>
             <form id="add-item-form">
                 <input type="text" id="item-name" placeholder="Item Name" required>
-                <input type="text" id="item-image" placeholder="Image URL">
+                <div class="image-input-group">
+                    <input type="text" id="item-image" placeholder="Image URL">
+                    <span>OR</span>
+                    <input type="file" id="item-file" accept="image/*">
+                </div>
                 <select id="item-category" required>
                     <option value="" disabled selected>Select Category</option>
                     <option value="tops">Tops</option>
@@ -32,6 +36,9 @@
 
         <!-- Filter Section -->
         <section id="filter-section">
+            <div id="search-bar-container">
+                <input type="text" id="search-input" placeholder="Search items...">
+            </div>
             <button class="filter-btn" data-category="all">All</button>
             <button class="filter-btn" data-category="tops">Tops</button>
             <button class="filter-btn" data-category="bottoms">Bottoms</button>
