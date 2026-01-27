@@ -1,5 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Auth Check
+    const currentUser = localStorage.getItem('currentUser');
+    if (!currentUser) {
+        window.location.href = 'login.html';
+        return;
+    }
+
     // DOM Elements
+    const logoutBtn = document.getElementById('logout-btn');
     const addItemForm = document.getElementById('add-item-form');
     const itemNameInput = document.getElementById('item-name');
     const itemImageInput = document.getElementById('item-image');
@@ -44,6 +52,14 @@ document.addEventListener('DOMContentLoaded', () => {
     renderGallery();
 
     // Event Listeners
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.removeItem('currentUser');
+            window.location.href = 'login.html';
+        });
+    }
+
     if (addItemForm) {
         addItemForm.addEventListener('submit', handleAddItem);
     }
