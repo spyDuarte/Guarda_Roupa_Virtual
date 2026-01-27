@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Guarda-Roupa Virtual da Ritinha</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="login.css">
+    <script src="login.js" defer></script>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <h1>Bem-vindo(a)</h1>
+            <p class="subtitle">Gerencie seu estilo pessoal</p>
+
+            <div class="form-toggle">
+                <button id="toggle-login" class="active">Entrar</button>
+                <button id="toggle-register">Cadastrar</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="login-form" novalidate>
+                <div class="input-group">
+                    <label for="login-username">Usuário</label>
+                    <input type="text" id="login-username" required placeholder="Seu nome de usuário">
+                </div>
+                <div class="input-group">
+                    <label for="login-password">Senha</label>
+                    <input type="password" id="login-password" required placeholder="Sua senha">
+                </div>
+                <button type="submit" class="submit-btn">Entrar</button>
+            </form>
+
+            <!-- Register Form -->
+            <form id="register-form" class="hidden" novalidate>
+                <div class="input-group">
+                    <label for="reg-username">Usuário</label>
+                    <input type="text" id="reg-username" required placeholder="Escolha um nome de usuário">
+                </div>
+                <div class="input-group">
+                    <label for="reg-password">Senha</label>
+                    <input type="password" id="reg-password" required placeholder="Escolha uma senha">
+                </div>
+                <div class="input-group">
+                    <label for="reg-confirm-password">Confirmar Senha</label>
+                    <input type="password" id="reg-confirm-password" required placeholder="Confirme sua senha">
+                </div>
+                <button type="submit" class="submit-btn">Cadastrar</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+</body>
+</html>
