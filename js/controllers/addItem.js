@@ -59,6 +59,9 @@ function setupEventListeners() {
     if (fabAddItem) fabAddItem.addEventListener('click', openAddItemOverlay);
     if (galleryAddBtn) galleryAddBtn.addEventListener('click', openAddItemOverlay);
 
+    const navAddItemBtn = document.getElementById('nav-add-item-btn');
+    if (navAddItemBtn) navAddItemBtn.addEventListener('click', openAddItemOverlay);
+
     // Inputs
     const itemFileInput = document.getElementById('item-file-input');
     const addItemPreview = document.getElementById('add-item-preview');

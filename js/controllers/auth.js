@@ -85,7 +85,8 @@ function setupOnboardingListeners() {
 
     const obOrganizeView = document.getElementById('view-onboarding-organize');
     if (obOrganizeView) {
-        const skipBtn = obOrganizeView.querySelector('button.text-[#9db8af]');
+        // Fix selector escaping for Tailwind arbitrary value class
+        const skipBtn = obOrganizeView.querySelector('button.text-\\[\\#9db8af\\]');
         const nextBtn = obOrganizeView.querySelector('button.bg-primary');
 
         if (skipBtn) skipBtn.addEventListener('click', () => router.navigateTo('dashboard'));
