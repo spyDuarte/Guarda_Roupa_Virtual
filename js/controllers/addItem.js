@@ -59,8 +59,10 @@ function setupEventListeners() {
     if (fabAddItem) fabAddItem.addEventListener('click', openAddItemOverlay);
     if (galleryAddBtn) galleryAddBtn.addEventListener('click', openAddItemOverlay);
 
-    const navAddItemBtn = document.getElementById('nav-add-item-btn');
-    if (navAddItemBtn) navAddItemBtn.addEventListener('click', openAddItemOverlay);
+    const addItemTriggers = document.querySelectorAll('.add-item-trigger');
+    addItemTriggers.forEach(btn => {
+        btn.addEventListener('click', openAddItemOverlay);
+    });
 
     // Inputs
     const itemFileInput = document.getElementById('item-file-input');

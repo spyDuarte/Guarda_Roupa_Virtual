@@ -17,6 +17,7 @@ class Router {
             weatherStyle: document.getElementById('view-weather-style')
         };
         this.bottomNav = document.getElementById('bottom-nav');
+        this.sidebar = document.getElementById('sidebar');
         this.navButtons = document.querySelectorAll('.nav-btn');
         this.views.addItem = document.getElementById('view-add-item');
     }
@@ -45,13 +46,17 @@ class Router {
 
     updateBottomNav(targetViewId) {
         const fullScreenViews = ['login', 'registration', 'onboardingCreate', 'onboardingOrganize', 'onboardingPlan', 'weatherStyle'];
-        if (fullScreenViews.includes(targetViewId)) {
-            if (this.bottomNav) this.bottomNav.classList.add('hidden');
+        const isFullScreen = fullScreenViews.includes(targetViewId);
+
+        if (isFullScreen) {
+            if (this.bottomNav) this.bottomNav.classList.add('!hidden');
+            if (this.sidebar) this.sidebar.classList.add('!hidden');
         } else {
-            if (this.bottomNav) this.bottomNav.classList.remove('hidden');
+            if (this.bottomNav) this.bottomNav.classList.remove('!hidden');
+            if (this.sidebar) this.sidebar.classList.remove('!hidden');
         }
 
-        // Update Bottom Nav State
+        // Update Bottom Nav and Sidebar State
         this.navButtons.forEach(btn => {
             const btnTarget = btn.getAttribute('data-target');
             const icon = btn.querySelector('.material-symbols-outlined');
