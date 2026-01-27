@@ -19,36 +19,11 @@
         <div class="hero-content">
             <h1>Your Personal Style, Organized.</h1>
             <p>Manage your wardrobe, plan outfits, and rediscover your favorite clothes effortlessly.</p>
-            <a href="#add-item-section" class="cta-button">Add New Item</a>
+            <button id="hero-add-btn" class="cta-button">Add New Item</button>
         </div>
     </section>
 
     <main>
-        <!-- Add Item Section -->
-        <section id="add-item-section">
-            <h2>Add Item</h2>
-            <form id="add-item-form">
-                <input type="text" id="item-name" placeholder="Item Name" required>
-                <div class="image-input-group">
-                    <input type="text" id="item-image" placeholder="Image URL">
-                    <span>OR</span>
-                    <input type="file" id="item-file" accept="image/*">
-                </div>
-                <select id="item-category" required>
-                    <option value="" disabled selected>Select Category</option>
-                    <option value="tops">Tops</option>
-                    <option value="bottoms">Bottoms</option>
-                    <option value="shoes">Shoes</option>
-                    <option value="accessories">Accessories</option>
-                </select>
-                <input type="text" id="item-brand" placeholder="Brand">
-                <input type="text" id="item-size" placeholder="Size">
-                <input type="text" id="item-color" placeholder="Color">
-                <textarea id="item-notes" placeholder="Notes (optional)" rows="2"></textarea>
-                <button type="submit">Add to Wardrobe</button>
-            </form>
-        </section>
-
         <!-- Filter Section -->
         <section id="filter-section">
             <div id="search-bar-container">
@@ -75,14 +50,50 @@
         <p>&copy; 2024 Ritinha's Wardrobe. All rights reserved.</p>
     </footer>
 
-    <!-- Modal Structure -->
+    <!-- View Item Modal -->
     <div id="item-modal" class="modal">
         <div class="modal-content">
-            <span class="close-btn">&times;</span>
+            <span class="close-btn" id="close-item-modal">&times;</span>
             <div id="modal-details">
                 <!-- Details injected here -->
             </div>
         </div>
     </div>
+
+    <!-- Add Item Modal -->
+    <div id="add-item-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" id="close-add-modal">&times;</span>
+            <h2>Add New Item</h2>
+            <form id="add-item-form">
+                <input type="text" id="item-name" placeholder="Item Name" required>
+                <div class="image-input-group">
+                    <input type="text" id="item-image" placeholder="Image URL">
+                    <span>OR</span>
+                    <input type="file" id="item-file" accept="image/*">
+                </div>
+                <select id="item-category" required>
+                    <option value="" disabled selected>Select Category</option>
+                    <option value="tops">Tops</option>
+                    <option value="bottoms">Bottoms</option>
+                    <option value="shoes">Shoes</option>
+                    <option value="accessories">Accessories</option>
+                </select>
+                <input type="text" id="item-brand" placeholder="Brand">
+                <input type="text" id="item-size" placeholder="Size">
+                <input type="text" id="item-color" placeholder="Color">
+                <textarea id="item-notes" placeholder="Notes (optional)" rows="2"></textarea>
+                <button type="submit">Add to Wardrobe</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Floating Action Button -->
+    <button id="fab-add-item" class="fab" aria-label="Add Item">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+    </button>
 </body>
 </html>
