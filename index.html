@@ -769,6 +769,10 @@
                     <button class="filter-chip flex h-9 items-center justify-center gap-x-2 rounded-full bg-primary text-slate-900 font-semibold px-4 shadow-sm shadow-primary/20" data-category="all">
                         <span class="text-sm">All</span>
                     </button>
+                    <button class="filter-chip flex h-9 items-center justify-center gap-x-1 rounded-full bg-white dark:bg-surface-dark border border-slate-200 dark:border-white/10 px-4 transition-colors" data-category="favorites">
+                        <span class="material-symbols-outlined text-[18px]">favorite</span>
+                        <span class="text-slate-700 dark:text-slate-200 text-sm font-medium">Favorites</span>
+                    </button>
                     <button class="filter-chip flex h-9 items-center justify-center gap-x-1 rounded-full bg-white dark:bg-surface-dark border border-slate-200 dark:border-white/10 px-4 transition-colors" data-category="tops">
                         <span class="text-slate-700 dark:text-slate-200 text-sm font-medium">Tops</span>
                     </button>
@@ -797,11 +801,11 @@
              <!-- Header / Month Navigator -->
             <header class="sticky top-0 z-10 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm pt-4">
                 <div class="flex items-center justify-between px-4 py-4">
-                    <button class="flex size-10 items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-[#111815] dark:text-white">
+                    <button id="planner-prev-month" class="flex size-10 items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-[#111815] dark:text-white">
                         <span class="material-symbols-outlined">chevron_left</span>
                     </button>
-                    <h2 class="text-lg font-bold leading-tight tracking-[-0.015em] text-center flex-1">October 2023</h2>
-                    <button class="flex size-10 items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-[#111815] dark:text-white">
+                    <h2 id="planner-month-year" class="text-lg font-bold leading-tight tracking-[-0.015em] text-center flex-1">October 2023</h2>
+                    <button id="planner-next-month" class="flex size-10 items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-[#111815] dark:text-white">
                         <span class="material-symbols-outlined">chevron_right</span>
                     </button>
                 </div>
@@ -815,9 +819,13 @@
                     <div class="text-gray-500 dark:text-gray-400 text-[13px] font-bold text-center py-2">F</div>
                     <div class="text-gray-500 dark:text-gray-400 text-[13px] font-bold text-center py-2">S</div>
                 </div>
+                <!-- Calendar Grid -->
+                <div id="calendar-grid" class="grid grid-cols-7 gap-y-2 px-2 pb-4">
+                    <!-- Days injected by JS -->
+                </div>
             </header>
             <!-- Outfits Grid -->
-            <div class="px-4 mb-6">
+            <div class="px-4 mb-6 pt-4">
                 <button id="create-outfit-btn" class="w-full bg-primary text-slate-900 font-bold py-3 rounded-xl mb-4 shadow-sm hover:opacity-90 transition-opacity">
                     Create New Outfit
                 </button>

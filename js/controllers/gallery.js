@@ -124,7 +124,9 @@ function updateFilterChips() {
     });
 
     if (galleryTitle) {
-        galleryTitle.textContent = currentCategory === 'all' ? 'Closet' : currentCategory.charAt(0).toUpperCase() + currentCategory.slice(1);
+        if (currentCategory === 'all') galleryTitle.textContent = 'Closet';
+        else if (currentCategory === 'favorites') galleryTitle.textContent = 'Favorites';
+        else galleryTitle.textContent = currentCategory.charAt(0).toUpperCase() + currentCategory.slice(1);
     }
 }
 
@@ -139,7 +141,8 @@ function renderGallery() {
     const searchTerm = gallerySearch ? gallerySearch.value.toLowerCase().trim() : '';
 
     let filteredItems = store.wardrobeItems.filter(item => {
-        const matchesCategory = currentCategory === 'all' || item.category === currentCategory;
+        const matchesCategory = currentCategory === 'all' ||
+                                (currentCategory === 'favorites' ? item.isFavorite : item.category === currentCategory);
         const matchesSearch = item.name.toLowerCase().includes(searchTerm) ||
                               (item.brand && item.brand.toLowerCase().includes(searchTerm));
         return matchesCategory && matchesSearch;
@@ -191,6 +194,14 @@ function renderGallery() {
         imgBg.style.backgroundImage = `url("${item.image || 'https://via.placeholder.com/200?text=No+Image'}")`;
 
         imgContainer.appendChild(imgBg);
+
+        // Favorite Indicator
+        if (item.isFavorite) {
+            const heart = document.createElement('div');
+            heart.className = 'absolute top-2 left-2 text-red-500 bg-white/90 dark:bg-black/60 backdrop-blur-sm rounded-full p-1 z-10 flex items-center justify-center shadow-sm';
+            heart.innerHTML = '<span class="material-symbols-outlined text-[16px] font-bold" style="font-variation-settings: \'FILL\' 1;">favorite</span>';
+            imgContainer.appendChild(heart);
+        }
 
         if (isSelectionMode) {
             if (selectedOutfitItems.includes(item.id)) {
@@ -303,6 +314,75 @@ function setupModal() {
                 openEditItemOverlay(item);
             }
         });
+
+        // Inject extra buttons if needed
+        const actionContainer = editItemBtn.parentElement;
+        if (actionContainer && !document.getElementById('log-usage-btn')) {
+             // Favorite Button
+             const favBtn = document.createElement('button');
+             favBtn.id = 'toggle-favorite-btn';
+             favBtn.className = 'flex-none bg-gray-100 dark:bg-gray-800 text-gray-400 hover:text-red-500 font-bold py-2 px-3 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors flex items-center justify-center';
+             favBtn.innerHTML = '<span class="material-symbols-outlined">favorite_border</span>';
+             favBtn.onclick = handleToggleFavorite;
+             actionContainer.insertBefore(favBtn, editItemBtn);
+
+             // Log Usage Button
+             const wearBtn = document.createElement('button');
+             wearBtn.id = 'log-usage-btn';
+             wearBtn.className = 'flex-1 bg-primary/10 text-primary font-bold py-2 rounded-lg hover:bg-primary/20 transition-colors';
+             wearBtn.textContent = 'Wear';
+             wearBtn.onclick = handleLogUsage;
+             actionContainer.insertBefore(wearBtn, editItemBtn);
+        }
+    }
+}
+
+function handleLogUsage() {
+    const item = store.wardrobeItems.find(i => i.id === currentModalItemId);
+    if (item) {
+        item.usageCount = (item.usageCount || 0) + 1;
+        store.saveWardrobeItems();
+        updateStats();
+        renderMostWorn();
+        showToast(`Wore ${item.name}! (Count: ${item.usageCount})`, 'success');
+
+        const itemModal = document.getElementById('item-modal');
+        if (itemModal) itemModal.classList.add('hidden');
+        renderGallery();
+    }
+}
+
+function handleToggleFavorite() {
+    const item = store.wardrobeItems.find(i => i.id === currentModalItemId);
+    if (item) {
+        item.isFavorite = !item.isFavorite;
+        store.saveWardrobeItems();
+
+        const favBtn = document.getElementById('toggle-favorite-btn');
+        if (favBtn) {
+            updateFavoriteBtnState(favBtn, item.isFavorite);
+        }
+        renderGallery();
+        showToast(item.isFavorite ? 'Added to favorites' : 'Removed from favorites', 'info');
+    }
+}
+
+function updateFavoriteBtnState(btn, isFav) {
+    const icon = btn.querySelector('span');
+    if (isFav) {
+        btn.classList.add('text-red-500');
+        btn.classList.remove('text-gray-400');
+        if (icon) {
+            icon.textContent = 'favorite';
+            icon.style.fontVariationSettings = "'FILL' 1";
+        }
+    } else {
+        btn.classList.remove('text-red-500');
+        btn.classList.add('text-gray-400');
+        if (icon) {
+            icon.textContent = 'favorite_border';
+            icon.style.fontVariationSettings = "'FILL' 0";
+        }
     }
 }
 
@@ -312,6 +392,7 @@ export function openItemModal(item) {
     const modalImage = document.getElementById('modal-image');
     const modalTitle = document.getElementById('modal-title');
     const modalDetailsText = document.getElementById('modal-details-text');
+    const favBtn = document.getElementById('toggle-favorite-btn');
 
     if (modalImage) modalImage.src = item.image || 'https://via.placeholder.com/200?text=No+Image';
     if (modalTitle) modalTitle.textContent = item.name;
@@ -338,5 +419,10 @@ export function openItemModal(item) {
             modalDetailsText.appendChild(p);
         });
     }
+
+    if (favBtn) {
+        updateFavoriteBtnState(favBtn, !!item.isFavorite);
+    }
+
     itemModal.classList.remove('hidden');
 }
