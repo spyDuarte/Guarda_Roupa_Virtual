@@ -117,6 +117,34 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Event Delegation for Gallery Grid
+    if (galleryGrid) {
+        galleryGrid.addEventListener('click', (e) => {
+            const card = e.target.closest('.group');
+            if (card) {
+                const id = card.getAttribute('data-id');
+                const item = wardrobeItems.find(i => i.id == id);
+                if (item) {
+                    openItemModal(item);
+                }
+            }
+        });
+    }
+
+    // Event Delegation for Most Worn Carousel
+    if (mostWornCarousel) {
+        mostWornCarousel.addEventListener('click', (e) => {
+            const card = e.target.closest('.group');
+            if (card) {
+                const id = card.getAttribute('data-id');
+                const item = wardrobeItems.find(i => i.id == id);
+                if (item) {
+                    openItemModal(item);
+                }
+            }
+        });
+    }
+
     if (planOutfitBtn) {
         planOutfitBtn.addEventListener('click', () => {
             switchView('planner');
@@ -344,7 +372,7 @@ document.addEventListener('DOMContentLoaded', () => {
             div.appendChild(imgContainer);
             div.appendChild(infoDiv);
 
-            div.addEventListener('click', () => openItemModal(item));
+            div.setAttribute('data-id', item.id);
 
             galleryGrid.appendChild(div);
         });
@@ -416,7 +444,8 @@ document.addEventListener('DOMContentLoaded', () => {
             div.appendChild(imgContainer);
             div.appendChild(infoDiv);
 
-            div.addEventListener('click', () => openItemModal(item));
+            div.setAttribute('data-id', item.id);
+
             mostWornCarousel.appendChild(div);
         });
     }
