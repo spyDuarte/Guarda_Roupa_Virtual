@@ -30,6 +30,10 @@
                     <option value="shoes">Shoes</option>
                     <option value="accessories">Accessories</option>
                 </select>
+                <input type="text" id="item-brand" placeholder="Brand">
+                <input type="text" id="item-size" placeholder="Size">
+                <input type="text" id="item-color" placeholder="Color">
+                <textarea id="item-notes" placeholder="Notes (optional)" rows="2"></textarea>
                 <button type="submit">Add to Wardrobe</button>
             </form>
         </section>
@@ -59,5 +63,15 @@
     <footer>
         <p>&copy; 2024 Ritinha's Wardrobe. All rights reserved.</p>
     </footer>
+
+    <!-- Modal Structure -->
+    <div id="item-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <div id="modal-details">
+                <!-- Details injected here -->
+            </div>
+        </div>
+    </div>
 </body>
 </html>
