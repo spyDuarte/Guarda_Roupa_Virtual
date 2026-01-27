@@ -3,11 +3,14 @@ import { showToast } from '../utils/toast.js';
 import { GalleryController } from './gallery.js';
 import { updateStats } from './dashboard.js';
 
+let editingItemId = null;
+
 export function initAddItem() {
     setupEventListeners();
 }
 
 export function openAddItemOverlay() {
+    editingItemId = null;
     const view = document.getElementById('view-add-item');
     if (view) {
         view.classList.remove('hidden');
@@ -15,9 +18,19 @@ export function openAddItemOverlay() {
     }
 }
 
+export function openEditItemOverlay(item) {
+    editingItemId = item.id;
+    const view = document.getElementById('view-add-item');
+    if (view) {
+        view.classList.remove('hidden');
+        populateAddItemForm(item);
+    }
+}
+
 function closeAddItemOverlay() {
     const view = document.getElementById('view-add-item');
     if (view) view.classList.add('hidden');
+    editingItemId = null;
 }
 
 function resetAddItemForm() {
@@ -30,6 +43,15 @@ function resetAddItemForm() {
     const itemBrandInput = document.getElementById('item-brand');
     const itemSizeInput = document.getElementById('item-size');
     const itemNotesInput = document.getElementById('item-notes');
+
+    // Update Titles
+    const titleEl = document.querySelector('#view-add-item h2');
+    if (titleEl) titleEl.textContent = 'Add New Item';
+    const addToClosetBtn = document.getElementById('add-to-closet-btn');
+    if (addToClosetBtn) {
+         const span = addToClosetBtn.querySelector('span');
+         if(span) span.textContent = 'Add to Closet';
+    }
 
     if (itemFileInput) itemFileInput.value = '';
     if (itemImageUrl) itemImageUrl.value = '';
@@ -44,6 +66,43 @@ function resetAddItemForm() {
         c.classList.add('bg-white', 'dark:bg-white/5', 'text-gray-600', 'dark:text-gray-300');
     });
     if (selectedCategoryInput) selectedCategoryInput.value = '';
+}
+
+function populateAddItemForm(item) {
+    resetAddItemForm();
+
+    // Update Titles
+    const titleEl = document.querySelector('#view-add-item h2');
+    if (titleEl) titleEl.textContent = 'Edit Item';
+    const addToClosetBtn = document.getElementById('add-to-closet-btn');
+    if (addToClosetBtn) {
+         const span = addToClosetBtn.querySelector('span');
+         if(span) span.textContent = 'Save Changes';
+    }
+
+    const addItemPreview = document.getElementById('add-item-preview');
+    const itemNameInput = document.getElementById('item-name');
+    const itemBrandInput = document.getElementById('item-brand');
+    const itemSizeInput = document.getElementById('item-size');
+    const itemNotesInput = document.getElementById('item-notes');
+    const selectedCategoryInput = document.getElementById('selected-category');
+    const categoryChips = document.querySelectorAll('.category-select-chip');
+
+    if (addItemPreview && item.image) {
+        addItemPreview.style.backgroundImage = `url('${item.image}')`;
+    }
+    if (itemNameInput) itemNameInput.value = item.name;
+    if (itemBrandInput) itemBrandInput.value = item.brand || '';
+    if (itemSizeInput) itemSizeInput.value = item.size || '';
+    if (itemNotesInput) itemNotesInput.value = item.notes || '';
+    if (selectedCategoryInput) selectedCategoryInput.value = item.category;
+
+    categoryChips.forEach(chip => {
+        if (chip.getAttribute('data-value') === item.category) {
+            chip.classList.remove('bg-white', 'dark:bg-white/5', 'text-gray-600', 'dark:text-gray-300');
+            chip.classList.add('bg-primary', 'text-background-dark', 'font-bold');
+        }
+    });
 }
 
 function setupEventListeners() {
@@ -137,26 +196,52 @@ function handleSaveItem() {
         return;
     }
 
-    const newItem = {
-        id: Date.now(),
-        name: name,
-        category: category,
-        brand: brand,
-        size: size,
-        notes: notes,
-        image: imageSrc,
-        dateAdded: new Date().toISOString(),
-        usageCount: 0
-    };
+    if (editingItemId) {
+        const itemIndex = store.wardrobeItems.findIndex(i => i.id === editingItemId);
+        if (itemIndex !== -1) {
+            const updatedItem = {
+                ...store.wardrobeItems[itemIndex],
+                name: name,
+                category: category,
+                brand: brand,
+                size: size,
+                notes: notes,
+            };
 
-    try {
-        store.wardrobeItems.push(newItem);
-        store.saveWardrobeItems();
-        showToast('Item added to closet!', 'success');
-        closeAddItemOverlay();
-        updateStats();
-        GalleryController.render();
-    } catch (e) {
-        showToast(e.message, 'error');
+             if (imageSrc && !imageSrc.includes('placeholder.com')) {
+                 updatedItem.image = imageSrc;
+            }
+
+            store.wardrobeItems[itemIndex] = updatedItem;
+            store.saveWardrobeItems();
+            showToast('Item updated!', 'success');
+        } else {
+            showToast('Error finding item to update.', 'error');
+        }
+    } else {
+        const newItem = {
+            id: Date.now(),
+            name: name,
+            category: category,
+            brand: brand,
+            size: size,
+            notes: notes,
+            image: imageSrc.includes('placeholder.com') ? '' : imageSrc,
+            dateAdded: new Date().toISOString(),
+            usageCount: 0
+        };
+
+        try {
+            store.wardrobeItems.push(newItem);
+            store.saveWardrobeItems();
+            showToast('Item added to closet!', 'success');
+        } catch (e) {
+            showToast(e.message, 'error');
+            return;
+        }
     }
+
+    closeAddItemOverlay();
+    updateStats();
+    GalleryController.render();
 }
