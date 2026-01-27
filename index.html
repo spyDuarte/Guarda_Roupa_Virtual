@@ -65,7 +65,7 @@
         <div class="modal-content">
             <span class="close-btn" id="close-add-modal">&times;</span>
             <h2>Add New Item</h2>
-            <form id="add-item-form">
+            <form id="add-item-form" novalidate>
                 <input type="text" id="item-name" placeholder="Item Name" required>
                 <div class="image-input-group">
                     <input type="text" id="item-image" placeholder="Image URL">
@@ -95,5 +95,8 @@
             <line x1="5" y1="12" x2="19" y2="12"></line>
         </svg>
     </button>
+
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
 </body>
 </html>
