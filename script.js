@@ -8,7 +8,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- State ---
     let wardrobeItems = JSON.parse(localStorage.getItem('wardrobeItems')) || [];
+    let outfits = JSON.parse(localStorage.getItem('outfits')) || [];
     let currentCategory = 'all';
+
+    // Selection Mode State
+    let isSelectionMode = false;
+    let selectedOutfitItems = [];
 
     // --- DOM Elements ---
     const views = {
@@ -23,6 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const fabAddItem = document.getElementById('fab-add-item');
     const planOutfitBtn = document.getElementById('plan-outfit-btn');
     const logoutBtn = document.getElementById('logout-btn');
+    const outfitsGrid = document.getElementById('outfits-grid');
 
     // Add Item Form Elements
     const closeAddItemBtn = document.getElementById('close-add-item-btn');
@@ -67,6 +73,9 @@ document.addEventListener('DOMContentLoaded', () => {
     updateStats();
     renderMostWorn();
     renderGallery();
+    if (document.getElementById('outfits-grid')) {
+         renderOutfits();
+    }
 
     // --- Navigation Logic ---
     function switchView(targetViewId) {
@@ -141,6 +150,91 @@ document.addEventListener('DOMContentLoaded', () => {
             renderGallery();
             switchView('gallery');
         });
+    }
+
+    // --- Outfit Selection Logic ---
+    const selectionBar = document.getElementById('selection-bar');
+    const bottomNav = document.getElementById('bottom-nav');
+    const selectionCountEl = document.getElementById('selection-count');
+    const cancelSelectionBtn = document.getElementById('cancel-selection-btn');
+    const saveOutfitBtn = document.getElementById('save-outfit-btn');
+    const createOutfitBtn = document.getElementById('create-outfit-btn');
+
+    if (createOutfitBtn) {
+        createOutfitBtn.addEventListener('click', startOutfitSelection);
+    }
+
+    if (cancelSelectionBtn) {
+        cancelSelectionBtn.addEventListener('click', cancelOutfitSelection);
+    }
+
+    if (saveOutfitBtn) {
+        saveOutfitBtn.addEventListener('click', handleSaveOutfit);
+    }
+
+    function startOutfitSelection() {
+        isSelectionMode = true;
+        selectedOutfitItems = [];
+        updateSelectionUI();
+
+        switchView('gallery');
+
+        if (selectionBar) selectionBar.classList.remove('hidden');
+        if (bottomNav) bottomNav.classList.add('hidden');
+
+        renderGallery();
+    }
+
+    function cancelOutfitSelection() {
+        isSelectionMode = false;
+        selectedOutfitItems = [];
+
+        if (selectionBar) selectionBar.classList.add('hidden');
+        if (bottomNav) bottomNav.classList.remove('hidden');
+
+        renderGallery();
+        switchView('planner');
+    }
+
+    function toggleItemSelection(id) {
+        if (selectedOutfitItems.includes(id)) {
+            selectedOutfitItems = selectedOutfitItems.filter(itemId => itemId !== id);
+        } else {
+            selectedOutfitItems.push(id);
+        }
+        updateSelectionUI();
+        renderGallery();
+    }
+
+    function updateSelectionUI() {
+        if (selectionCountEl) {
+            selectionCountEl.textContent = `${selectedOutfitItems.length} items selected`;
+        }
+    }
+
+    function handleSaveOutfit() {
+        if (selectedOutfitItems.length === 0) {
+            showToast('Select at least one item.', 'error');
+            return;
+        }
+
+        const name = prompt('Name your outfit:');
+        if (!name) return;
+
+        const newOutfit = {
+            id: Date.now(),
+            name: name,
+            items: selectedOutfitItems,
+            dateCreated: new Date().toISOString()
+        };
+
+        outfits.push(newOutfit);
+        saveOutfits();
+        updateStats();
+
+        showToast('Outfit created!', 'success');
+        cancelOutfitSelection(); // Resets mode and goes to planner
+        renderOutfits();
     }
 
     // --- Add Item Logic ---
@@ -327,6 +421,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
             imgContainer.appendChild(imgBg);
 
+            // Selection Visuals
+            if (isSelectionMode) {
+                if (selectedOutfitItems.includes(item.id)) {
+                    imgContainer.classList.add('ring-4', 'ring-primary');
+                    const check = document.createElement('div');
+                    check.className = 'absolute top-2 right-2 bg-primary text-slate-900 rounded-full p-1 z-10';
+                    check.innerHTML = '<span class="material-symbols-outlined text-sm font-bold">check</span>';
+                    imgContainer.appendChild(check);
+                } else {
+                    div.classList.add('opacity-50');
+                }
+            }
+
             // Info Container
             const infoDiv = document.createElement('div');
 
@@ -344,7 +451,13 @@ document.addEventListener('DOMContentLoaded', () => {
             div.appendChild(imgContainer);
             div.appendChild(infoDiv);
 
-            div.addEventListener('click', () => openItemModal(item));
+            div.addEventListener('click', () => {
+                if (isSelectionMode) {
+                    toggleItemSelection(item.id);
+                } else {
+                    openItemModal(item);
+                }
+            });
 
             galleryGrid.appendChild(div);
         });
@@ -354,6 +467,11 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateStats() {
         if (totalItemsCount) {
             totalItemsCount.textContent = wardrobeItems.length;
+        }
+
+        const totalOutfitsCount = document.getElementById('total-outfits-count');
+        if (totalOutfitsCount) {
+            totalOutfitsCount.textContent = outfits.length;
         }
 
         // Update category counts
@@ -369,8 +487,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!mostWornCarousel) return;
         mostWornCarousel.innerHTML = '';
 
-        // For now, just show first 5 items
-        const items = wardrobeItems.slice(0, 5);
+        // Sort by usageCount descending and take top 5
+        const items = [...wardrobeItems]
+            .sort((a, b) => (b.usageCount || 0) - (a.usageCount || 0))
+            .slice(0, 5);
 
         if (items.length === 0) {
              const p = document.createElement('p');
@@ -419,6 +539,93 @@ document.addEventListener('DOMContentLoaded', () => {
             div.addEventListener('click', () => openItemModal(item));
             mostWornCarousel.appendChild(div);
         });
+    }
+
+    // --- Planner Logic ---
+
+    function renderOutfits() {
+        if (!outfitsGrid) return;
+        outfitsGrid.innerHTML = '';
+
+        if (outfits.length === 0) {
+            const p = document.createElement('p');
+            p.className = 'text-center text-gray-500 py-4';
+            p.textContent = 'No outfits created yet.';
+            outfitsGrid.appendChild(p);
+            return;
+        }
+
+        // Sort by newest first
+        const sortedOutfits = [...outfits].sort((a, b) => new Date(b.dateCreated) - new Date(a.dateCreated));
+
+        sortedOutfits.forEach(outfit => {
+            const card = document.createElement('div');
+            card.className = 'bg-white dark:bg-surface-dark p-3 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 flex gap-3';
+
+            // Preview Images (max 3)
+            const previewDiv = document.createElement('div');
+            previewDiv.className = 'flex -space-x-4 overflow-hidden shrink-0';
+
+            const itemIds = outfit.items || [];
+            // Get item objects
+            const items = itemIds.map(id => wardrobeItems.find(i => i.id === id)).filter(Boolean);
+
+            items.slice(0, 3).forEach(item => {
+                const img = document.createElement('div');
+                img.className = 'w-12 h-12 rounded-full border-2 border-white dark:border-surface-dark bg-cover bg-center bg-gray-200';
+                img.style.backgroundImage = `url('${item.image || "https://via.placeholder.com/50"}')`;
+                previewDiv.appendChild(img);
+            });
+
+            // Info
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'flex-1 flex flex-col justify-center';
+
+            const title = document.createElement('h3');
+            title.className = 'text-[#111815] dark:text-white font-bold text-sm';
+            title.textContent = outfit.name || 'Untitled Outfit';
+
+            const date = document.createElement('p');
+            date.className = 'text-gray-500 dark:text-gray-400 text-xs';
+            date.textContent = new Date(outfit.dateCreated).toLocaleDateString();
+
+            infoDiv.appendChild(title);
+            infoDiv.appendChild(date);
+
+            // Delete Button
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'text-gray-400 hover:text-red-500 transition-colors p-2';
+            deleteBtn.innerHTML = '<span class="material-symbols-outlined text-lg">delete</span>';
+            deleteBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (confirm('Delete this outfit?')) {
+                    deleteOutfit(outfit.id);
+                }
+            });
+
+            card.appendChild(previewDiv);
+            card.appendChild(infoDiv);
+            card.appendChild(deleteBtn);
+
+            outfitsGrid.appendChild(card);
+        });
+    }
+
+    function deleteOutfit(id) {
+        outfits = outfits.filter(o => o.id !== id);
+        saveOutfits();
+        updateStats();
+        renderOutfits();
+        showToast('Outfit deleted.', 'info');
+    }
+
+    function saveOutfits() {
+        try {
+            localStorage.setItem('outfits', JSON.stringify(outfits));
+        } catch (e) {
+            console.error(e);
+            showToast('Failed to save outfits.', 'error');
+        }
     }
 
     // --- Modal Logic ---
