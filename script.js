@@ -234,6 +234,10 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('wardrobeItems', JSON.stringify(wardrobeItems));
             renderDashboard();
             renderGallery();
+            if (currentView === 'outfits') {
+                 // Re-render gallery if we are in outfits view (which uses gallery render logic)
+                 // But renderGallery() handles it. Just ensuring.
+            }
         }
     }
 
@@ -350,13 +354,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 dateAdded: new Date().toISOString()
             };
 
-            wardrobeItems.push(newItem);
-            localStorage.setItem('wardrobeItems', JSON.stringify(wardrobeItems));
+            try {
+                wardrobeItems.push(newItem);
+                localStorage.setItem('wardrobeItems', JSON.stringify(wardrobeItems));
 
-            if (category === 'look') {
-                switchView('outfits');
-            } else {
-                switchView('gallery', category);
+                if (category === 'look') {
+                    switchView('outfits');
+                } else {
+                    switchView('gallery', category);
+                }
+            } catch (e) {
+                if (e.name === 'QuotaExceededError') {
+                    alert('Erro: Espaço de armazenamento cheio! A imagem pode ser muito grande. Tente usar uma URL de imagem ou excluir alguns itens.');
+                    // Remove the item we just tried to push from the array since it wasn't saved
+                    wardrobeItems.pop();
+                } else {
+                    alert('Erro ao salvar o item: ' + e.message);
+                    wardrobeItems.pop();
+                }
             }
         });
     }
