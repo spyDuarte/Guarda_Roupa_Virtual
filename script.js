@@ -5,9 +5,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const itemImageInput = document.getElementById('item-image');
     const itemFileInput = document.getElementById('item-file');
     const itemCategorySelect = document.getElementById('item-category');
+    const itemBrandInput = document.getElementById('item-brand');
+    const itemSizeInput = document.getElementById('item-size');
+    const itemColorInput = document.getElementById('item-color');
+    const itemNotesInput = document.getElementById('item-notes');
     const galleryGrid = document.getElementById('gallery-grid');
     const filterButtons = document.querySelectorAll('.filter-btn');
     const searchInput = document.getElementById('search-input');
+    const modal = document.getElementById('item-modal');
+    const modalCloseBtn = document.querySelector('.close-btn');
+    const modalDetails = document.getElementById('modal-details');
 
     // State
     let wardrobeItems = JSON.parse(localStorage.getItem('wardrobeItems')) || [];
@@ -39,6 +46,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Modal Event Listeners
+    if (modalCloseBtn) {
+        modalCloseBtn.onclick = function() {
+            modal.style.display = "none";
+        }
+    }
+
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
     // Functions
     function handleAddItem(e) {
         e.preventDefault();
@@ -46,6 +66,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const name = itemNameInput.value.trim();
         const imageURL = itemImageInput.value.trim();
         const category = itemCategorySelect.value;
+        const brand = itemBrandInput.value.trim();
+        const size = itemSizeInput.value.trim();
+        const color = itemColorInput.value.trim();
+        const notes = itemNotesInput.value.trim();
         const file = itemFileInput && itemFileInput.files[0];
 
         if (!name || !category) {
@@ -59,6 +83,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 name: name,
                 image: imageSrc,
                 category: category,
+                brand: brand,
+                size: size,
+                color: color,
+                notes: notes,
                 dateAdded: new Date().toISOString()
             };
 
@@ -132,7 +160,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const btn = document.createElement('button');
             btn.classList.add('delete-btn');
             btn.textContent = 'Delete';
-            btn.onclick = function() { deleteItem(item.id); };
+            btn.onclick = function(e) {
+                e.stopPropagation(); // Prevent opening modal
+                deleteItem(item.id);
+            };
 
             infoDiv.appendChild(h3);
             infoDiv.appendChild(p);
@@ -141,8 +172,67 @@ document.addEventListener('DOMContentLoaded', () => {
             itemElement.appendChild(img);
             itemElement.appendChild(infoDiv);
 
+            // Open modal on click
+            itemElement.onclick = function() {
+                openModal(item);
+            };
+
             galleryGrid.appendChild(itemElement);
         });
+    }
+
+    function openModal(item) {
+        if (!modalDetails) return;
+
+        modalDetails.innerHTML = ''; // Clear previous content
+
+        const img = document.createElement('img');
+        img.src = item.image || 'https://via.placeholder.com/200?text=No+Image';
+        img.alt = item.name;
+        img.onerror = function() { this.src = 'https://via.placeholder.com/200?text=No+Image'; };
+
+        const h2 = document.createElement('h2');
+        h2.textContent = item.name;
+
+        const pCategory = document.createElement('p');
+        const strongCategory = document.createElement('strong');
+        strongCategory.textContent = 'Category: ';
+        pCategory.appendChild(strongCategory);
+        pCategory.appendChild(document.createTextNode(item.category));
+
+        const pBrand = document.createElement('p');
+        const strongBrand = document.createElement('strong');
+        strongBrand.textContent = 'Brand: ';
+        pBrand.appendChild(strongBrand);
+        pBrand.appendChild(document.createTextNode(item.brand || '-'));
+
+        const pSize = document.createElement('p');
+        const strongSize = document.createElement('strong');
+        strongSize.textContent = 'Size: ';
+        pSize.appendChild(strongSize);
+        pSize.appendChild(document.createTextNode(item.size || '-'));
+
+        const pColor = document.createElement('p');
+        const strongColor = document.createElement('strong');
+        strongColor.textContent = 'Color: ';
+        pColor.appendChild(strongColor);
+        pColor.appendChild(document.createTextNode(item.color || '-'));
+
+        const pNotes = document.createElement('p');
+        const strongNotes = document.createElement('strong');
+        strongNotes.textContent = 'Notes: ';
+        pNotes.appendChild(strongNotes);
+        pNotes.appendChild(document.createTextNode(item.notes || '-'));
+
+        modalDetails.appendChild(img);
+        modalDetails.appendChild(h2);
+        modalDetails.appendChild(pCategory);
+        modalDetails.appendChild(pBrand);
+        modalDetails.appendChild(pSize);
+        modalDetails.appendChild(pColor);
+        modalDetails.appendChild(pNotes);
+
+        modal.style.display = "block";
     }
 
     function deleteItem(id) {
