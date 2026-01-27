@@ -3,19 +3,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const addItemForm = document.getElementById('add-item-form');
     const itemNameInput = document.getElementById('item-name');
     const itemImageInput = document.getElementById('item-image');
+    const itemFileInput = document.getElementById('item-file');
     const itemCategorySelect = document.getElementById('item-category');
     const galleryGrid = document.getElementById('gallery-grid');
     const filterButtons = document.querySelectorAll('.filter-btn');
+    const searchInput = document.getElementById('search-input');
 
     // State
     let wardrobeItems = JSON.parse(localStorage.getItem('wardrobeItems')) || [];
+    let currentCategory = 'all';
 
     // Initial Render
-    renderGallery('all');
+    renderGallery();
 
     // Event Listeners
     if (addItemForm) {
         addItemForm.addEventListener('submit', handleAddItem);
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener('input', () => {
+            renderGallery();
+        });
     }
 
     filterButtons.forEach(btn => {
@@ -25,8 +34,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // Add active class to clicked button
             btn.classList.add('active');
 
-            const category = btn.getAttribute('data-category');
-            renderGallery(category);
+            currentCategory = btn.getAttribute('data-category');
+            renderGallery();
         });
     });
 
@@ -35,29 +44,44 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
 
         const name = itemNameInput.value.trim();
-        const image = itemImageInput.value.trim();
+        const imageURL = itemImageInput.value.trim();
         const category = itemCategorySelect.value;
+        const file = itemFileInput && itemFileInput.files[0];
 
-        if (name && category) {
+        if (!name || !category) {
+            alert('Please fill in Name and Category fields.');
+            return;
+        }
+
+        const addItem = (imageSrc) => {
             const newItem = {
-                id: Date.now(), // Simple unique ID
+                id: Date.now(),
                 name: name,
-                image: image,
+                image: imageSrc,
                 category: category,
                 dateAdded: new Date().toISOString()
             };
 
             wardrobeItems.push(newItem);
             saveItems();
-            renderGallery('all'); // Re-render gallery (showing all or maybe current filter)
+
+            // Re-render based on current active filter
+            renderGallery();
 
             console.log('Item added:', newItem);
-            console.log('Current Wardrobe:', wardrobeItems);
 
             // Reset form
             addItemForm.reset();
+        };
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                addItem(event.target.result);
+            };
+            reader.readAsDataURL(file);
         } else {
-            alert('Please fill in Name and Category fields.');
+            addItem(imageURL);
         }
     }
 
@@ -65,18 +89,22 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('wardrobeItems', JSON.stringify(wardrobeItems));
     }
 
-    function renderGallery(filter = 'all') {
+    function renderGallery() {
         if (!galleryGrid) return;
 
         galleryGrid.innerHTML = '';
 
-        const filteredItems = filter === 'all'
-            ? wardrobeItems
-            : wardrobeItems.filter(item => item.category === filter);
+        const searchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
+
+        const filteredItems = wardrobeItems.filter(item => {
+            const matchesCategory = currentCategory === 'all' || item.category === currentCategory;
+            const matchesSearch = item.name.toLowerCase().includes(searchTerm);
+            return matchesCategory && matchesSearch;
+        });
 
         if (filteredItems.length === 0) {
             const p = document.createElement('p');
-            p.textContent = 'No items found in this category.';
+            p.textContent = 'No items found matching your criteria.';
             galleryGrid.appendChild(p);
             return;
         }
@@ -121,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (confirm('Are you sure you want to delete this item?')) {
             wardrobeItems = wardrobeItems.filter(item => item.id !== id);
             saveItems();
-            renderGallery(document.querySelector('.filter-btn.active')?.dataset.category || 'all');
+            renderGallery();
         }
     }
 });
