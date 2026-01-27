@@ -48,6 +48,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const saveProfileBtn = document.getElementById('save-profile-btn');
     const themeToggleBtn = document.getElementById('theme-toggle-btn');
     const clearDataBtn = document.getElementById('clear-data-btn');
+    const exportDataBtn = document.getElementById('export-data-btn');
+    const importDataInput = document.getElementById('import-data-input');
 
     // Add Item Form Elements
     const closeAddItemBtn = document.getElementById('close-add-item-btn');
@@ -803,6 +805,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+    if (exportDataBtn) {
+        exportDataBtn.addEventListener('click', handleExportData);
+    }
+    if (importDataInput) {
+        importDataInput.addEventListener('change', handleImportData);
+    }
 
     // --- Profile Logic ---
     function renderProfile() {
@@ -910,5 +918,53 @@ document.addEventListener('DOMContentLoaded', () => {
         userProfile.theme = userProfile.theme === 'light' ? 'dark' : 'light';
         localStorage.setItem('userProfile', JSON.stringify(userProfile));
         renderProfile();
+    }
+
+    function handleExportData() {
+        const data = {
+            wardrobeItems,
+            outfits,
+            userProfile
+        };
+
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `stitch_closet_backup_${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    function handleImportData(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+
+                if (data.wardrobeItems) {
+                    localStorage.setItem('wardrobeItems', JSON.stringify(data.wardrobeItems));
+                }
+                if (data.outfits) {
+                    localStorage.setItem('outfits', JSON.stringify(data.outfits));
+                }
+                if (data.userProfile) {
+                    localStorage.setItem('userProfile', JSON.stringify(data.userProfile));
+                }
+
+                showToast('Backup restaurado com sucesso!', 'success');
+                setTimeout(() => window.location.reload(), 1500);
+
+            } catch (err) {
+                console.error(err);
+                showToast('Erro ao ler arquivo de backup.', 'error');
+            }
+        };
+        reader.readAsText(file);
     }
 });

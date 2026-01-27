@@ -295,12 +295,32 @@
                     </button>
                  </div>
 
+                 <!-- Backup Section -->
+                 <div class="p-4 bg-white dark:bg-surface-dark rounded-xl border border-gray-100 dark:border-gray-800">
+                    <h3 class="font-bold text-gray-900 dark:text-white mb-2">Backup & Dados</h3>
+                    <div class="flex gap-3">
+                        <button id="export-data-btn" class="flex-1 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white font-semibold py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined text-base">download</span> Exportar
+                        </button>
+                        <label class="flex-1 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white font-semibold py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors flex items-center justify-center gap-2 cursor-pointer">
+                            <span class="material-symbols-outlined text-base">upload</span> Importar
+                            <input type="file" id="import-data-input" class="hidden" accept=".json">
+                        </label>
+                    </div>
+                 </div>
+
                  <div class="p-4 bg-red-50 dark:bg-red-900/10 rounded-xl border border-red-100 dark:border-red-900/20">
                     <h3 class="font-bold text-red-600 dark:text-red-400 mb-2">Zona de Perigo</h3>
                     <p class="text-xs text-red-500/80 mb-4">Isso apagará todos os seus itens e looks salvos neste dispositivo.</p>
                     <button id="clear-data-btn" class="w-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 font-bold py-2 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50">Apagar Tudo</button>
                  </div>
-                  <button id="logout-btn" class="w-full bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-bold py-3 rounded-xl hover:bg-gray-300 transition-colors mt-4">Sair</button>
+
+                 <!-- About Section -->
+                 <div class="flex items-center justify-center pt-2 pb-4">
+                     <p class="text-xs text-gray-400 dark:text-gray-500">Stitch Closet v1.0.0</p>
+                 </div>
+
+                  <button id="logout-btn" class="w-full bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-bold py-3 rounded-xl hover:bg-gray-300 transition-colors">Sair</button>
              </div>
         </div>
 
