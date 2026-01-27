@@ -3,6 +3,13 @@
  */
 class Router {
     constructor() {
+        this.views = {};
+        this.bottomNav = null;
+        this.sidebar = null;
+        this.navButtons = null;
+    }
+
+    init() {
         this.views = {
             dashboard: document.getElementById('view-dashboard'),
             gallery: document.getElementById('view-gallery'),
@@ -19,7 +26,23 @@ class Router {
         this.bottomNav = document.getElementById('bottom-nav');
         this.sidebar = document.getElementById('sidebar');
         this.navButtons = document.querySelectorAll('.nav-btn');
-        this.views.addItem = document.getElementById('view-add-item');
+
+        this.setupEventListeners();
+    }
+
+    setupEventListeners() {
+        if (this.navButtons) {
+            this.navButtons.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    // Prevent default if it's a link (though these are buttons)
+                    // e.preventDefault();
+                    const target = btn.getAttribute('data-target');
+                    if (target) {
+                        this.navigateTo(target);
+                    }
+                });
+            });
+        }
     }
 
     /**
@@ -57,20 +80,22 @@ class Router {
         }
 
         // Update Bottom Nav and Sidebar State
-        this.navButtons.forEach(btn => {
-            const btnTarget = btn.getAttribute('data-target');
-            const icon = btn.querySelector('.material-symbols-outlined');
+        if (this.navButtons) {
+            this.navButtons.forEach(btn => {
+                const btnTarget = btn.getAttribute('data-target');
+                const icon = btn.querySelector('.material-symbols-outlined');
 
-            if (btnTarget === targetViewId) {
-                btn.classList.remove('text-gray-400', 'dark:text-gray-500');
-                btn.classList.add('text-primary');
-                if (icon) icon.classList.add('fill-current');
-            } else {
-                btn.classList.add('text-gray-400', 'dark:text-gray-500');
-                btn.classList.remove('text-primary');
-                if (icon) icon.classList.remove('fill-current');
-            }
-        });
+                if (btnTarget === targetViewId) {
+                    btn.classList.remove('text-gray-400', 'dark:text-gray-500');
+                    btn.classList.add('text-primary');
+                    if (icon) icon.classList.add('fill-current');
+                } else {
+                    btn.classList.add('text-gray-400', 'dark:text-gray-500');
+                    btn.classList.remove('text-primary');
+                    if (icon) icon.classList.remove('fill-current');
+                }
+            });
+        }
     }
 }
 

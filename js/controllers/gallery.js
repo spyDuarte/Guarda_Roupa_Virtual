@@ -2,8 +2,10 @@ import { store } from '../core/store.js';
 import { router } from '../core/router.js';
 import { showToast } from '../utils/toast.js';
 import { updateStats, renderMostWorn } from './dashboard.js';
+import { openEditItemOverlay, openAddItemOverlay } from './addItem.js';
 
 let currentCategory = 'all';
+let currentSort = 'newest';
 let isSelectionMode = false;
 let selectedOutfitItems = [];
 let onSelectionComplete = null;
@@ -71,15 +73,37 @@ function setupEventListeners() {
         });
     }
 
-    const galleryAddBtn = document.getElementById('gallery-add-btn');
-    // Logic for adding items is handled by addItem.js listener
-
     const galleryBackBtn = document.getElementById('gallery-back-btn');
     if (galleryBackBtn) {
         galleryBackBtn.addEventListener('click', () => {
             router.navigateTo('dashboard');
         });
     }
+
+    // Sort Logic
+    const sortBtn = document.getElementById('gallery-sort-btn');
+    const sortMenu = document.getElementById('gallery-sort-menu');
+
+    if (sortBtn && sortMenu) {
+        sortBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            sortMenu.classList.toggle('hidden');
+        });
+
+        window.addEventListener('click', () => {
+             if (!sortMenu.classList.contains('hidden')) {
+                 sortMenu.classList.add('hidden');
+             }
+        });
+    }
+
+    const sortOptions = document.querySelectorAll('.sort-option');
+    sortOptions.forEach(opt => {
+        opt.addEventListener('click', () => {
+            currentSort = opt.getAttribute('data-sort');
+            renderGallery();
+        });
+    });
 }
 
 function updateFilterChips() {
@@ -114,17 +138,43 @@ function renderGallery() {
 
     const searchTerm = gallerySearch ? gallerySearch.value.toLowerCase().trim() : '';
 
-    const filteredItems = store.wardrobeItems.filter(item => {
+    let filteredItems = store.wardrobeItems.filter(item => {
         const matchesCategory = currentCategory === 'all' || item.category === currentCategory;
         const matchesSearch = item.name.toLowerCase().includes(searchTerm) ||
                               (item.brand && item.brand.toLowerCase().includes(searchTerm));
         return matchesCategory && matchesSearch;
     });
 
+    // Sort Items
+    filteredItems.sort((a, b) => {
+        if (currentSort === 'newest') {
+            return new Date(b.dateAdded || 0) - new Date(a.dateAdded || 0);
+        } else if (currentSort === 'oldest') {
+            return new Date(a.dateAdded || 0) - new Date(b.dateAdded || 0);
+        } else if (currentSort === 'most_worn') {
+            return (b.usageCount || 0) - (a.usageCount || 0);
+        }
+        return 0;
+    });
+
     if (filteredItems.length === 0) {
         const noItemsDiv = document.createElement('div');
-        noItemsDiv.className = 'col-span-2 text-center text-gray-500 py-10';
-        noItemsDiv.textContent = 'No items found.';
+        noItemsDiv.className = 'col-span-2 md:col-span-4 lg:col-span-5 flex flex-col items-center justify-center py-10 gap-4';
+
+        const p = document.createElement('p');
+        p.className = 'text-gray-500 font-medium';
+        p.textContent = searchTerm ? 'No items found matching your search.' : 'Your closet is empty.';
+
+        noItemsDiv.appendChild(p);
+
+        if (!searchTerm && currentCategory === 'all') {
+             const addBtn = document.createElement('button');
+             addBtn.className = 'bg-primary/10 text-primary font-bold px-4 py-2 rounded-lg hover:bg-primary/20 transition-colors';
+             addBtn.textContent = 'Add Your First Item';
+             addBtn.onclick = () => openAddItemOverlay();
+             noItemsDiv.appendChild(addBtn);
+        }
+
         galleryGrid.appendChild(noItemsDiv);
         return;
     }
@@ -219,6 +269,7 @@ function setupModal() {
     const itemModal = document.getElementById('item-modal');
     const closeItemModalBtn = document.getElementById('close-item-modal');
     const deleteItemBtn = document.getElementById('delete-item-btn');
+    const editItemBtn = document.getElementById('edit-item-btn');
 
     if (closeItemModalBtn) {
         closeItemModalBtn.addEventListener('click', () => itemModal.classList.add('hidden'));
@@ -240,6 +291,16 @@ function setupModal() {
 
                 itemModal.classList.add('hidden');
                 showToast('Item deleted.', 'info');
+            }
+        });
+    }
+
+    if (editItemBtn) {
+        editItemBtn.addEventListener('click', () => {
+            const item = store.wardrobeItems.find(i => i.id === currentModalItemId);
+            if (item) {
+                itemModal.classList.add('hidden');
+                openEditItemOverlay(item);
             }
         });
     }
