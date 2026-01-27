@@ -164,7 +164,8 @@
         </div>
 
         <!-- GALLERY VIEW -->
-        <div id="view-gallery" class="view-section flex h-full flex-col pb-24">
+        <div id="view-gallery" class="view-section h-full pb-24">
+            <div class="flex h-full flex-col">
              <!-- Top Header -->
             <header class="sticky top-0 z-20 flex items-center bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md p-4 pb-2 justify-between transition-colors">
                 <button id="gallery-back-btn" class="text-slate-900 dark:text-white flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-white/10 transition-colors">
@@ -210,6 +211,7 @@
                     <!-- Items will be injected here -->
                 </div>
             </main>
+            </div>
         </div>
 
         <!-- PLANNER VIEW -->
@@ -249,19 +251,57 @@
 
         <!-- PROFILE VIEW -->
         <div id="view-profile" class="view-section p-4 pb-24">
+             <!-- Header -->
              <div class="flex items-center justify-between mb-6 pt-6">
-                <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Profile</h2>
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Perfil</h2>
              </div>
-             <div class="bg-surface-light dark:bg-surface-dark rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-800 mb-4">
-                <div class="flex items-center gap-3">
-                    <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-16 border-2 border-primary" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDu0QGjSKdEOEmfc9FykHdh0-333YCIcqrBBf9rq_qFp9MQiuCnr9iAXaCqwNfJRSNkprYJp0aY0CovcW0NzsHGKHdIJ0yynSLBkcP85TqtAzly8NQFf2hD-Lk1clAOPRsjzsDvf2uL9C3jHEhdWrpPb6CSGNVvxIa8cSBcVNqiFeRmNzkOuTjZ8eq2X0bnl6U0LfrS4mDqXtCcQy7GH9oB13mjlq2UNImABSFP14eeqGndeiplEi_83om1nH5-PHx33Bd1LpC5GBS2");'></div>
-                    <div>
-                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Ritinha</h3>
-                        <p class="text-sm text-gray-500">ritinha@example.com</p>
-                    </div>
+
+             <!-- Tabs -->
+             <div class="flex p-1 bg-gray-100 dark:bg-gray-800 rounded-xl mb-6">
+                <button id="tab-profile-data" class="flex-1 py-2 text-sm font-bold rounded-lg bg-white dark:bg-surface-dark text-gray-900 dark:text-white shadow-sm transition-all">Dados</button>
+                <button id="tab-profile-settings" class="flex-1 py-2 text-sm font-medium rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all">Configurações</button>
+             </div>
+
+             <!-- Tab Content: Data -->
+             <div id="profile-content-data" class="space-y-4">
+                <!-- Avatar Preview -->
+                <div class="flex flex-col items-center mb-4">
+                    <div id="profile-avatar-preview" class="size-24 rounded-full bg-cover bg-center border-4 border-primary mb-2" style="background-image: url('https://via.placeholder.com/150')"></div>
+                    <label class="text-primary text-sm font-bold cursor-pointer hover:opacity-80">
+                        Alterar Foto
+                        <input type="file" id="profile-avatar-input" class="hidden" accept="image/*">
+                    </label>
                 </div>
+
+                <!-- Form -->
+                <div class="space-y-2">
+                    <label class="text-sm font-bold text-gray-700 dark:text-gray-300">Nome</label>
+                    <input id="profile-name-input" type="text" class="w-full rounded-xl border-gray-200 dark:border-gray-700 bg-white dark:bg-surface-dark p-3 text-sm text-gray-900 dark:text-white" placeholder="Seu nome">
+                </div>
+                 <div class="space-y-2">
+                    <label class="text-sm font-bold text-gray-700 dark:text-gray-300">Bio / Email</label>
+                    <input id="profile-bio-input" type="text" class="w-full rounded-xl border-gray-200 dark:border-gray-700 bg-white dark:bg-surface-dark p-3 text-sm text-gray-900 dark:text-white" placeholder="Uma breve descrição">
+                </div>
+
+                <button id="save-profile-btn" class="w-full bg-primary text-slate-900 font-bold py-3 rounded-xl shadow-sm hover:opacity-90 mt-4">Salvar Alterações</button>
              </div>
-             <button id="logout-btn" class="w-full bg-red-500 text-white font-bold py-3 rounded-xl hover:bg-red-600 transition-colors">Logout</button>
+
+             <!-- Tab Content: Settings -->
+             <div id="profile-content-settings" class="hidden space-y-4">
+                 <div class="flex items-center justify-between p-4 bg-white dark:bg-surface-dark rounded-xl border border-gray-100 dark:border-gray-800">
+                    <span class="font-bold text-gray-900 dark:text-white">Modo Escuro</span>
+                    <button id="theme-toggle-btn" class="w-12 h-6 bg-gray-200 dark:bg-gray-700 rounded-full relative transition-colors">
+                        <div class="absolute top-1 left-1 dark:left-7 w-4 h-4 bg-white rounded-full transition-all duration-300"></div>
+                    </button>
+                 </div>
+
+                 <div class="p-4 bg-red-50 dark:bg-red-900/10 rounded-xl border border-red-100 dark:border-red-900/20">
+                    <h3 class="font-bold text-red-600 dark:text-red-400 mb-2">Zona de Perigo</h3>
+                    <p class="text-xs text-red-500/80 mb-4">Isso apagará todos os seus itens e looks salvos neste dispositivo.</p>
+                    <button id="clear-data-btn" class="w-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 font-bold py-2 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50">Apagar Tudo</button>
+                 </div>
+                  <button id="logout-btn" class="w-full bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-bold py-3 rounded-xl hover:bg-gray-300 transition-colors mt-4">Sair</button>
+             </div>
         </div>
 
         <!-- ADD ITEM VIEW (Overlay) -->
