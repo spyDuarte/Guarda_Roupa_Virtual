@@ -9,6 +9,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- State ---
     let wardrobeItems = JSON.parse(localStorage.getItem('wardrobeItems')) || [];
     let outfits = JSON.parse(localStorage.getItem('outfits')) || [];
+    let userProfile = JSON.parse(localStorage.getItem('userProfile')) || {
+        name: 'Ritinha',
+        bio: 'ritinha@example.com',
+        avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDu0QGjSKdEOEmfc9FykHdh0-333YCIcqrBBf9rq_qFp9MQiuCnr9iAXaCqwNfJRSNkprYJp0aY0CovcW0NzsHGKHdIJ0yynSLBkcP85TqtAzly8NQFf2hD-Lk1clAOPRsjzsDvf2uL9C3jHEhdWrpPb6CSGNVvxIa8cSBcVNqiFeRmNzkOuTjZ8eq2X0bnl6U0LfrS4mDqXtCcQy7GH9oB13mjlq2UNImABSFP14eeqGndeiplEi_83om1nH5-PHx33Bd1LpC5GBS2',
+        theme: 'light'
+    };
     let currentCategory = 'all';
 
     // Selection Mode State
@@ -29,6 +35,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const planOutfitBtn = document.getElementById('plan-outfit-btn');
     const logoutBtn = document.getElementById('logout-btn');
     const outfitsGrid = document.getElementById('outfits-grid');
+
+    // Profile Elements
+    const tabProfileData = document.getElementById('tab-profile-data');
+    const tabProfileSettings = document.getElementById('tab-profile-settings');
+    const profileContentData = document.getElementById('profile-content-data');
+    const profileContentSettings = document.getElementById('profile-content-settings');
+    const profileAvatarPreview = document.getElementById('profile-avatar-preview');
+    const profileAvatarInput = document.getElementById('profile-avatar-input');
+    const profileNameInput = document.getElementById('profile-name-input');
+    const profileBioInput = document.getElementById('profile-bio-input');
+    const saveProfileBtn = document.getElementById('save-profile-btn');
+    const themeToggleBtn = document.getElementById('theme-toggle-btn');
+    const clearDataBtn = document.getElementById('clear-data-btn');
 
     // Add Item Form Elements
     const closeAddItemBtn = document.getElementById('close-add-item-btn');
@@ -73,6 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateStats();
     renderMostWorn();
     renderGallery();
+    renderProfile();
     if (document.getElementById('outfits-grid')) {
          renderOutfits();
     }
@@ -753,5 +773,142 @@ document.addEventListener('DOMContentLoaded', () => {
             toast.style.opacity = '0';
             setTimeout(() => toast.remove(), 300);
         }, 3000);
+    }
+
+    // --- Profile Event Listeners ---
+    if (tabProfileData) {
+        tabProfileData.addEventListener('click', () => switchProfileTab('data'));
+    }
+    if (tabProfileSettings) {
+        tabProfileSettings.addEventListener('click', () => switchProfileTab('settings'));
+    }
+    if (saveProfileBtn) {
+        saveProfileBtn.addEventListener('click', handleSaveProfile);
+    }
+    if (clearDataBtn) {
+        clearDataBtn.addEventListener('click', handleClearData);
+    }
+    if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', handleThemeToggle);
+    }
+    if (profileAvatarInput) {
+        profileAvatarInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    profileAvatarPreview.style.backgroundImage = `url('${event.target.result}')`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+
+    // --- Profile Logic ---
+    function renderProfile() {
+        if (profileNameInput) profileNameInput.value = userProfile.name;
+        if (profileBioInput) profileBioInput.value = userProfile.bio;
+        if (profileAvatarPreview) {
+            profileAvatarPreview.style.backgroundImage = `url('${userProfile.avatar}')`;
+        }
+
+        // Update Dashboard Header
+        const headerName = document.querySelector('.text-lg.font-bold');
+        if (headerName) headerName.textContent = userProfile.name;
+
+        const headerAvatar = document.querySelector('.bg-center.bg-no-repeat.aspect-square.bg-cover.rounded-full.size-10');
+        if (headerAvatar) headerAvatar.style.backgroundImage = `url('${userProfile.avatar}')`;
+
+        // Update Theme UI
+        if (userProfile.theme === 'dark') {
+            document.documentElement.classList.add('dark');
+            if (themeToggleBtn) {
+                const dot = themeToggleBtn.querySelector('div');
+                if (dot) dot.style.transform = 'translateX(24px)'; // Adjust based on UI
+                themeToggleBtn.classList.remove('bg-gray-200');
+                themeToggleBtn.classList.add('bg-primary');
+            }
+        } else {
+            document.documentElement.classList.remove('dark');
+             if (themeToggleBtn) {
+                const dot = themeToggleBtn.querySelector('div');
+                if (dot) dot.style.transform = 'translateX(0)';
+                themeToggleBtn.classList.add('bg-gray-200');
+                themeToggleBtn.classList.remove('bg-primary');
+            }
+        }
+    }
+
+    function switchProfileTab(tab) {
+        if (tab === 'data') {
+            if (profileContentData) profileContentData.classList.remove('hidden');
+            if (profileContentSettings) profileContentSettings.classList.add('hidden');
+
+            if (tabProfileData) {
+                tabProfileData.classList.add('bg-white', 'dark:bg-surface-dark', 'text-gray-900', 'dark:text-white', 'shadow-sm', 'font-bold');
+                tabProfileData.classList.remove('text-gray-500', 'dark:text-gray-400', 'font-medium');
+            }
+
+            if (tabProfileSettings) {
+                tabProfileSettings.classList.remove('bg-white', 'dark:bg-surface-dark', 'text-gray-900', 'dark:text-white', 'shadow-sm', 'font-bold');
+                tabProfileSettings.classList.add('text-gray-500', 'dark:text-gray-400', 'font-medium');
+            }
+        } else {
+            if (profileContentData) profileContentData.classList.add('hidden');
+            if (profileContentSettings) profileContentSettings.classList.remove('hidden');
+
+            if (tabProfileSettings) {
+                tabProfileSettings.classList.add('bg-white', 'dark:bg-surface-dark', 'text-gray-900', 'dark:text-white', 'shadow-sm', 'font-bold');
+                tabProfileSettings.classList.remove('text-gray-500', 'dark:text-gray-400', 'font-medium');
+            }
+
+            if (tabProfileData) {
+                tabProfileData.classList.remove('bg-white', 'dark:bg-surface-dark', 'text-gray-900', 'dark:text-white', 'shadow-sm', 'font-bold');
+                tabProfileData.classList.add('text-gray-500', 'dark:text-gray-400', 'font-medium');
+            }
+        }
+    }
+
+    function handleSaveProfile() {
+        const name = profileNameInput.value.trim();
+        const bio = profileBioInput.value.trim();
+
+        if (!name) {
+            showToast('Nome é obrigatório.', 'error');
+            return;
+        }
+
+        userProfile.name = name;
+        userProfile.bio = bio;
+
+        // Avatar is handled separately via change listener updating userProfile.avatar or just reading from preview bg
+        const bgImage = profileAvatarPreview.style.backgroundImage;
+        if (bgImage && bgImage !== 'none') {
+             userProfile.avatar = bgImage.slice(5, -2).replace(/['"]/g, "");
+        }
+
+        localStorage.setItem('userProfile', JSON.stringify(userProfile));
+        renderProfile();
+        showToast('Perfil atualizado!', 'success');
+    }
+
+    function handleClearData() {
+        if (confirm('Tem certeza? Isso apagará todos os seus dados permanentemente.')) {
+            localStorage.removeItem('wardrobeItems');
+            localStorage.removeItem('outfits');
+            wardrobeItems = [];
+            outfits = [];
+            updateStats();
+            renderGallery();
+            renderMostWorn();
+            if (document.getElementById('outfits-grid')) renderOutfits();
+            showToast('Dados apagados.', 'success');
+        }
+    }
+
+    function handleThemeToggle() {
+        userProfile.theme = userProfile.theme === 'light' ? 'dark' : 'light';
+        localStorage.setItem('userProfile', JSON.stringify(userProfile));
+        renderProfile();
     }
 });
