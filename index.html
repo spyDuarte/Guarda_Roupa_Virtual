@@ -855,12 +855,13 @@
 
              <!-- Tabs -->
              <div class="flex p-1 bg-gray-100 dark:bg-gray-800 rounded-xl mb-6">
-                <button id="tab-profile-data" class="flex-1 py-2 text-sm font-bold rounded-lg bg-white dark:bg-surface-dark text-gray-900 dark:text-white shadow-sm transition-all">Dados</button>
+                <button id="tab-profile-info" class="flex-1 py-2 text-sm font-bold rounded-lg bg-white dark:bg-surface-dark text-gray-900 dark:text-white shadow-sm transition-all">Perfil</button>
+                <button id="tab-profile-data" class="flex-1 py-2 text-sm font-medium rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all">Dados</button>
                 <button id="tab-profile-settings" class="flex-1 py-2 text-sm font-medium rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all">Configurações</button>
              </div>
 
-             <!-- Tab Content: Data -->
-             <div id="profile-content-data" class="space-y-4">
+             <!-- Tab Content: Info (Perfil) -->
+             <div id="profile-content-info" class="space-y-4">
                 <!-- Avatar Preview -->
                 <div class="flex flex-col items-center mb-4">
                     <div id="profile-avatar-preview" class="size-24 rounded-full bg-cover bg-center border-4 border-primary mb-2" style="background-image: url('https://via.placeholder.com/150')"></div>
@@ -902,15 +903,8 @@
                 <button id="save-profile-btn" class="w-full bg-primary text-slate-900 font-bold py-3 rounded-xl shadow-sm hover:opacity-90 mt-4">Salvar Alterações</button>
              </div>
 
-             <!-- Tab Content: Settings -->
-             <div id="profile-content-settings" class="hidden space-y-4">
-                 <div class="flex items-center justify-between p-4 bg-white dark:bg-surface-dark rounded-xl border border-gray-100 dark:border-gray-800">
-                    <span class="font-bold text-gray-900 dark:text-white">Modo Escuro</span>
-                    <button id="theme-toggle-btn" class="w-12 h-6 bg-gray-200 dark:bg-gray-700 rounded-full relative transition-colors">
-                        <div class="absolute top-1 left-1 dark:left-7 w-4 h-4 bg-white rounded-full transition-all duration-300"></div>
-                    </button>
-                 </div>
-
+             <!-- Tab Content: Data (Dados) -->
+             <div id="profile-content-data" class="hidden space-y-4">
                  <!-- Backup Section -->
                  <div class="p-4 bg-white dark:bg-surface-dark rounded-xl border border-gray-100 dark:border-gray-800">
                     <h3 class="font-bold text-gray-900 dark:text-white mb-2">Backup & Dados</h3>
@@ -929,6 +923,16 @@
                     <h3 class="font-bold text-red-600 dark:text-red-400 mb-2">Zona de Perigo</h3>
                     <p class="text-xs text-red-500/80 mb-4">Isso apagará todos os seus itens e looks salvos neste dispositivo.</p>
                     <button id="clear-data-btn" class="w-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 font-bold py-2 rounded-lg hover:bg-red-200 dark:hover:bg-red-900/50">Apagar Tudo</button>
+                 </div>
+             </div>
+
+             <!-- Tab Content: Settings (Configurações) -->
+             <div id="profile-content-settings" class="hidden space-y-4">
+                 <div class="flex items-center justify-between p-4 bg-white dark:bg-surface-dark rounded-xl border border-gray-100 dark:border-gray-800">
+                    <span class="font-bold text-gray-900 dark:text-white">Modo Escuro</span>
+                    <button id="theme-toggle-btn" class="w-12 h-6 bg-gray-200 dark:bg-gray-700 rounded-full relative transition-colors">
+                        <div class="absolute top-1 left-1 dark:left-7 w-4 h-4 bg-white rounded-full transition-all duration-300"></div>
+                    </button>
                  </div>
 
                  <!-- About Section -->
