@@ -125,9 +125,15 @@ function updateFilterChips() {
     });
 
     if (galleryTitle) {
-        if (currentCategory === 'all') galleryTitle.textContent = 'Closet';
-        else if (currentCategory === 'favorites') galleryTitle.textContent = 'Favorites';
-        else galleryTitle.textContent = currentCategory.charAt(0).toUpperCase() + currentCategory.slice(1);
+        const categoryNames = {
+            'all': 'Guarda-Roupa',
+            'favorites': 'Favoritos',
+            'tops': 'Parte de Cima',
+            'bottoms': 'Parte de Baixo',
+            'shoes': 'Sapatos',
+            'accessories': 'Acessórios'
+        };
+        galleryTitle.textContent = categoryNames[currentCategory] || (currentCategory.charAt(0).toUpperCase() + currentCategory.slice(1));
     }
 }
 
@@ -186,14 +192,14 @@ function renderGallery() {
 
         const p = document.createElement('p');
         p.className = 'text-gray-500 font-medium';
-        p.textContent = searchTerm ? 'No items found matching your search.' : 'Your closet is empty.';
+        p.textContent = searchTerm ? 'Nenhum item encontrado para sua busca.' : 'Seu guarda-roupa está vazio.';
 
         noItemsDiv.appendChild(p);
 
         if (!searchTerm && currentCategory === 'all') {
              const addBtn = document.createElement('button');
              addBtn.className = 'bg-primary/10 text-primary font-bold px-4 py-2 rounded-lg hover:bg-primary/20 transition-colors';
-             addBtn.textContent = 'Add Your First Item';
+             addBtn.textContent = 'Adicione Seu Primeiro Item';
              addBtn.onclick = () => openAddItemOverlay();
              noItemsDiv.appendChild(addBtn);
         }
@@ -282,7 +288,7 @@ function setupSelectionUI() {
 function updateSelectionUI() {
     const selectionCountEl = document.getElementById('selection-count');
     if (selectionCountEl) {
-        selectionCountEl.textContent = `${selectedOutfitItems.length} items selected`;
+        selectionCountEl.textContent = `${selectedOutfitItems.length} itens selecionados`;
     }
 }
 
@@ -315,7 +321,7 @@ function setupModal() {
 
     if (deleteItemBtn) {
         deleteItemBtn.addEventListener('click', () => {
-            if (currentModalItemId && confirm('Are you sure you want to delete this item?')) {
+            if (currentModalItemId && confirm('Tem certeza que deseja excluir este item?')) {
                 store.wardrobeItems = store.wardrobeItems.filter(i => i.id !== currentModalItemId);
                 store.saveWardrobeItems();
 
@@ -332,7 +338,7 @@ function setupModal() {
                 renderGallery();
 
                 itemModal.classList.add('hidden');
-                showToast('Item deleted.', 'info');
+                showToast('Item excluído.', 'info');
             }
         });
     }
@@ -361,7 +367,7 @@ function setupModal() {
              const wearBtn = document.createElement('button');
              wearBtn.id = 'log-usage-btn';
              wearBtn.className = 'flex-1 bg-primary/10 text-primary font-bold py-2 rounded-lg hover:bg-primary/20 transition-colors';
-             wearBtn.textContent = 'Wear';
+             wearBtn.textContent = 'Usar';
              wearBtn.onclick = handleLogUsage;
              actionContainer.insertBefore(wearBtn, editItemBtn);
         }
@@ -375,7 +381,7 @@ function handleLogUsage() {
         store.saveWardrobeItems();
         updateStats();
         renderMostWorn();
-        showToast(`Wore ${item.name}! (Count: ${item.usageCount})`, 'success');
+        showToast(`Usou ${item.name}! (Contagem: ${item.usageCount})`, 'success');
 
         const itemModal = document.getElementById('item-modal');
         if (itemModal) itemModal.classList.add('hidden');
@@ -394,7 +400,7 @@ function handleToggleFavorite() {
             updateFavoriteBtnState(favBtn, item.isFavorite);
         }
         renderGallery();
-        showToast(item.isFavorite ? 'Added to favorites' : 'Removed from favorites', 'info');
+        showToast(item.isFavorite ? 'Adicionado aos favoritos' : 'Removido dos favoritos', 'info');
     }
 }
 
@@ -430,11 +436,17 @@ export function openItemModal(item) {
 
     if (modalDetailsText) {
         modalDetailsText.innerHTML = '';
+        const categoryMap = {
+            'tops': 'Parte de Cima',
+            'bottoms': 'Parte de Baixo',
+            'shoes': 'Sapatos',
+            'accessories': 'Acessórios'
+        };
         const details = [
-            { label: 'Category', value: item.category },
-            { label: 'Brand', value: item.brand || '-' },
-            { label: 'Size', value: item.size || '-' },
-            { label: 'Notes', value: item.notes || '-' }
+            { label: 'Categoria', value: categoryMap[item.category] || item.category },
+            { label: 'Marca', value: item.brand || '-' },
+            { label: 'Tamanho', value: item.size || '-' },
+            { label: 'Notas', value: item.notes || '-' }
         ];
 
         details.forEach(detail => {

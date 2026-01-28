@@ -46,11 +46,11 @@ function resetAddItemForm() {
 
     // Update Titles
     const titleEl = document.querySelector('#view-add-item h2');
-    if (titleEl) titleEl.textContent = 'Add New Item';
+    if (titleEl) titleEl.textContent = 'Adicionar Novo Item';
     const addToClosetBtn = document.getElementById('add-to-closet-btn');
     if (addToClosetBtn) {
          const span = addToClosetBtn.querySelector('span');
-         if(span) span.textContent = 'Add to Closet';
+         if(span) span.textContent = 'Adicionar ao Armário';
     }
 
     if (itemFileInput) itemFileInput.value = '';
@@ -73,11 +73,11 @@ function populateAddItemForm(item) {
 
     // Update Titles
     const titleEl = document.querySelector('#view-add-item h2');
-    if (titleEl) titleEl.textContent = 'Edit Item';
+    if (titleEl) titleEl.textContent = 'Editar Item';
     const addToClosetBtn = document.getElementById('add-to-closet-btn');
     if (addToClosetBtn) {
          const span = addToClosetBtn.querySelector('span');
-         if(span) span.textContent = 'Save Changes';
+         if(span) span.textContent = 'Salvar Alterações';
     }
 
     const addItemPreview = document.getElementById('add-item-preview');
@@ -201,7 +201,7 @@ function handleSaveItem() {
     }
 
     if (!name || !category) {
-        showToast('Please enter a name and select a category.', 'error');
+        showToast('Por favor, insira um nome e selecione uma categoria.', 'error');
         return;
     }
 
@@ -223,9 +223,9 @@ function handleSaveItem() {
 
             store.wardrobeItems[itemIndex] = updatedItem;
             store.saveWardrobeItems();
-            showToast('Item updated!', 'success');
+            showToast('Item atualizado!', 'success');
         } else {
-            showToast('Error finding item to update.', 'error');
+            showToast('Erro ao encontrar item para atualizar.', 'error');
         }
     } else {
         const newItem = {
@@ -243,7 +243,7 @@ function handleSaveItem() {
         try {
             store.wardrobeItems.push(newItem);
             store.saveWardrobeItems();
-            showToast('Item added to closet!', 'success');
+            showToast('Item adicionado ao armário!', 'success');
         } catch (e) {
             showToast(e.message, 'error');
             return;
