@@ -182,6 +182,8 @@ function renderGallery() {
         return;
     }
 
+    const fragment = document.createDocumentFragment();
+
     filteredItems.forEach(item => {
         const div = document.createElement('div');
         div.className = 'group flex flex-col gap-2 cursor-pointer';
@@ -235,8 +237,9 @@ function renderGallery() {
         div.appendChild(imgContainer);
         div.appendChild(infoDiv);
 
-        galleryGrid.appendChild(div);
+        fragment.appendChild(div);
     });
+    galleryGrid.appendChild(fragment);
 }
 
 function setupSelectionUI() {
