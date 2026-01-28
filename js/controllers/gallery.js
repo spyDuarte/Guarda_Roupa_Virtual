@@ -1,6 +1,7 @@
 import { store } from '../core/store.js';
 import { router } from '../core/router.js';
 import { showToast } from '../utils/toast.js';
+import { debounce } from '../utils/debounce.js';
 import { updateStats, renderMostWorn } from './dashboard.js';
 import { openEditItemOverlay, openAddItemOverlay } from './addItem.js';
 
@@ -68,9 +69,9 @@ function setupEventListeners() {
 
     const gallerySearch = document.getElementById('gallery-search');
     if (gallerySearch) {
-        gallerySearch.addEventListener('input', () => {
+        gallerySearch.addEventListener('input', debounce(() => {
             renderGallery();
-        });
+        }, 300));
     }
 
     const galleryBackBtn = document.getElementById('gallery-back-btn');
