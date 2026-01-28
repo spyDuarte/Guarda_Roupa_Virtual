@@ -47,32 +47,37 @@ export function renderMostWorn() {
 
     items.forEach(item => {
         const div = document.createElement('div');
-        div.className = 'min-w-[140px] flex flex-col gap-2 group cursor-pointer';
+        div.className = 'min-w-[140px] flex flex-col gap-3 group cursor-pointer card-hover';
         div.setAttribute('data-id', item.id);
         div.onclick = () => openItemModal(item);
 
         const imgContainer = document.createElement('div');
-        imgContainer.className = 'relative w-full aspect-[3/4] rounded-xl overflow-hidden bg-white dark:bg-surface-dark shadow-sm border border-gray-100 dark:border-gray-800';
+        imgContainer.className = 'relative w-full aspect-[3/4] rounded-3xl overflow-hidden shadow-md';
 
         const badge = document.createElement('div');
-        badge.className = 'absolute top-2 right-2 bg-black/60 backdrop-blur-md text-white text-[10px] px-2 py-0.5 rounded-full font-bold z-10';
-        badge.textContent = `${item.usageCount || 0}x`;
+        badge.className = 'absolute top-3 right-3 bg-white/20 backdrop-blur-md border border-white/20 text-white text-xs px-2.5 py-1 rounded-full font-bold z-10 shadow-lg';
+        badge.textContent = `${item.usageCount || 0}`;
 
         const imgBg = document.createElement('div');
-        imgBg.className = 'w-full h-full bg-center bg-no-repeat bg-cover group-hover:scale-105 transition-transform duration-300';
+        imgBg.className = 'w-full h-full bg-center bg-no-repeat bg-cover group-hover:scale-110 transition-transform duration-500';
         imgBg.style.backgroundImage = `url("${item.image || 'https://via.placeholder.com/200?text=No+Image'}")`;
+
+        const overlay = document.createElement('div');
+        overlay.className = 'absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300';
 
         imgContainer.appendChild(badge);
         imgContainer.appendChild(imgBg);
+        imgContainer.appendChild(overlay);
 
         const infoDiv = document.createElement('div');
+        infoDiv.className = 'px-1';
 
         const nameP = document.createElement('p');
         nameP.className = 'text-[#111815] dark:text-white text-sm font-bold truncate';
         nameP.textContent = item.name;
 
         const brandP = document.createElement('p');
-        brandP.className = 'text-gray-500 dark:text-gray-400 text-xs';
+        brandP.className = 'text-gray-500 dark:text-gray-400 text-xs font-medium';
         brandP.textContent = item.brand || item.category;
 
         infoDiv.appendChild(nameP);

@@ -77,107 +77,106 @@
         <!-- DASHBOARD VIEW -->
         <div id="view-dashboard" class="view-section active pb-24">
             <!-- Top App Bar -->
-            <div class="flex items-center px-4 pt-6 pb-2 justify-between sticky top-0 bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-sm z-10">
+            <div class="flex items-center px-6 pt-8 pb-4 justify-between sticky top-0 glass-panel border-b-0 rounded-b-3xl z-30 transition-all">
                 <div class="flex items-center gap-3">
-                    <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-primary" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDu0QGjSKdEOEmfc9FykHdh0-333YCIcqrBBf9rq_qFp9MQiuCnr9iAXaCqwNfJRSNkprYJp0aY0CovcW0NzsHGKHdIJ0yynSLBkcP85TqtAzly8NQFf2hD-Lk1clAOPRsjzsDvf2uL9C3jHEhdWrpPb6CSGNVvxIa8cSBcVNqiFeRmNzkOuTjZ8eq2X0bnl6U0LfrS4mDqXtCcQy7GH9oB13mjlq2UNImABSFP14eeqGndeiplEi_83om1nH5-PHx33Bd1LpC5GBS2");'></div>
+                    <div class="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-12 ring-2 ring-primary/50 shadow-lg" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDu0QGjSKdEOEmfc9FykHdh0-333YCIcqrBBf9rq_qFp9MQiuCnr9iAXaCqwNfJRSNkprYJp0aY0CovcW0NzsHGKHdIJ0yynSLBkcP85TqtAzly8NQFf2hD-Lk1clAOPRsjzsDvf2uL9C3jHEhdWrpPb6CSGNVvxIa8cSBcVNqiFeRmNzkOuTjZ8eq2X0bnl6U0LfrS4mDqXtCcQy7GH9oB13mjlq2UNImABSFP14eeqGndeiplEi_83om1nH5-PHx33Bd1LpC5GBS2");'></div>
                     <div>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 font-medium">Welcome back,</p>
-                        <h2 class="text-[#111815] dark:text-white text-lg font-bold leading-tight tracking-[-0.015em]">Ritinha</h2>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider">Good Morning</p>
+                        <h2 class="text-[#111815] dark:text-white text-xl font-bold leading-tight tracking-tight">Ritinha</h2>
                     </div>
                 </div>
-                <button class="flex items-center justify-center rounded-full size-10 bg-white dark:bg-surface-dark shadow-sm text-[#111815] dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                <button class="flex items-center justify-center rounded-full size-10 bg-white/50 dark:bg-white/5 hover:bg-white dark:hover:bg-white/20 transition-all text-[#111815] dark:text-white relative">
                     <span class="material-symbols-outlined">notifications</span>
+                    <span class="absolute top-2 right-2 size-2 bg-red-500 rounded-full border border-white dark:border-surface-dark"></span>
                 </button>
             </div>
             <!-- Weather Widget -->
-            <div class="px-4 py-2">
-                <div id="weather-widget" class="bg-surface-light dark:bg-surface-dark rounded-xl p-4 flex items-center justify-between shadow-sm border border-gray-100 dark:border-gray-800 cursor-pointer hover:shadow-md transition-all">
-                    <div class="flex flex-col">
-                        <span class="text-sm font-medium text-gray-500 dark:text-gray-400">Weather today</span>
-                        <span class="text-xl font-bold text-[#111815] dark:text-white flex items-center gap-2">24° Sunny</span>
+            <div class="px-4 py-4">
+                <div id="weather-widget" class="relative overflow-hidden bg-gradient-to-br from-[#47ebb4]/20 to-[#47ebb4]/5 rounded-3xl p-6 flex items-center justify-between border border-primary/20 cursor-pointer card-hover group">
+                    <div class="absolute -right-4 -top-4 text-primary/10 group-hover:text-primary/20 transition-colors">
+                        <span class="material-symbols-outlined text-[120px]">partly_cloudy_day</span>
                     </div>
-                    <button id="plan-outfit-btn" class="bg-primary hover:bg-[#3ddca6] text-[#11211c] px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-colors">
+                    <div class="flex flex-col relative z-10">
+                        <span class="text-sm font-bold text-primary uppercase tracking-wide mb-1">London, UK</span>
+                        <span class="text-3xl font-extrabold text-[#111815] dark:text-white flex items-center gap-2">24°</span>
+                        <span class="text-sm font-medium text-gray-600 dark:text-gray-300">Sunny & Clear</span>
+                    </div>
+                    <button id="plan-outfit-btn" class="relative z-10 bg-[#11211c] dark:bg-white text-white dark:text-[#11211c] pl-4 pr-5 py-3 rounded-full text-sm font-bold flex items-center gap-2 shadow-lg hover:scale-105 active:scale-95 transition-all">
                         <span class="material-symbols-outlined text-[20px]">checkroom</span>
-                        Plan Outfit
+                        Inspire Me
                     </button>
                 </div>
             </div>
             <!-- Stats -->
-            <div class="flex flex-wrap gap-3 p-4">
-                <div class="flex min-w-[140px] flex-1 flex-col justify-between rounded-xl p-5 bg-white dark:bg-surface-dark shadow-sm border border-gray-100 dark:border-gray-800">
-                    <div class="flex items-start justify-between">
-                        <div class="bg-primary/20 p-2 rounded-lg text-primary-dark">
-                            <span class="material-symbols-outlined text-primary dark:text-primary">inventory_2</span>
+            <div class="flex flex-wrap gap-4 px-4 pb-2">
+                <div class="glass-panel flex min-w-[140px] flex-1 flex-col justify-between rounded-3xl p-5 card-hover">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="bg-primary/20 p-2 rounded-full">
+                            <span class="material-symbols-outlined text-primary text-[20px]">inventory_2</span>
                         </div>
+                        <p class="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase tracking-wider">Wardrobe</p>
                     </div>
-                    <div class="mt-4">
-                        <p id="total-items-count" class="text-[#111815] dark:text-white tracking-light text-3xl font-bold leading-tight">0</p>
-                        <p class="text-gray-500 dark:text-gray-400 text-sm font-medium leading-normal">Total Items</p>
+                    <div>
+                        <p id="total-items-count" class="text-[#111815] dark:text-white tracking-tight text-3xl font-black leading-tight">0</p>
+                        <p class="text-gray-400 dark:text-gray-500 text-xs font-medium">Items collected</p>
                     </div>
                 </div>
-                <div class="flex min-w-[140px] flex-1 flex-col justify-between rounded-xl p-5 bg-white dark:bg-surface-dark shadow-sm border border-gray-100 dark:border-gray-800">
-                    <div class="flex items-start justify-between">
-                        <div class="bg-blue-100 dark:bg-blue-900/30 p-2 rounded-lg">
-                            <span class="material-symbols-outlined text-blue-600 dark:text-blue-400">style</span>
+                <div class="glass-panel flex min-w-[140px] flex-1 flex-col justify-between rounded-3xl p-5 card-hover">
+                    <div class="flex items-center gap-3 mb-2">
+                        <div class="bg-blue-100 dark:bg-blue-500/20 p-2 rounded-full">
+                            <span class="material-symbols-outlined text-blue-600 dark:text-blue-400 text-[20px]">style</span>
                         </div>
+                        <p class="text-gray-500 dark:text-gray-400 text-xs font-bold uppercase tracking-wider">Looks</p>
                     </div>
-                    <div class="mt-4">
-                        <p id="total-outfits-count" class="text-[#111815] dark:text-white tracking-light text-3xl font-bold leading-tight">0</p>
-                        <p class="text-gray-500 dark:text-gray-400 text-sm font-medium leading-normal">Outfits Created</p>
+                    <div>
+                        <p id="total-outfits-count" class="text-[#111815] dark:text-white tracking-tight text-3xl font-black leading-tight">0</p>
+                        <p class="text-gray-400 dark:text-gray-500 text-xs font-medium">Combinations</p>
                     </div>
                 </div>
             </div>
             <!-- Categories -->
-            <div class="flex items-center justify-between px-4 pt-4 pb-2">
-                <h1 class="text-[#111815] dark:text-white text-[20px] font-bold leading-tight tracking-[-0.015em]">Categories</h1>
-                <button class="text-sm font-bold text-primary hover:opacity-80 category-link" data-category="all">See All</button>
+            <div class="flex items-center justify-between px-6 pt-6 pb-4">
+                <h1 class="text-[#111815] dark:text-white text-xl font-bold leading-tight tracking-tight">Browse Categories</h1>
+                <button class="text-xs font-bold text-primary hover:text-primary/80 transition-colors category-link" data-category="all">VIEW ALL</button>
             </div>
-            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 p-4 pt-0">
-                <div class="category-card group relative flex flex-col gap-3 p-3 bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 hover:shadow-md transition-all cursor-pointer" data-category="tops">
-                    <div class="w-full bg-center bg-no-repeat aspect-[4/3] bg-cover rounded-lg overflow-hidden relative" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDL88GEyvYEjNzgQMJkBaNaS0p6n93j7K9INHqfQHBxyW0sof1K3EzOCRcwDwtlbbbOdOwUY9sInxbQDw8FPvRy7sr4bBIX2tvm41lWFvO6qD992CFc1Dp0p8F3ZXXAQXqqTR_xNQFQpVVx3h4BzwVvvtK0Km2Trj2O-q53xrsRCgTxZ5HYJ_41q0Q-Le_lZP2gmZym9efy32MLu3rkoH4j82n-MV3ezbzH_bCTcrTXjnlXeZHniym8EAIOR1J_oIN0K6UfdGvWdNsy");'></div>
-                    <div class="flex justify-between items-end">
-                        <div>
-                            <p class="text-[#111815] dark:text-white text-base font-bold leading-normal">Tops</p>
-                            <p class="text-gray-500 dark:text-gray-400 text-xs font-medium leading-normal item-count-tops">0 items</p>
-                        </div>
-                        <div class="bg-gray-50 dark:bg-gray-700 p-1.5 rounded-full"><span class="material-symbols-outlined text-[18px] text-gray-400 dark:text-gray-300">arrow_forward</span></div>
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 px-4 pb-4">
+                <div class="category-card group relative h-40 rounded-3xl overflow-hidden cursor-pointer shadow-sm hover:shadow-lg transition-all" data-category="tops">
+                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDL88GEyvYEjNzgQMJkBaNaS0p6n93j7K9INHqfQHBxyW0sof1K3EzOCRcwDwtlbbbOdOwUY9sInxbQDw8FPvRy7sr4bBIX2tvm41lWFvO6qD992CFc1Dp0p8F3ZXXAQXqqTR_xNQFQpVVx3h4BzwVvvtK0Km2Trj2O-q53xrsRCgTxZ5HYJ_41q0Q-Le_lZP2gmZym9efy32MLu3rkoH4j82n-MV3ezbzH_bCTcrTXjnlXeZHniym8EAIOR1J_oIN0K6UfdGvWdNsy");'></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 p-4 w-full">
+                        <p class="text-white text-lg font-bold">Tops</p>
+                        <p class="text-gray-300 text-xs font-medium item-count-tops">0 items</p>
                     </div>
                 </div>
-                <div class="category-card group relative flex flex-col gap-3 p-3 bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 hover:shadow-md transition-all cursor-pointer" data-category="bottoms">
-                    <div class="w-full bg-center bg-no-repeat aspect-[4/3] bg-cover rounded-lg overflow-hidden relative" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCLZDm_QtNkSGDBQx9gAYfDntVNHsZMhsDXuId_O30CF5VWbiHjYVuALlrG0dkeo26ctuWYkuJYaRWd5VT6mqz_mhHMNGoEAcTJIIgqkNSICJGQt8icqG6a6Fr3MYczZBb-VDkZdXh2Ntxy0SH42jiyf4SErEg7_OxXXQPO4gXei4Ei8bUdJzJWvXv_M4NReyLkyPihg4BKxWJQj6Ym3mK0q-asSXWKVZ9MnZigeYZdYu8ysEUms_38J7XF49isPSRS-XxDzvR0Bm-i");'></div>
-                    <div class="flex justify-between items-end">
-                        <div>
-                            <p class="text-[#111815] dark:text-white text-base font-bold leading-normal">Bottoms</p>
-                            <p class="text-gray-500 dark:text-gray-400 text-xs font-medium leading-normal item-count-bottoms">0 items</p>
-                        </div>
-                        <div class="bg-gray-50 dark:bg-gray-700 p-1.5 rounded-full"><span class="material-symbols-outlined text-[18px] text-gray-400 dark:text-gray-300">arrow_forward</span></div>
+                <div class="category-card group relative h-40 rounded-3xl overflow-hidden cursor-pointer shadow-sm hover:shadow-lg transition-all" data-category="bottoms">
+                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCLZDm_QtNkSGDBQx9gAYfDntVNHsZMhsDXuId_O30CF5VWbiHjYVuALlrG0dkeo26ctuWYkuJYaRWd5VT6mqz_mhHMNGoEAcTJIIgqkNSICJGQt8icqG6a6Fr3MYczZBb-VDkZdXh2Ntxy0SH42jiyf4SErEg7_OxXXQPO4gXei4Ei8bUdJzJWvXv_M4NReyLkyPihg4BKxWJQj6Ym3mK0q-asSXWKVZ9MnZigeYZdYu8ysEUms_38J7XF49isPSRS-XxDzvR0Bm-i");'></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 p-4 w-full">
+                        <p class="text-white text-lg font-bold">Bottoms</p>
+                        <p class="text-gray-300 text-xs font-medium item-count-bottoms">0 items</p>
                     </div>
                 </div>
-                <div class="category-card group relative flex flex-col gap-3 p-3 bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 hover:shadow-md transition-all cursor-pointer" data-category="shoes">
-                    <div class="w-full bg-center bg-no-repeat aspect-[4/3] bg-cover rounded-lg overflow-hidden relative" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA7HH-B6DBaeUA9UjkZ7GWNEyVBHMoGsfutXDoGSxqzzEjkzCxKdRXPh5B74txuq_TFOdbOu621OXMoNzWCrzdbmsalr6A6ac52QAwtfcjhIlwWwuiRcipFjfO8V9OO802n90M0GN47zI2YvpRu2X0KHv3G81MCRyByx5kWViL_e9QJqul-u0B65ZNr-Peqrrg9Pd755PMeSZH-eKcdvn23AQDFriy2PC3FdK5cXz4fjdshlIHZGuVryhC0DT1Pl7HTbznlIMbnCt--");'></div>
-                    <div class="flex justify-between items-end">
-                        <div>
-                            <p class="text-[#111815] dark:text-white text-base font-bold leading-normal">Shoes</p>
-                            <p class="text-gray-500 dark:text-gray-400 text-xs font-medium leading-normal item-count-shoes">0 items</p>
-                        </div>
-                        <div class="bg-gray-50 dark:bg-gray-700 p-1.5 rounded-full"><span class="material-symbols-outlined text-[18px] text-gray-400 dark:text-gray-300">arrow_forward</span></div>
+                <div class="category-card group relative h-40 rounded-3xl overflow-hidden cursor-pointer shadow-sm hover:shadow-lg transition-all" data-category="shoes">
+                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuA7HH-B6DBaeUA9UjkZ7GWNEyVBHMoGsfutXDoGSxqzzEjkzCxKdRXPh5B74txuq_TFOdbOu621OXMoNzWCrzdbmsalr6A6ac52QAwtfcjhIlwWwuiRcipFjfO8V9OO802n90M0GN47zI2YvpRu2X0KHv3G81MCRyByx5kWViL_e9QJqul-u0B65ZNr-Peqrrg9Pd755PMeSZH-eKcdvn23AQDFriy2PC3FdK5cXz4fjdshlIHZGuVryhC0DT1Pl7HTbznlIMbnCt--");'></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 p-4 w-full">
+                        <p class="text-white text-lg font-bold">Shoes</p>
+                        <p class="text-gray-300 text-xs font-medium item-count-shoes">0 items</p>
                     </div>
                 </div>
-                <div class="category-card group relative flex flex-col gap-3 p-3 bg-white dark:bg-surface-dark rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 hover:shadow-md transition-all cursor-pointer" data-category="accessories">
-                    <div class="w-full bg-center bg-no-repeat aspect-[4/3] bg-cover rounded-lg overflow-hidden relative" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAeenUNlcL06k0Uiufq9rBQSSnIu6H1S9yJYpGKAfNda_Mt3g2mftcfsa7IFPrQLv1pO_QpPxxxHr5OUe6d68dX_IsIkDHXVKdzJ2w4Fqmgn5irvvNZ_WVvPSrfuh7qeW1SQrNBM0s5rDl6DN_HWD_hubta5QFqM9o4FquiAiayTgEC_mb5-Upv2lhIsmR7P_8CnjoFMAAFLjX6-r_G6vpbYh2fylXAvHsQv3HZXCft9wJOfNOAPM9Svu6cKHNN1HOB2kwwAWQKe_iu");'></div>
-                    <div class="flex justify-between items-end">
-                        <div>
-                            <p class="text-[#111815] dark:text-white text-base font-bold leading-normal">Access...</p>
-                            <p class="text-gray-500 dark:text-gray-400 text-xs font-medium leading-normal item-count-accessories">0 items</p>
-                        </div>
-                        <div class="bg-gray-50 dark:bg-gray-700 p-1.5 rounded-full"><span class="material-symbols-outlined text-[18px] text-gray-400 dark:text-gray-300">arrow_forward</span></div>
+                <div class="category-card group relative h-40 rounded-3xl overflow-hidden cursor-pointer shadow-sm hover:shadow-lg transition-all" data-category="accessories">
+                    <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAeenUNlcL06k0Uiufq9rBQSSnIu6H1S9yJYpGKAfNda_Mt3g2mftcfsa7IFPrQLv1pO_QpPxxxHr5OUe6d68dX_IsIkDHXVKdzJ2w4Fqmgn5irvvNZ_WVvPSrfuh7qeW1SQrNBM0s5rDl6DN_HWD_hubta5QFqM9o4FquiAiayTgEC_mb5-Upv2lhIsmR7P_8CnjoFMAAFLjX6-r_G6vpbYh2fylXAvHsQv3HZXCft9wJOfNOAPM9Svu6cKHNN1HOB2kwwAWQKe_iu");'></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 p-4 w-full">
+                        <p class="text-white text-lg font-bold">Accessories</p>
+                        <p class="text-gray-300 text-xs font-medium item-count-accessories">0 items</p>
                     </div>
                 </div>
             </div>
 
             <!-- Most Worn Title -->
-            <div class="flex items-center justify-between px-4 pt-4 pb-2">
-                <h1 class="text-[#111815] dark:text-white text-[20px] font-bold leading-tight tracking-[-0.015em]">Most Worn This Month</h1>
+            <div class="flex items-center justify-between px-6 pt-4 pb-2">
+                <h1 class="text-[#111815] dark:text-white text-xl font-bold leading-tight tracking-tight">Most Worn This Month</h1>
             </div>
             <!-- Most Worn Carousel -->
             <div id="most-worn-carousel" class="flex overflow-x-auto pb-6 px-4 gap-4 no-scrollbar">
@@ -1047,28 +1046,28 @@
         </div>
 
         <!-- BOTTOM NAVIGATION (Fixed) -->
-        <div id="bottom-nav" class="fixed bottom-0 left-0 w-full bg-white dark:bg-surface-dark border-t border-gray-100 dark:border-gray-800 pb-5 pt-3 px-6 flex justify-between items-center z-30 md:hidden">
-            <button class="nav-btn flex flex-col items-center gap-1 text-primary" data-target="dashboard">
-                <span class="material-symbols-outlined fill-current">dashboard</span>
-                <span class="text-[10px] font-bold">Home</span>
+        <div id="bottom-nav" class="fixed bottom-0 left-0 w-full glass-panel border-t border-white/20 pb-6 pt-3 px-6 flex justify-between items-center z-30 md:hidden rounded-t-3xl">
+            <button class="nav-btn flex flex-col items-center gap-1 text-gray-400 dark:text-gray-500 hover:text-[#111815] dark:hover:text-white transition-all group" data-target="dashboard">
+                <span class="material-symbols-outlined group-[.nav-item-active]:text-primary transition-colors">dashboard</span>
+                <span class="text-[10px] font-bold group-[.nav-item-active]:text-[#111815] dark:group-[.nav-item-active]:text-white transition-colors">Home</span>
             </button>
-            <button class="nav-btn flex flex-col items-center gap-1 text-gray-400 dark:text-gray-500 hover:text-[#111815] dark:hover:text-white transition-colors" data-target="gallery">
-                <span class="material-symbols-outlined">door_sliding</span>
-                <span class="text-[10px] font-medium">Closet</span>
+            <button class="nav-btn flex flex-col items-center gap-1 text-gray-400 dark:text-gray-500 hover:text-[#111815] dark:hover:text-white transition-all group" data-target="gallery">
+                <span class="material-symbols-outlined group-[.nav-item-active]:text-primary transition-colors">door_sliding</span>
+                <span class="text-[10px] font-bold group-[.nav-item-active]:text-[#111815] dark:group-[.nav-item-active]:text-white transition-colors">Closet</span>
             </button>
-            <button id="nav-add-item-btn" class="add-item-trigger flex flex-col items-center justify-center -mt-8 group">
-                <div class="bg-primary size-12 rounded-full flex items-center justify-center shadow-lg shadow-primary/20 border-4 border-white dark:border-surface-dark group-hover:scale-105 transition-transform">
-                    <span class="material-symbols-outlined text-[#11211c] text-2xl font-bold">add_a_photo</span>
+            <button id="nav-add-item-btn" class="add-item-trigger flex flex-col items-center justify-center -mt-10 group">
+                <div class="bg-[#11211c] dark:bg-primary size-14 rounded-full flex items-center justify-center shadow-xl shadow-black/20 group-hover:scale-105 transition-transform">
+                    <span class="material-symbols-outlined text-primary dark:text-[#11211c] text-2xl font-bold">add_a_photo</span>
                 </div>
-                <span class="text-[10px] font-medium mt-1 text-gray-400 dark:text-gray-500 group-hover:text-[#111815] dark:group-hover:text-white transition-colors">Add Photo</span>
+                <span class="text-[10px] font-medium mt-1 text-gray-400 dark:text-gray-500 group-hover:text-[#111815] dark:group-hover:text-white transition-colors">Add</span>
             </button>
-            <button class="nav-btn flex flex-col items-center gap-1 text-gray-400 dark:text-gray-500 hover:text-[#111815] dark:hover:text-white transition-colors" data-target="planner">
-                <span class="material-symbols-outlined">calendar_month</span>
-                <span class="text-[10px] font-medium">Planner</span>
+            <button class="nav-btn flex flex-col items-center gap-1 text-gray-400 dark:text-gray-500 hover:text-[#111815] dark:hover:text-white transition-all group" data-target="planner">
+                <span class="material-symbols-outlined group-[.nav-item-active]:text-primary transition-colors">calendar_month</span>
+                <span class="text-[10px] font-bold group-[.nav-item-active]:text-[#111815] dark:group-[.nav-item-active]:text-white transition-colors">Planner</span>
             </button>
-            <button class="nav-btn flex flex-col items-center gap-1 text-gray-400 dark:text-gray-500 hover:text-[#111815] dark:hover:text-white transition-colors" data-target="profile">
-                <span class="material-symbols-outlined">person</span>
-                <span class="text-[10px] font-medium">Profile</span>
+            <button class="nav-btn flex flex-col items-center gap-1 text-gray-400 dark:text-gray-500 hover:text-[#111815] dark:hover:text-white transition-all group" data-target="profile">
+                <span class="material-symbols-outlined group-[.nav-item-active]:text-primary transition-colors">person</span>
+                <span class="text-[10px] font-bold group-[.nav-item-active]:text-[#111815] dark:group-[.nav-item-active]:text-white transition-colors">Profile</span>
             </button>
         </div>
 
