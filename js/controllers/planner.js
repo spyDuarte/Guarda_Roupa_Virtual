@@ -232,9 +232,36 @@ export function renderOutfits() {
         infoDiv.appendChild(title);
         infoDiv.appendChild(itemsCount);
 
+        const editBtn = document.createElement('button');
+        editBtn.className = 'text-gray-400 hover:text-primary transition-colors p-2';
+        editBtn.innerHTML = '<span class="material-symbols-outlined text-lg">edit</span>';
+        editBtn.title = 'Edit Outfit';
+        editBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            GalleryController.startSelectionMode((selectedItems) => {
+                if (selectedItems.length === 0) {
+                     if (!confirm('Remove all items from outfit?')) return;
+                }
+
+                outfit.items = selectedItems;
+                // Optional: Update name
+                // outfit.name = prompt('Update outfit name:', outfit.name) || outfit.name;
+
+                store.saveOutfits();
+                updateStats();
+                showToast('Outfit updated!', 'success');
+                GalleryController.cancelSelectionMode();
+
+                router.navigateTo('planner');
+                renderOutfits();
+            }, outfit.items);
+            router.navigateTo('gallery');
+        });
+
         const deleteBtn = document.createElement('button');
         deleteBtn.className = 'text-gray-400 hover:text-red-500 transition-colors p-2';
         deleteBtn.innerHTML = '<span class="material-symbols-outlined text-lg">delete</span>';
+        deleteBtn.title = 'Delete Outfit';
         deleteBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             if (confirm('Delete this outfit?')) {
@@ -249,6 +276,7 @@ export function renderOutfits() {
 
         card.appendChild(previewDiv);
         card.appendChild(infoDiv);
+        card.appendChild(editBtn);
         card.appendChild(deleteBtn);
 
         outfitsGrid.appendChild(card);

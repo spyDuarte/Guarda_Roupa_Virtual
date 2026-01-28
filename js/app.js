@@ -4,6 +4,7 @@ import { GalleryController } from './controllers/gallery.js';
 import { initPlanner } from './controllers/planner.js';
 import { initProfile } from './controllers/profile.js';
 import { initAddItem } from './controllers/addItem.js';
+import { initWeather } from './controllers/weather.js';
 import { router } from './core/router.js';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -17,4 +18,5 @@ document.addEventListener('DOMContentLoaded', () => {
     initPlanner();
     initProfile();
     initAddItem();
+    initWeather();
 });
