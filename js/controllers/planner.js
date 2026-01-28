@@ -173,14 +173,14 @@ function renderCalendar() {
         const isToday = formatDateKey(new Date()) === dateKey;
 
         // Base classes
-        let classes = 'aspect-square flex flex-col items-center justify-center rounded-lg text-xs relative transition-all duration-200 ';
+        let classes = 'aspect-square flex flex-col items-center justify-center rounded-full text-xs relative transition-all duration-200 ';
 
         if (isSelected) {
-            classes += 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold shadow-md scale-105 z-10';
+            classes += 'bg-[#11211c] dark:bg-primary text-white dark:text-[#11211c] font-black shadow-lg scale-110 z-10';
         } else if (isToday) {
-            classes += 'bg-primary/20 text-primary font-bold border border-primary/50';
+            classes += 'border-2 border-primary text-primary font-bold';
         } else {
-            classes += 'bg-white/5 dark:bg-white/5 text-slate-700 dark:text-gray-300 hover:bg-black/5 dark:hover:bg-white/10';
+            classes += 'text-slate-500 dark:text-gray-400 hover:bg-black/5 dark:hover:bg-white/5 font-medium';
         }
 
         btn.className = classes;
@@ -264,7 +264,7 @@ export function renderOutfits() {
 
     relevantOutfits.forEach(outfit => {
         const card = document.createElement('div');
-        card.className = 'bg-white dark:bg-surface-dark p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 flex flex-col gap-4';
+        card.className = 'glass-panel p-5 rounded-3xl flex flex-col gap-4 card-hover';
 
         // Header: Title and Actions
         const header = document.createElement('div');
@@ -273,11 +273,11 @@ export function renderOutfits() {
         const titleBlock = document.createElement('div');
 
         const h3 = document.createElement('h3');
-        h3.className = 'text-[#111815] dark:text-white font-bold text-base leading-tight';
+        h3.className = 'text-[#111815] dark:text-white font-bold text-lg leading-tight';
         h3.textContent = outfit.name || 'Untitled Outfit';
 
         const p = document.createElement('p');
-        p.className = 'text-gray-500 dark:text-gray-400 text-xs mt-1';
+        p.className = 'text-gray-500 dark:text-gray-400 text-xs font-bold uppercase tracking-wider mt-1';
         p.textContent = `${outfit.items?.length || 0} items`;
 
         titleBlock.appendChild(h3);
@@ -338,12 +338,12 @@ export function renderOutfits() {
         if (items.length > 0) {
             items.slice(0, 4).forEach(item => {
                 const img = document.createElement('div');
-                img.className = 'size-16 rounded-lg bg-cover bg-center bg-gray-100 dark:bg-white/5 border border-gray-100 dark:border-white/5 shrink-0';
+                img.className = 'size-16 rounded-2xl bg-cover bg-center bg-gray-100 dark:bg-white/5 shadow-inner shrink-0';
                 img.style.backgroundImage = `url('${item.image || "https://via.placeholder.com/50"}')`;
                 previewGrid.appendChild(img);
             });
         } else {
-             previewGrid.innerHTML = '<div class="w-full h-16 bg-gray-50 dark:bg-white/5 rounded-lg flex items-center justify-center text-gray-400 text-xs">No items</div>';
+             previewGrid.innerHTML = '<div class="w-full h-16 bg-gray-50 dark:bg-white/5 rounded-2xl flex items-center justify-center text-gray-400 text-xs font-medium">No items</div>';
         }
         card.appendChild(previewGrid);
 
