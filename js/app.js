@@ -6,9 +6,13 @@ import { initProfile } from './controllers/profile.js';
 import { initAddItem } from './controllers/addItem.js';
 import { initWeather } from './controllers/weather.js';
 import { router } from './core/router.js';
+import { store } from './core/store.js';
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Initialize Router first
+document.addEventListener('DOMContentLoaded', async () => {
+    // Initialize Store first to ensure data is ready
+    await store.init();
+
+    // Initialize Router
     router.init();
 
     // Initialize Controllers

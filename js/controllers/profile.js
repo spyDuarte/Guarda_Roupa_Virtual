@@ -71,9 +71,9 @@ function setupEventListeners() {
     }
 
     if (clearDataBtn) {
-        clearDataBtn.addEventListener('click', () => {
+        clearDataBtn.addEventListener('click', async () => {
              if (confirm('Tem certeza? Isso apagará todos os seus dados permanentemente.')) {
-                store.clearAll();
+                await store.clearAll();
                 updateStats();
                 GalleryController.render();
                 renderOutfits();
@@ -83,17 +83,17 @@ function setupEventListeners() {
     }
 
     if (themeToggleBtn) {
-        themeToggleBtn.addEventListener('click', () => {
+        themeToggleBtn.addEventListener('click', async () => {
             store.userProfile.theme = store.userProfile.theme === 'light' ? 'dark' : 'light';
-            store.saveUserProfile();
+            await store.saveUserProfile();
             renderProfile();
         });
     }
 
     if (logoutBtn) {
-        logoutBtn.addEventListener('click', (e) => {
+        logoutBtn.addEventListener('click', async (e) => {
             e.preventDefault();
-            store.saveCurrentUser(null);
+            await store.saveCurrentUser(null);
             router.navigateTo('login');
         });
     }
@@ -151,7 +151,7 @@ function switchProfileTab(tab) {
     }
 }
 
-function handleSaveProfile() {
+async function handleSaveProfile() {
     const profileNameInput = document.getElementById('profile-name-input');
     const profileBioInput = document.getElementById('profile-bio-input');
     const profileAvatarPreview = document.getElementById('profile-avatar-preview');
@@ -172,7 +172,7 @@ function handleSaveProfile() {
          store.userProfile.avatar = bgImage.slice(5, -2).replace(/['"]/g, "");
     }
 
-    store.saveUserProfile();
+    await store.saveUserProfile();
     renderProfile();
     showToast('Perfil atualizado!', 'success');
 }
@@ -200,21 +200,21 @@ function handleImportData(event) {
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = async function(e) {
         try {
             const data = JSON.parse(e.target.result);
 
             if (data.wardrobeItems) {
                 store.wardrobeItems = data.wardrobeItems;
-                store.saveWardrobeItems();
+                await store.saveWardrobeItems();
             }
             if (data.outfits) {
                 store.outfits = data.outfits;
-                store.saveOutfits();
+                await store.saveOutfits();
             }
             if (data.userProfile) {
                 store.userProfile = data.userProfile;
-                store.saveUserProfile();
+                await store.saveUserProfile();
             }
 
             showToast('Backup restaurado com sucesso!', 'success');

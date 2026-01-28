@@ -1,3 +1,5 @@
+import { db } from './db.js';
+
 /**
  * @typedef {Object} WardrobeItem
  * @property {number} id
@@ -45,61 +47,105 @@ class Store {
         };
         this.currentUser = null;
 
-        this.init();
+        // Initialization is now asynchronous and must be called explicitly via init()
     }
 
-    init() {
+    async init() {
         try {
-            this.wardrobeItems = JSON.parse(localStorage.getItem('wardrobeItems')) || [];
-            this.outfits = JSON.parse(localStorage.getItem('outfits')) || [];
-            const savedProfile = JSON.parse(localStorage.getItem('userProfile'));
-            if (savedProfile) {
-                this.userProfile = { ...this.userProfile, ...savedProfile };
+            await db.init();
+
+            // Try load from IDB
+            let items = await db.get('wardrobeItems');
+            let outfits = await db.get('outfits');
+            let profile = await db.get('userProfile');
+            let user = await db.get('currentUser');
+
+            // Migration Logic: If IDB empty, check localStorage
+            // We check items and outfits specifically, as profile always has defaults in constructor
+            if (!items && !outfits) {
+                const localItems = localStorage.getItem('wardrobeItems');
+                const localOutfits = localStorage.getItem('outfits');
+                const localProfile = localStorage.getItem('userProfile');
+                const localUser = localStorage.getItem('currentUser');
+
+                if (localItems || localOutfits) {
+                    console.log('Migrating data from localStorage to IndexedDB...');
+                    if (localItems) {
+                        items = JSON.parse(localItems);
+                        await db.put('wardrobeItems', items);
+                    }
+                    if (localOutfits) {
+                        outfits = JSON.parse(localOutfits);
+                        await db.put('outfits', outfits);
+                    }
+                    if (localProfile) {
+                        profile = JSON.parse(localProfile);
+                        await db.put('userProfile', profile);
+                    }
+                    if (localUser) {
+                        user = localUser;
+                        await db.put('currentUser', user);
+                    }
+
+                    // We keep localStorage for now as a backup, or we could clear it.
+                    // localStorage.removeItem('wardrobeItems');
+                }
             }
-            this.currentUser = localStorage.getItem('currentUser');
+
+            this.wardrobeItems = items || [];
+            this.outfits = outfits || [];
+            if (profile) {
+                this.userProfile = { ...this.userProfile, ...profile };
+            }
+            this.currentUser = user;
+
         } catch (e) {
-            console.error('Error loading data from localStorage', e);
+            console.error('Error loading data from storage', e);
         }
     }
 
-    saveWardrobeItems() {
+    async saveWardrobeItems() {
         try {
-            localStorage.setItem('wardrobeItems', JSON.stringify(this.wardrobeItems));
+            await db.put('wardrobeItems', this.wardrobeItems);
         } catch (e) {
-            throw new Error('Storage limit exceeded');
+            throw new Error('Storage error: ' + e.message);
         }
     }
 
-    saveOutfits() {
+    async saveOutfits() {
         try {
-            localStorage.setItem('outfits', JSON.stringify(this.outfits));
+            await db.put('outfits', this.outfits);
         } catch (e) {
-            throw new Error('Storage limit exceeded');
+            throw new Error('Storage error: ' + e.message);
         }
     }
 
-    saveUserProfile() {
+    async saveUserProfile() {
         try {
-            localStorage.setItem('userProfile', JSON.stringify(this.userProfile));
+            await db.put('userProfile', this.userProfile);
         } catch (e) {
-            throw new Error('Storage limit exceeded');
+            throw new Error('Storage error: ' + e.message);
         }
     }
 
-    saveCurrentUser(email) {
+    async saveCurrentUser(email) {
         this.currentUser = email;
         if (email) {
-            localStorage.setItem('currentUser', email);
+            await db.put('currentUser', email);
         } else {
-            localStorage.removeItem('currentUser');
+            await db.delete('currentUser');
         }
     }
 
-    clearAll() {
-        localStorage.removeItem('wardrobeItems');
-        localStorage.removeItem('outfits');
+    async clearAll() {
+        await db.clear();
         this.wardrobeItems = [];
         this.outfits = [];
+        localStorage.removeItem('wardrobeItems');
+        localStorage.removeItem('outfits');
+        localStorage.removeItem('currentUser');
+        // We don't remove userProfile usually as it has defaults, but maybe we should reset it?
+        // Existing clearAll didn't reset profile.
     }
 }
 
