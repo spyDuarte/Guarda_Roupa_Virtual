@@ -97,9 +97,14 @@
                         <span class="material-symbols-outlined text-[120px]">partly_cloudy_day</span>
                     </div>
                     <div class="flex flex-col relative z-10">
-                        <span class="text-sm font-bold text-primary uppercase tracking-wide mb-1">Londres, UK</span>
-                        <span class="text-3xl font-extrabold text-[#111815] dark:text-white flex items-center gap-2">24°</span>
-                        <span class="text-sm font-medium text-gray-600 dark:text-gray-300">Ensolarado</span>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span id="dash-weather-location" class="text-sm font-bold text-primary uppercase tracking-wide">Londres, UK</span>
+                            <button id="weather-refresh-btn" class="p-1 rounded-full hover:bg-white/10 text-primary transition-colors" title="Localização Atual">
+                                <span class="material-symbols-outlined text-[16px]">my_location</span>
+                            </button>
+                        </div>
+                        <span id="dash-weather-temp" class="text-3xl font-extrabold text-[#111815] dark:text-white flex items-center gap-2">24°</span>
+                        <span id="dash-weather-condition" class="text-sm font-medium text-gray-600 dark:text-gray-300">Ensolarado</span>
                     </div>
                     <button id="plan-outfit-btn" class="relative z-10 bg-[#11211c] dark:bg-white text-white dark:text-[#11211c] pl-4 pr-5 py-3 rounded-full text-sm font-bold flex items-center gap-2 shadow-lg hover:scale-105 active:scale-95 transition-all">
                         <span class="material-symbols-outlined text-[20px]">checkroom</span>
@@ -588,11 +593,11 @@
 <div class="flex justify-between items-start">
 <div>
 <p class="text-primary text-sm font-semibold uppercase tracking-wider mb-1">Clima Atual</p>
-<h1 class="text-white text-4xl font-bold font-display">18°C</h1>
-<p class="text-slate-300 text-lg">Parcialmente Nublado</p>
+                <h1 id="style-weather-temp" class="text-white text-4xl font-bold font-display">18°C</h1>
+                <p id="style-weather-condition" class="text-slate-300 text-lg">Parcialmente Nublado</p>
 <div class="flex items-center gap-1 mt-2 text-slate-400">
 <span class="material-symbols-outlined text-sm">location_on</span>
-<span class="text-sm font-medium">Londres, UK</span>
+                    <span id="style-weather-location" class="text-sm font-medium">Londres, UK</span>
 </div>
 </div>
 <div class="flex flex-col items-center">
@@ -606,15 +611,15 @@
 <div class="mt-6 flex justify-between border-t border-white/5 pt-4">
 <div class="text-center">
 <p class="text-[10px] text-slate-400 uppercase">Umidade</p>
-<p class="text-white text-sm font-bold font-display">42%</p>
+                    <p id="style-weather-humidity" class="text-white text-sm font-bold font-display">42%</p>
 </div>
 <div class="text-center border-x border-white/5 px-6">
 <p class="text-[10px] text-slate-400 uppercase">Vento</p>
-<p class="text-white text-sm font-bold font-display">12 km/h</p>
+                    <p id="style-weather-wind" class="text-white text-sm font-bold font-display">12 km/h</p>
 </div>
 <div class="text-center">
 <p class="text-[10px] text-slate-400 uppercase">Índice UV</p>
-<p class="text-white text-sm font-bold font-display">Médio</p>
+                    <p id="style-weather-uv" class="text-white text-sm font-bold font-display">Médio</p>
 </div>
 </div>
 </div>
