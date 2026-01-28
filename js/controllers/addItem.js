@@ -171,7 +171,7 @@ function setupEventListeners() {
     if (addToClosetBtn) addToClosetBtn.addEventListener('click', handleSaveItem);
 }
 
-function handleSaveItem() {
+async function handleSaveItem() {
     const itemNameInput = document.getElementById('item-name');
     const selectedCategoryInput = document.getElementById('selected-category');
     const itemBrandInput = document.getElementById('item-brand');
@@ -212,9 +212,16 @@ function handleSaveItem() {
                  updatedItem.image = imageSrc;
             }
 
+            const originalItem = store.wardrobeItems[itemIndex];
             store.wardrobeItems[itemIndex] = updatedItem;
-            store.saveWardrobeItems();
-            showToast('Item updated!', 'success');
+            try {
+                await store.saveWardrobeItems();
+                showToast('Item updated!', 'success');
+            } catch (e) {
+                store.wardrobeItems[itemIndex] = originalItem;
+                showToast(e.message, 'error');
+                return;
+            }
         } else {
             showToast('Error finding item to update.', 'error');
         }
@@ -233,9 +240,10 @@ function handleSaveItem() {
 
         try {
             store.wardrobeItems.push(newItem);
-            store.saveWardrobeItems();
+            await store.saveWardrobeItems();
             showToast('Item added to closet!', 'success');
         } catch (e) {
+            store.wardrobeItems.pop();
             showToast(e.message, 'error');
             return;
         }

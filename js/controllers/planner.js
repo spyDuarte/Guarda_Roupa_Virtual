@@ -60,7 +60,7 @@ function setupEventListeners() {
         const newBtn = createOutfitBtn.cloneNode(true);
         createOutfitBtn.parentNode.replaceChild(newBtn, createOutfitBtn);
         newBtn.addEventListener('click', () => {
-            GalleryController.startSelectionMode((selectedItems) => {
+            GalleryController.startSelectionMode(async (selectedItems) => {
                 if (selectedItems.length === 0) {
                     showToast('Select at least one item.', 'error');
                     return;
@@ -78,7 +78,7 @@ function setupEventListeners() {
                 };
 
                 store.outfits.push(newOutfit);
-                store.saveOutfits();
+                await store.saveOutfits();
                 updateStats();
                 showToast('Outfit created!', 'success');
                 GalleryController.cancelSelectionMode();
@@ -238,7 +238,7 @@ export function renderOutfits() {
         editBtn.title = 'Edit Outfit';
         editBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            GalleryController.startSelectionMode((selectedItems) => {
+            GalleryController.startSelectionMode(async (selectedItems) => {
                 if (selectedItems.length === 0) {
                      if (!confirm('Remove all items from outfit?')) return;
                 }
@@ -247,7 +247,7 @@ export function renderOutfits() {
                 // Optional: Update name
                 // outfit.name = prompt('Update outfit name:', outfit.name) || outfit.name;
 
-                store.saveOutfits();
+                await store.saveOutfits();
                 updateStats();
                 showToast('Outfit updated!', 'success');
                 GalleryController.cancelSelectionMode();
@@ -262,11 +262,11 @@ export function renderOutfits() {
         deleteBtn.className = 'text-gray-400 hover:text-red-500 transition-colors p-2';
         deleteBtn.innerHTML = '<span class="material-symbols-outlined text-lg">delete</span>';
         deleteBtn.title = 'Delete Outfit';
-        deleteBtn.addEventListener('click', (e) => {
+        deleteBtn.addEventListener('click', async (e) => {
             e.stopPropagation();
             if (confirm('Delete this outfit?')) {
                 store.outfits = store.outfits.filter(o => o.id !== outfit.id);
-                store.saveOutfits();
+                await store.saveOutfits();
                 updateStats();
                 renderCalendar(); // Update dots
                 renderOutfits();

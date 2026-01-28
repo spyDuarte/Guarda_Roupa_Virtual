@@ -291,10 +291,10 @@ function setupModal() {
     });
 
     if (deleteItemBtn) {
-        deleteItemBtn.addEventListener('click', () => {
+        deleteItemBtn.addEventListener('click', async () => {
             if (currentModalItemId && confirm('Are you sure you want to delete this item?')) {
                 store.wardrobeItems = store.wardrobeItems.filter(i => i.id !== currentModalItemId);
-                store.saveWardrobeItems();
+                await store.saveWardrobeItems();
 
                 // Cascade delete: Remove item from all outfits
                 store.outfits.forEach(outfit => {
@@ -302,7 +302,7 @@ function setupModal() {
                         outfit.items = outfit.items.filter(id => id !== currentModalItemId);
                     }
                 });
-                store.saveOutfits();
+                await store.saveOutfits();
 
                 updateStats();
                 renderMostWorn();
@@ -345,11 +345,11 @@ function setupModal() {
     }
 }
 
-function handleLogUsage() {
+async function handleLogUsage() {
     const item = store.wardrobeItems.find(i => i.id === currentModalItemId);
     if (item) {
         item.usageCount = (item.usageCount || 0) + 1;
-        store.saveWardrobeItems();
+        await store.saveWardrobeItems();
         updateStats();
         renderMostWorn();
         showToast(`Wore ${item.name}! (Count: ${item.usageCount})`, 'success');
@@ -360,11 +360,11 @@ function handleLogUsage() {
     }
 }
 
-function handleToggleFavorite() {
+async function handleToggleFavorite() {
     const item = store.wardrobeItems.find(i => i.id === currentModalItemId);
     if (item) {
         item.isFavorite = !item.isFavorite;
-        store.saveWardrobeItems();
+        await store.saveWardrobeItems();
 
         const favBtn = document.getElementById('toggle-favorite-btn');
         if (favBtn) {
