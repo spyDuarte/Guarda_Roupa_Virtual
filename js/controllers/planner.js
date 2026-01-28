@@ -52,7 +52,7 @@ export const PlannerController = {
         if (updatedCount > 0) {
             store.saveWardrobeItems();
             updateStats();
-            showToast(`Marked "${outfit.name || 'Outfit'}" as worn!`, 'success');
+            showToast(`Marcado "${outfit.name || 'Look'}" como usado!`, 'success');
         }
     }
 };
@@ -102,11 +102,11 @@ function setupEventListeners() {
         newBtn.addEventListener('click', () => {
             GalleryController.startSelectionMode((selectedItems) => {
                 if (selectedItems.length === 0) {
-                    showToast('Select at least one item.', 'error');
+                    showToast('Selecione pelo menos um item.', 'error');
                     return;
                 }
 
-                const name = prompt('Name your outfit:');
+                const name = prompt('Nomeie seu look:');
                 if (!name) return;
 
                 const newOutfit = {
@@ -120,7 +120,7 @@ function setupEventListeners() {
                 store.outfits.push(newOutfit);
                 store.saveOutfits();
                 updateStats();
-                showToast('Outfit created!', 'success');
+                showToast('Look criado!', 'success');
                 GalleryController.cancelSelectionMode();
 
                 // Return to planner and update
@@ -142,8 +142,8 @@ function renderCalendar() {
     calendarGrid.innerHTML = '';
 
     // Set Month Year Title
-    const monthNames = ["January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
+    const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+        "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
     ];
     monthYearText.textContent = `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
 
@@ -223,7 +223,7 @@ export function renderOutfits() {
     // Update Header
     if (selectedDateHeader) {
         const options = { weekday: 'long', month: 'short', day: 'numeric' };
-        selectedDateHeader.textContent = selectedDate.toLocaleDateString('en-US', options);
+        selectedDateHeader.textContent = selectedDate.toLocaleDateString('pt-BR', options);
     }
 
     const relevantOutfits = store.outfits.filter(o => {
@@ -245,13 +245,13 @@ export function renderOutfits() {
             <div class="bg-gray-50 dark:bg-white/5 p-6 rounded-full mb-4">
                 <span class="material-symbols-outlined text-5xl text-gray-300 dark:text-gray-600">checkroom</span>
             </div>
-            <h3 class="text-gray-900 dark:text-white font-bold text-lg mb-1">Nothing planned</h3>
-            <p class="text-gray-500 dark:text-gray-400 text-sm mb-6 max-w-[200px]">Create an outfit to get ready for the day.</p>
+            <h3 class="text-gray-900 dark:text-white font-bold text-lg mb-1">Nada planejado</h3>
+            <p class="text-gray-500 dark:text-gray-400 text-sm mb-6 max-w-[200px]">Crie um look para se preparar para o dia.</p>
         `;
 
         const ctaBtn = document.createElement('button');
         ctaBtn.className = 'bg-primary text-slate-900 font-bold py-3 px-8 rounded-xl shadow-lg shadow-primary/20 hover:scale-105 transition-transform';
-        ctaBtn.innerHTML = '<span class="flex items-center gap-2">Plan Outfit <span class="material-symbols-outlined">arrow_forward</span></span>';
+        ctaBtn.innerHTML = '<span class="flex items-center gap-2">Planejar Look <span class="material-symbols-outlined">arrow_forward</span></span>';
         ctaBtn.onclick = () => {
              // Simulate click on main button or direct logic
              if (createBtn) createBtn.click();
@@ -274,11 +274,11 @@ export function renderOutfits() {
 
         const h3 = document.createElement('h3');
         h3.className = 'text-[#111815] dark:text-white font-bold text-lg leading-tight';
-        h3.textContent = outfit.name || 'Untitled Outfit';
+        h3.textContent = outfit.name || 'Look Sem Título';
 
         const p = document.createElement('p');
         p.className = 'text-gray-500 dark:text-gray-400 text-xs font-bold uppercase tracking-wider mt-1';
-        p.textContent = `${outfit.items?.length || 0} items`;
+        p.textContent = `${outfit.items?.length || 0} itens`;
 
         titleBlock.appendChild(h3);
         titleBlock.appendChild(p);
@@ -293,12 +293,12 @@ export function renderOutfits() {
             e.stopPropagation();
             GalleryController.startSelectionMode((selectedItems) => {
                 if (selectedItems.length === 0) {
-                     if (!confirm('Remove all items from outfit?')) return;
+                     if (!confirm('Remover todos os itens do look?')) return;
                 }
                 outfit.items = selectedItems;
                 store.saveOutfits();
                 updateStats();
-                showToast('Outfit updated!', 'success');
+                showToast('Look atualizado!', 'success');
                 GalleryController.cancelSelectionMode();
                 router.navigateTo('planner');
                 renderOutfits();
@@ -311,13 +311,13 @@ export function renderOutfits() {
         deleteBtn.innerHTML = '<span class="material-symbols-outlined text-lg">delete</span>';
         deleteBtn.onclick = (e) => {
             e.stopPropagation();
-            if (confirm('Delete this outfit?')) {
+            if (confirm('Excluir este look?')) {
                 store.outfits = store.outfits.filter(o => o.id !== outfit.id);
                 store.saveOutfits();
                 updateStats();
                 renderCalendar();
                 renderOutfits();
-                showToast('Outfit deleted.', 'info');
+                showToast('Look excluído.', 'info');
             }
         };
 
@@ -343,14 +343,14 @@ export function renderOutfits() {
                 previewGrid.appendChild(img);
             });
         } else {
-             previewGrid.innerHTML = '<div class="w-full h-16 bg-gray-50 dark:bg-white/5 rounded-2xl flex items-center justify-center text-gray-400 text-xs font-medium">No items</div>';
+             previewGrid.innerHTML = '<div class="w-full h-16 bg-gray-50 dark:bg-white/5 rounded-2xl flex items-center justify-center text-gray-400 text-xs font-medium">Sem itens</div>';
         }
         card.appendChild(previewGrid);
 
         // "Wear This" Button
         const wearBtn = document.createElement('button');
         wearBtn.className = 'w-full py-2.5 rounded-lg bg-gray-100 dark:bg-white/5 text-gray-900 dark:text-white font-bold text-sm hover:bg-primary hover:text-slate-900 transition-colors flex items-center justify-center gap-2 group';
-        wearBtn.innerHTML = '<span class="material-symbols-outlined text-lg group-hover:scale-110 transition-transform">checkroom</span> Wear This';
+        wearBtn.innerHTML = '<span class="material-symbols-outlined text-lg group-hover:scale-110 transition-transform">checkroom</span> Usar Isto';
         wearBtn.onclick = () => PlannerController.wearOutfit(outfit);
 
         card.appendChild(wearBtn);

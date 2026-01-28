@@ -27,14 +27,14 @@ function setupEventListeners() {
                 if (emailInput && emailInput.value) {
                     store.saveCurrentUser(emailInput.value);
                     router.navigateTo('dashboard');
-                    showToast('Welcome back!');
+                    showToast('Bem-vindo de volta!');
                 } else {
-                    showToast('Please enter an email.', 'error');
+                    showToast('Por favor, insira um email.', 'error');
                 }
             });
         }
 
-        const createAccountLink = Array.from(loginView.querySelectorAll('a')).find(link => link.textContent.includes('Create an Account'));
+        const createAccountLink = Array.from(loginView.querySelectorAll('a')).find(link => link.textContent.includes('Criar uma Conta'));
         if (createAccountLink) {
             createAccountLink.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -46,9 +46,9 @@ function setupEventListeners() {
         if (forgotPasswordLink) {
             forgotPasswordLink.addEventListener('click', (e) => {
                 e.preventDefault();
-                const email = prompt("Please enter your email to reset password:");
+                const email = prompt("Por favor, insira seu email para redefinir a senha:");
                 if (email) {
-                     showToast('Reset link sent to ' + email, 'success');
+                     showToast('Link de redefinição enviado para ' + email, 'success');
                 }
             });
         }
@@ -57,7 +57,7 @@ function setupEventListeners() {
         if (googleBtn) {
             googleBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                showToast('Google login not configured in this demo.', 'info');
+                showToast('Login com Google não configurado nesta demonstração.', 'info');
             });
         }
 
@@ -65,7 +65,7 @@ function setupEventListeners() {
         if (appleBtn) {
             appleBtn.addEventListener('click', (e) => {
                  e.preventDefault();
-                 showToast('Apple login not configured in this demo.', 'info');
+                 showToast('Login com Apple não configurado nesta demonstração.', 'info');
             });
         }
     }
@@ -77,12 +77,12 @@ function setupEventListeners() {
         if (createAccountBtn) {
             createAccountBtn.addEventListener('click', (e) => {
                 e.preventDefault();
-                store.saveCurrentUser('New User');
+                store.saveCurrentUser('Novo Usuário');
                 router.navigateTo('onboardingCreate');
             });
         }
 
-        const signInLink = Array.from(regView.querySelectorAll('a')).find(link => link.textContent.includes('Sign in'));
+        const signInLink = Array.from(regView.querySelectorAll('a')).find(link => link.textContent.includes('Entrar'));
         if (signInLink) {
             signInLink.addEventListener('click', (e) => {
                 e.preventDefault();

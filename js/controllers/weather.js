@@ -17,11 +17,11 @@ function updateWeatherView() {
     // Simulate fetching weather data
     const mockWeather = {
         temp: Math.floor(Math.random() * (28 - 12) + 12), // Random temp between 12 and 28
-        condition: ['Sunny', 'Partly Cloudy', 'Cloudy', 'Rainy'][Math.floor(Math.random() * 4)],
+        condition: ['Ensolarado', 'Parcialmente Nublado', 'Nublado', 'Chuvoso'][Math.floor(Math.random() * 4)],
         location: 'São Paulo, BR',
         humidity: Math.floor(Math.random() * (90 - 30) + 30),
         wind: Math.floor(Math.random() * (25 - 2) + 2),
-        uv: ['Low', 'Medium', 'High'][Math.floor(Math.random() * 3)]
+        uv: ['Baixo', 'Médio', 'Alto'][Math.floor(Math.random() * 3)]
     };
 
     // Update UI elements
@@ -33,9 +33,9 @@ function updateWeatherView() {
     const iconEl = view.querySelector('.material-symbols-outlined.text-6xl');
     if (iconEl) {
         let iconName = 'wb_sunny';
-        if (mockWeather.condition === 'Partly Cloudy') iconName = 'partly_cloudy_day';
-        if (mockWeather.condition === 'Cloudy') iconName = 'cloud';
-        if (mockWeather.condition === 'Rainy') iconName = 'rainy';
+        if (mockWeather.condition === 'Parcialmente Nublado') iconName = 'partly_cloudy_day';
+        if (mockWeather.condition === 'Nublado') iconName = 'cloud';
+        if (mockWeather.condition === 'Chuvoso') iconName = 'rainy';
         iconEl.textContent = iconName;
     }
 

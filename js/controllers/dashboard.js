@@ -24,7 +24,7 @@ export function updateStats() {
     categories.forEach(cat => {
         const count = store.wardrobeItems.filter(i => i.category === cat).length;
         const el = document.querySelector(`.item-count-${cat}`);
-        if (el) el.textContent = `${count} items`;
+        if (el) el.textContent = `${count} itens`;
     });
 }
 
@@ -40,7 +40,7 @@ export function renderMostWorn() {
     if (items.length === 0) {
          const p = document.createElement('p');
          p.className = 'text-gray-500 text-sm pl-4';
-         p.textContent = 'Add items to see them here.';
+         p.textContent = 'Adicione itens para vê-los aqui.';
          mostWornCarousel.appendChild(p);
          return;
     }
