@@ -41,6 +41,33 @@ function setupEventListeners() {
                 router.navigateTo('registration');
             });
         }
+
+        const forgotPasswordLink = document.getElementById('forgot-password-link');
+        if (forgotPasswordLink) {
+            forgotPasswordLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                const email = prompt("Please enter your email to reset password:");
+                if (email) {
+                     showToast('Reset link sent to ' + email, 'success');
+                }
+            });
+        }
+
+        const googleBtn = document.getElementById('social-login-google');
+        if (googleBtn) {
+            googleBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                showToast('Google login not configured in this demo.', 'info');
+            });
+        }
+
+        const appleBtn = document.getElementById('social-login-apple');
+        if (appleBtn) {
+            appleBtn.addEventListener('click', (e) => {
+                 e.preventDefault();
+                 showToast('Apple login not configured in this demo.', 'info');
+            });
+        }
     }
 
     // Registration View

@@ -114,6 +114,15 @@ function setupEventListeners() {
 
     if (closeAddItemBtn) closeAddItemBtn.addEventListener('click', closeAddItemOverlay);
 
+    const cameraBtnMock = document.getElementById('camera-btn-mock');
+    if (cameraBtnMock) {
+        cameraBtnMock.addEventListener('click', (e) => {
+             e.preventDefault();
+             const fileInput = document.getElementById('item-file-input');
+             if (fileInput) fileInput.click();
+        });
+    }
+
     // Trigger open from other places
     if (fabAddItem) fabAddItem.addEventListener('click', openAddItemOverlay);
     if (galleryAddBtn) galleryAddBtn.addEventListener('click', openAddItemOverlay);
