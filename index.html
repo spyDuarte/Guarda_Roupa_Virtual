@@ -800,14 +800,22 @@
         <div id="view-planner" class="view-section pb-24">
              <!-- Header / Month Navigator -->
             <header class="sticky top-0 z-10 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm pt-4">
-                <div class="flex items-center justify-between px-4 py-4">
+                <div class="relative flex items-center justify-between px-4 py-4">
                     <button id="planner-prev-month" class="flex size-10 items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-[#111815] dark:text-white">
                         <span class="material-symbols-outlined">chevron_left</span>
                     </button>
                     <h2 id="planner-month-year" class="text-lg font-bold leading-tight tracking-[-0.015em] text-center flex-1">October 2023</h2>
-                    <button id="planner-next-month" class="flex size-10 items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-[#111815] dark:text-white">
-                        <span class="material-symbols-outlined">chevron_right</span>
-                    </button>
+                    <div class="flex items-center gap-1">
+                        <button id="planner-next-month" class="flex size-10 items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-[#111815] dark:text-white">
+                            <span class="material-symbols-outlined">chevron_right</span>
+                        </button>
+                        <button id="planner-today-btn" class="hidden md:flex items-center justify-center px-3 py-1.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors text-xs font-bold ml-1">
+                            Today
+                        </button>
+                        <button id="planner-today-btn-mobile" class="md:hidden flex size-10 items-center justify-center rounded-full text-primary hover:bg-primary/10 transition-colors">
+                            <span class="material-symbols-outlined text-[20px]">today</span>
+                        </button>
+                    </div>
                 </div>
                 <!-- Days of Week -->
                 <div class="grid grid-cols-7 mb-2 px-2">
@@ -825,7 +833,10 @@
                 </div>
             </header>
             <!-- Outfits Grid -->
-            <div class="px-4 mb-6 pt-4">
+            <div class="px-4 mb-6 pt-4 min-h-[300px]">
+                <h3 id="planner-selected-date" class="text-xl font-bold text-slate-900 dark:text-white mb-4"></h3>
+
+                <!-- This button will be conditionally hidden/shown via JS based on content -->
                 <button id="create-outfit-btn" class="w-full bg-primary text-slate-900 font-bold py-3 rounded-xl mb-4 shadow-sm hover:opacity-90 transition-opacity">
                     Create New Outfit
                 </button>
