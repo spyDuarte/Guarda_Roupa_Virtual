@@ -144,9 +144,28 @@ function renderGallery() {
     let filteredItems = store.wardrobeItems.filter(item => {
         const matchesCategory = currentCategory === 'all' ||
                                 (currentCategory === 'favorites' ? item.isFavorite : item.category === currentCategory);
-        const matchesSearch = item.name.toLowerCase().includes(searchTerm) ||
-                              (item.brand && item.brand.toLowerCase().includes(searchTerm));
-        return matchesCategory && matchesSearch;
+
+        if (!matchesCategory) return false;
+
+        // Optimization: Use cached lowercase values
+        if (!item._normalizedName) {
+            Object.defineProperty(item, '_normalizedName', {
+                value: item.name.toLowerCase(),
+                enumerable: false,
+                writable: true
+            });
+        }
+        if (item.brand && !item._normalizedBrand) {
+            Object.defineProperty(item, '_normalizedBrand', {
+                value: item.brand.toLowerCase(),
+                enumerable: false,
+                writable: true
+            });
+        }
+
+        const matchesSearch = item._normalizedName.includes(searchTerm) ||
+                              (item.brand && item._normalizedBrand && item._normalizedBrand.includes(searchTerm));
+        return matchesSearch;
     });
 
     // Sort Items
