@@ -136,8 +136,6 @@ function renderGallery() {
 
     if (!galleryGrid) return;
 
-    galleryGrid.innerHTML = '';
-
     const searchTerm = gallerySearch ? gallerySearch.value.toLowerCase().trim() : '';
 
     let filteredItems = store.wardrobeItems.filter(item => {
@@ -160,10 +158,23 @@ function renderGallery() {
         return 0;
     });
 
-    if (filteredItems.length === 0) {
-        const noItemsDiv = document.createElement('div');
-        noItemsDiv.className = 'col-span-2 md:col-span-4 lg:col-span-5 flex flex-col items-center justify-center py-10 gap-4';
+    const noItemsId = 'gallery-no-items';
+    let noItemsDiv = document.getElementById(noItemsId);
 
+    if (filteredItems.length === 0) {
+         // Hide all item elements
+        Array.from(galleryGrid.children).forEach(child => {
+            if (child.id !== noItemsId && !child.classList.contains('hidden')) child.classList.add('hidden');
+        });
+
+        if (!noItemsDiv) {
+            noItemsDiv = document.createElement('div');
+            noItemsDiv.id = noItemsId;
+            noItemsDiv.className = 'col-span-2 md:col-span-4 lg:col-span-5 flex flex-col items-center justify-center py-10 gap-4';
+            galleryGrid.appendChild(noItemsDiv);
+        }
+
+        noItemsDiv.innerHTML = '';
         const p = document.createElement('p');
         p.className = 'text-gray-500 font-medium';
         p.textContent = searchTerm ? 'No items found matching your search.' : 'Your closet is empty.';
@@ -178,65 +189,152 @@ function renderGallery() {
              noItemsDiv.appendChild(addBtn);
         }
 
-        galleryGrid.appendChild(noItemsDiv);
+        noItemsDiv.classList.remove('hidden');
         return;
     }
 
+    if (noItemsDiv) {
+        noItemsDiv.classList.add('hidden');
+    }
+
+    // Existing Elements Map
+    const existingElements = new Map();
+    Array.from(galleryGrid.children).forEach(child => {
+        if (child.hasAttribute('data-item-id')) {
+            existingElements.set(parseInt(child.getAttribute('data-item-id')), child);
+        }
+    });
+
+    const processedIds = new Set();
+
     filteredItems.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'group flex flex-col gap-2 cursor-pointer';
+        processedIds.add(item.id);
+        let div = existingElements.get(item.id);
 
-        const imgContainer = document.createElement('div');
-        imgContainer.className = 'relative w-full aspect-[3/4] rounded-xl overflow-hidden bg-white dark:bg-surface-dark shadow-sm border border-slate-100 dark:border-white/5';
+        if (!div) {
+            div = createItemElement(item);
+            galleryGrid.appendChild(div);
+        } else {
+            updateItemElement(div, item);
+            if (div.classList.contains('hidden')) div.classList.remove('hidden');
 
-        const imgBg = document.createElement('div');
-        imgBg.className = 'absolute inset-0 bg-center bg-no-repeat bg-cover transition-transform duration-500 group-hover:scale-105';
-        imgBg.style.backgroundImage = `url("${item.image || 'https://via.placeholder.com/200?text=No+Image'}")`;
+            // Optimized Append: Only move if not already in correct relative position
+            if (galleryGrid.lastElementChild !== div) {
+                galleryGrid.appendChild(div);
+            }
+        }
+    });
 
-        imgContainer.appendChild(imgBg);
+    // Hide items not in filtered list
+    existingElements.forEach((div, id) => {
+        if (!processedIds.has(id)) {
+            if (!div.classList.contains('hidden')) div.classList.add('hidden');
+        }
+    });
+}
 
-        // Favorite Indicator
-        if (item.isFavorite) {
+function createItemElement(item) {
+    const div = document.createElement('div');
+    div.className = 'group flex flex-col gap-2 cursor-pointer';
+    div.setAttribute('data-item-id', item.id);
+
+    const imgContainer = document.createElement('div');
+    imgContainer.className = 'relative w-full aspect-[3/4] rounded-xl overflow-hidden bg-white dark:bg-surface-dark shadow-sm border border-slate-100 dark:border-white/5';
+
+    const imgBg = document.createElement('div');
+    imgBg.className = 'absolute inset-0 bg-center bg-no-repeat bg-cover transition-transform duration-500 group-hover:scale-105';
+    // Style set in updateItemElement to avoid duplication
+
+    imgContainer.appendChild(imgBg);
+
+    // Containers for dynamic elements
+    const heartContainer = document.createElement('div');
+    imgContainer.appendChild(heartContainer);
+
+    const checkContainer = document.createElement('div');
+    imgContainer.appendChild(checkContainer);
+
+    const infoDiv = document.createElement('div');
+
+    const nameP = document.createElement('p');
+    nameP.className = 'text-slate-900 dark:text-white text-sm font-bold leading-tight truncate';
+
+    const brandP = document.createElement('p');
+    brandP.className = 'text-slate-500 dark:text-slate-400 text-xs font-medium mt-0.5';
+
+    infoDiv.appendChild(nameP);
+    infoDiv.appendChild(brandP);
+
+    div.appendChild(imgContainer);
+    div.appendChild(infoDiv);
+
+    // Cache Refs to avoid querySelector in update loop
+    div.__refs = {
+        imgContainer,
+        imgBg,
+        heartContainer,
+        checkContainer,
+        nameP,
+        brandP
+    };
+
+    updateItemElement(div, item);
+
+    return div;
+}
+
+function updateItemElement(div, item) {
+    const refs = div.__refs;
+    if (!refs) return; // Should not happen if created correctly
+
+    // Update Image
+    const newBg = `url("${item.image || 'https://via.placeholder.com/200?text=No+Image'}")`;
+    // Avoiding style write if not changed
+    if (refs.imgBg.style.backgroundImage !== newBg.replace(/"/g, '\\"')) {
+         refs.imgBg.style.backgroundImage = newBg;
+    }
+
+    // Update Favorite
+    if (item.isFavorite) {
+        if (!refs.heartContainer.hasChildNodes()) {
             const heart = document.createElement('div');
             heart.className = 'absolute top-2 left-2 text-red-500 bg-white/90 dark:bg-black/60 backdrop-blur-sm rounded-full p-1 z-10 flex items-center justify-center shadow-sm';
             heart.innerHTML = '<span class="material-symbols-outlined text-[16px] font-bold" style="font-variation-settings: \'FILL\' 1;">favorite</span>';
-            imgContainer.appendChild(heart);
+            refs.heartContainer.appendChild(heart);
         }
+    } else {
+        if (refs.heartContainer.hasChildNodes()) refs.heartContainer.textContent = '';
+    }
 
-        if (isSelectionMode) {
-            if (selectedOutfitItems.includes(item.id)) {
-                imgContainer.classList.add('ring-4', 'ring-primary');
-                const check = document.createElement('div');
-                check.className = 'absolute top-2 right-2 bg-primary text-slate-900 rounded-full p-1 z-10';
-                check.innerHTML = '<span class="material-symbols-outlined text-sm font-bold">check</span>';
-                imgContainer.appendChild(check);
-            } else {
-                div.classList.add('opacity-50');
+    // Update Selection
+    // Only touch DOM classList if needed
+    if (refs.imgContainer.classList.contains('ring-4')) refs.imgContainer.classList.remove('ring-4', 'ring-primary');
+    if (div.classList.contains('opacity-50')) div.classList.remove('opacity-50');
+
+    if (isSelectionMode) {
+        if (selectedOutfitItems.includes(item.id)) {
+            refs.imgContainer.classList.add('ring-4', 'ring-primary');
+            if (!refs.checkContainer.hasChildNodes()) {
+                 const check = document.createElement('div');
+                 check.className = 'absolute top-2 right-2 bg-primary text-slate-900 rounded-full p-1 z-10';
+                 check.innerHTML = '<span class="material-symbols-outlined text-sm font-bold">check</span>';
+                 refs.checkContainer.appendChild(check);
             }
-
-            div.onclick = () => toggleItemSelection(item.id);
         } else {
-             div.onclick = () => openItemModal(item);
+            div.classList.add('opacity-50');
+            if (refs.checkContainer.hasChildNodes()) refs.checkContainer.textContent = '';
         }
+        div.onclick = () => toggleItemSelection(item.id);
+    } else {
+        if (refs.checkContainer.hasChildNodes()) refs.checkContainer.textContent = '';
+        div.onclick = () => openItemModal(item);
+    }
 
-        const infoDiv = document.createElement('div');
+    // Update Text
+    if (refs.nameP.textContent !== item.name) refs.nameP.textContent = item.name;
 
-        const nameP = document.createElement('p');
-        nameP.className = 'text-slate-900 dark:text-white text-sm font-bold leading-tight truncate';
-        nameP.textContent = item.name;
-
-        const brandP = document.createElement('p');
-        brandP.className = 'text-slate-500 dark:text-slate-400 text-xs font-medium mt-0.5';
-        brandP.textContent = item.brand || item.category;
-
-        infoDiv.appendChild(nameP);
-        infoDiv.appendChild(brandP);
-
-        div.appendChild(imgContainer);
-        div.appendChild(infoDiv);
-
-        galleryGrid.appendChild(div);
-    });
+    const brandText = item.brand || item.category;
+    if (refs.brandP.textContent !== brandText) refs.brandP.textContent = brandText;
 }
 
 function setupSelectionUI() {
