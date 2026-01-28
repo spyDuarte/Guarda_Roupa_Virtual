@@ -1,3 +1,5 @@
+import { dbHelper } from './db.js';
+
 /**
  * @typedef {Object} WardrobeItem
  * @property {number} id
@@ -45,61 +47,102 @@ class Store {
         };
         this.currentUser = null;
 
-        this.init();
+        // Init is now async and called explicitly
     }
 
-    init() {
+    async init() {
         try {
-            this.wardrobeItems = JSON.parse(localStorage.getItem('wardrobeItems')) || [];
-            this.outfits = JSON.parse(localStorage.getItem('outfits')) || [];
-            const savedProfile = JSON.parse(localStorage.getItem('userProfile'));
-            if (savedProfile) {
-                this.userProfile = { ...this.userProfile, ...savedProfile };
+            await dbHelper.open();
+
+            // Load from IDB
+            const wardrobeItems = await dbHelper.get('wardrobeItems');
+            const outfits = await dbHelper.get('outfits');
+            const userProfile = await dbHelper.get('userProfile');
+            const currentUser = await dbHelper.get('currentUser');
+
+            // Migration Logic: If IDB is empty and localStorage has data
+            if (!wardrobeItems && localStorage.getItem('wardrobeItems')) {
+                console.log('Migrating from localStorage to IndexedDB...');
+                this.wardrobeItems = JSON.parse(localStorage.getItem('wardrobeItems')) || [];
+                this.outfits = JSON.parse(localStorage.getItem('outfits')) || [];
+                const savedProfile = JSON.parse(localStorage.getItem('userProfile'));
+                if (savedProfile) {
+                    this.userProfile = { ...this.userProfile, ...savedProfile };
+                }
+                this.currentUser = localStorage.getItem('currentUser');
+
+                // Save to IDB
+                await this.saveWardrobeItems();
+                await this.saveOutfits();
+                await this.saveUserProfile();
+                if (this.currentUser) await this.saveCurrentUser(this.currentUser);
+
+                // Clear localStorage
+                localStorage.removeItem('wardrobeItems');
+                localStorage.removeItem('outfits');
+                localStorage.removeItem('userProfile');
+                localStorage.removeItem('currentUser');
+            } else {
+                this.wardrobeItems = wardrobeItems || [];
+                this.outfits = outfits || [];
+                if (userProfile) {
+                    this.userProfile = { ...this.userProfile, ...userProfile };
+                }
+                this.currentUser = currentUser || null;
             }
-            this.currentUser = localStorage.getItem('currentUser');
         } catch (e) {
-            console.error('Error loading data from localStorage', e);
+            console.error('Error initializing store:', e);
         }
     }
 
-    saveWardrobeItems() {
+    async saveWardrobeItems() {
         try {
-            localStorage.setItem('wardrobeItems', JSON.stringify(this.wardrobeItems));
+            await dbHelper.set('wardrobeItems', this.wardrobeItems);
         } catch (e) {
-            throw new Error('Storage limit exceeded');
+            console.error('Error saving wardrobe items:', e);
+            throw new Error('Failed to save items');
         }
     }
 
-    saveOutfits() {
+    async saveOutfits() {
         try {
-            localStorage.setItem('outfits', JSON.stringify(this.outfits));
+            await dbHelper.set('outfits', this.outfits);
         } catch (e) {
-            throw new Error('Storage limit exceeded');
+            console.error('Error saving outfits:', e);
+            throw new Error('Failed to save outfits');
         }
     }
 
-    saveUserProfile() {
+    async saveUserProfile() {
         try {
-            localStorage.setItem('userProfile', JSON.stringify(this.userProfile));
+            await dbHelper.set('userProfile', this.userProfile);
         } catch (e) {
-            throw new Error('Storage limit exceeded');
+            console.error('Error saving profile:', e);
+            throw new Error('Failed to save profile');
         }
     }
 
-    saveCurrentUser(email) {
+    async saveCurrentUser(email) {
         this.currentUser = email;
-        if (email) {
-            localStorage.setItem('currentUser', email);
-        } else {
-            localStorage.removeItem('currentUser');
+        try {
+            if (email) {
+                await dbHelper.set('currentUser', email);
+            } else {
+                await dbHelper.delete('currentUser');
+            }
+        } catch (e) {
+            console.error('Error saving current user:', e);
         }
     }
 
-    clearAll() {
-        localStorage.removeItem('wardrobeItems');
-        localStorage.removeItem('outfits');
-        this.wardrobeItems = [];
-        this.outfits = [];
+    async clearAll() {
+        try {
+            await dbHelper.clear();
+            this.wardrobeItems = [];
+            this.outfits = [];
+        } catch (e) {
+            console.error('Error clearing data:', e);
+        }
     }
 }
 

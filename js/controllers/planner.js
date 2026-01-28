@@ -36,7 +36,7 @@ export const PlannerController = {
         renderOutfits();
     },
 
-    wearOutfit(outfit) {
+    async wearOutfit(outfit) {
         if (!outfit.items || outfit.items.length === 0) return;
 
         let updatedCount = 0;
@@ -50,7 +50,7 @@ export const PlannerController = {
         });
 
         if (updatedCount > 0) {
-            store.saveWardrobeItems();
+            await store.saveWardrobeItems();
             updateStats();
             showToast(`Marcado "${outfit.name || 'Look'}" como usado!`, 'success');
         }
@@ -100,7 +100,7 @@ function setupEventListeners() {
         const newBtn = createOutfitBtn.cloneNode(true);
         createOutfitBtn.parentNode.replaceChild(newBtn, createOutfitBtn);
         newBtn.addEventListener('click', () => {
-            GalleryController.startSelectionMode((selectedItems) => {
+            GalleryController.startSelectionMode(async (selectedItems) => {
                 if (selectedItems.length === 0) {
                     showToast('Selecione pelo menos um item.', 'error');
                     return;
@@ -118,7 +118,7 @@ function setupEventListeners() {
                 };
 
                 store.outfits.push(newOutfit);
-                store.saveOutfits();
+                await store.saveOutfits();
                 updateStats();
                 showToast('Look criado!', 'success');
                 GalleryController.cancelSelectionMode();
@@ -291,12 +291,12 @@ export function renderOutfits() {
         editBtn.innerHTML = '<span class="material-symbols-outlined text-lg">edit</span>';
         editBtn.onclick = (e) => {
             e.stopPropagation();
-            GalleryController.startSelectionMode((selectedItems) => {
+            GalleryController.startSelectionMode(async (selectedItems) => {
                 if (selectedItems.length === 0) {
                      if (!confirm('Remover todos os itens do look?')) return;
                 }
                 outfit.items = selectedItems;
-                store.saveOutfits();
+                await store.saveOutfits();
                 updateStats();
                 showToast('Look atualizado!', 'success');
                 GalleryController.cancelSelectionMode();
@@ -309,11 +309,11 @@ export function renderOutfits() {
         const deleteBtn = document.createElement('button');
         deleteBtn.className = 'p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors';
         deleteBtn.innerHTML = '<span class="material-symbols-outlined text-lg">delete</span>';
-        deleteBtn.onclick = (e) => {
+        deleteBtn.onclick = async (e) => {
             e.stopPropagation();
             if (confirm('Excluir este look?')) {
                 store.outfits = store.outfits.filter(o => o.id !== outfit.id);
-                store.saveOutfits();
+                await store.saveOutfits();
                 updateStats();
                 renderCalendar();
                 renderOutfits();

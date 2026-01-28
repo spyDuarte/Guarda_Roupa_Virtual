@@ -180,7 +180,7 @@ function setupEventListeners() {
     if (addToClosetBtn) addToClosetBtn.addEventListener('click', handleSaveItem);
 }
 
-function handleSaveItem() {
+async function handleSaveItem() {
     const itemNameInput = document.getElementById('item-name');
     const selectedCategoryInput = document.getElementById('selected-category');
     const itemBrandInput = document.getElementById('item-brand');
@@ -222,8 +222,14 @@ function handleSaveItem() {
             }
 
             store.wardrobeItems[itemIndex] = updatedItem;
-            store.saveWardrobeItems();
-            showToast('Item atualizado!', 'success');
+            try {
+                await store.saveWardrobeItems();
+                showToast('Item atualizado!', 'success');
+            } catch (e) {
+                console.error(e);
+                showToast('Erro ao salvar item', 'error');
+                return;
+            }
         } else {
             showToast('Erro ao encontrar item para atualizar.', 'error');
         }
@@ -242,7 +248,7 @@ function handleSaveItem() {
 
         try {
             store.wardrobeItems.push(newItem);
-            store.saveWardrobeItems();
+            await store.saveWardrobeItems();
             showToast('Item adicionado ao armário!', 'success');
         } catch (e) {
             showToast(e.message, 'error');
