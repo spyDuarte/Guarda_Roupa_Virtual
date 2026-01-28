@@ -5,6 +5,8 @@ import { updateStats } from './dashboard.js';
 import { GalleryController } from './gallery.js';
 import { renderOutfits } from './planner.js';
 
+const DEFAULT_AVATAR = 'https://lh3.googleusercontent.com/aida-public/AB6AXuDu0QGjSKdEOEmfc9FykHdh0-333YCIcqrBBf9rq_qFp9MQiuCnr9iAXaCqwNfJRSNkprYJp0aY0CovcW0NzsHGKHdIJ0yynSLBkcP85TqtAzly8NQFf2hD-Lk1clAOPRsjzsDvf2uL9C3jHEhdWrpPb6CSGNVvxIa8cSBcVNqiFeRmNzkOuTjZ8eq2X0bnl6U0LfrS4mDqXtCcQy7GH9oB13mjlq2UNImABSFP14eeqGndeiplEi_83om1nH5-PHx33Bd1LpC5GBS2';
+
 export function initProfile() {
     renderProfile();
     setupEventListeners();
@@ -12,17 +14,35 @@ export function initProfile() {
 
 function renderProfile() {
     const profileNameInput = document.getElementById('profile-name-input');
+    const profileEmailInput = document.getElementById('profile-email-input');
     const profileBioInput = document.getElementById('profile-bio-input');
     const profileAvatarPreview = document.getElementById('profile-avatar-preview');
+    const removeAvatarBtn = document.getElementById('remove-avatar-btn');
     const themeToggleBtn = document.getElementById('theme-toggle-btn');
+    const profileTotalItems = document.getElementById('profile-total-items');
+    const profileTotalOutfits = document.getElementById('profile-total-outfits');
 
     const userProfile = store.userProfile;
 
     if (profileNameInput) profileNameInput.value = userProfile.name;
     if (profileBioInput) profileBioInput.value = userProfile.bio;
+    if (profileEmailInput) profileEmailInput.value = store.currentUser || '';
+
     if (profileAvatarPreview) {
-        profileAvatarPreview.style.backgroundImage = `url('${userProfile.avatar}')`;
+        const avatarUrl = userProfile.avatar || DEFAULT_AVATAR;
+        profileAvatarPreview.style.backgroundImage = `url('${avatarUrl}')`;
+
+        if (removeAvatarBtn) {
+            if (avatarUrl === DEFAULT_AVATAR) {
+                removeAvatarBtn.classList.add('hidden');
+            } else {
+                removeAvatarBtn.classList.remove('hidden');
+            }
+        }
     }
+
+    if (profileTotalItems) profileTotalItems.textContent = store.wardrobeItems.length;
+    if (profileTotalOutfits) profileTotalOutfits.textContent = store.outfits.length;
 
     const headerName = document.querySelector('.text-lg.font-bold');
     if (headerName && document.getElementById('view-dashboard').classList.contains('active')) {
@@ -30,7 +50,7 @@ function renderProfile() {
          if (dashName) dashName.textContent = userProfile.name;
 
          const dashAvatar = document.querySelector('#view-dashboard .rounded-full.size-10');
-         if (dashAvatar) dashAvatar.style.backgroundImage = `url('${userProfile.avatar}')`;
+         if (dashAvatar) dashAvatar.style.backgroundImage = `url('${userProfile.avatar || DEFAULT_AVATAR}')`;
     }
 
     if (userProfile.theme === 'dark') {
@@ -62,6 +82,17 @@ function setupEventListeners() {
     const exportDataBtn = document.getElementById('export-data-btn');
     const importDataInput = document.getElementById('import-data-input');
     const profileAvatarInput = document.getElementById('profile-avatar-input');
+    const removeAvatarBtn = document.getElementById('remove-avatar-btn');
+
+    // Add navigation listeners to update profile view when accessed
+    const profileNavBtns = document.querySelectorAll('[data-target="profile"]');
+    if (profileNavBtns) {
+        profileNavBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                renderProfile();
+            });
+        });
+    }
 
     if (tabProfileData) tabProfileData.addEventListener('click', () => switchProfileTab('data'));
     if (tabProfileSettings) tabProfileSettings.addEventListener('click', () => switchProfileTab('settings'));
@@ -74,7 +105,8 @@ function setupEventListeners() {
         clearDataBtn.addEventListener('click', () => {
              if (confirm('Tem certeza? Isso apagará todos os seus dados permanentemente.')) {
                 store.clearAll();
-                updateStats();
+                updateStats(); // Dashboard stats
+                renderProfile(); // Profile stats
                 GalleryController.render();
                 renderOutfits();
                 showToast('Dados apagados.', 'success');
@@ -105,13 +137,37 @@ function setupEventListeners() {
         profileAvatarInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
+                if (file.size > 2 * 1024 * 1024) { // 2MB limit
+                    showToast('A imagem é muito grande. Máximo 2MB.', 'error');
+                    profileAvatarInput.value = '';
+                    return;
+                }
+
                 const reader = new FileReader();
                 reader.onload = function(event) {
                     const preview = document.getElementById('profile-avatar-preview');
-                    if (preview) preview.style.backgroundImage = `url('${event.target.result}')`;
+                    if (preview) {
+                        preview.style.backgroundImage = `url('${event.target.result}')`;
+                        const removeBtn = document.getElementById('remove-avatar-btn');
+                        if (removeBtn) removeBtn.classList.remove('hidden');
+                    }
                 };
                 reader.readAsDataURL(file);
             }
+        });
+    }
+
+    if (removeAvatarBtn) {
+        removeAvatarBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const preview = document.getElementById('profile-avatar-preview');
+            const fileInput = document.getElementById('profile-avatar-input');
+
+            if (preview) {
+                preview.style.backgroundImage = `url('${DEFAULT_AVATAR}')`;
+                removeAvatarBtn.classList.add('hidden');
+            }
+            if (fileInput) fileInput.value = '';
         });
     }
 }
@@ -153,23 +209,36 @@ function switchProfileTab(tab) {
 
 function handleSaveProfile() {
     const profileNameInput = document.getElementById('profile-name-input');
+    const profileEmailInput = document.getElementById('profile-email-input');
     const profileBioInput = document.getElementById('profile-bio-input');
     const profileAvatarPreview = document.getElementById('profile-avatar-preview');
 
     const name = profileNameInput.value.trim();
     const bio = profileBioInput.value.trim();
+    const email = profileEmailInput.value.trim();
 
     if (!name) {
         showToast('Nome é obrigatório.', 'error');
         return;
     }
 
+    if (!email) {
+        showToast('Email é obrigatório.', 'error');
+        return;
+    }
+
     store.userProfile.name = name;
     store.userProfile.bio = bio;
+    store.saveCurrentUser(email);
 
     const bgImage = profileAvatarPreview.style.backgroundImage;
     if (bgImage && bgImage !== 'none') {
-         store.userProfile.avatar = bgImage.slice(5, -2).replace(/['"]/g, "");
+        const url = bgImage.slice(5, -2).replace(/['"]/g, "");
+        if (url === DEFAULT_AVATAR) {
+            store.userProfile.avatar = DEFAULT_AVATAR;
+        } else {
+             store.userProfile.avatar = url;
+        }
     }
 
     store.saveUserProfile();
