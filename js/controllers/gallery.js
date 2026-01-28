@@ -28,9 +28,9 @@ export const GalleryController = {
         renderGallery();
     },
 
-    startSelectionMode(callback) {
+    startSelectionMode(callback, initialItems = []) {
         isSelectionMode = true;
-        selectedOutfitItems = [];
+        selectedOutfitItems = [...initialItems];
         onSelectionComplete = callback;
 
         const selectionBar = document.getElementById('selection-bar');
@@ -295,6 +295,14 @@ function setupModal() {
             if (currentModalItemId && confirm('Are you sure you want to delete this item?')) {
                 store.wardrobeItems = store.wardrobeItems.filter(i => i.id !== currentModalItemId);
                 store.saveWardrobeItems();
+
+                // Cascade delete: Remove item from all outfits
+                store.outfits.forEach(outfit => {
+                    if (outfit.items.includes(currentModalItemId)) {
+                        outfit.items = outfit.items.filter(id => id !== currentModalItemId);
+                    }
+                });
+                store.saveOutfits();
 
                 updateStats();
                 renderMostWorn();
