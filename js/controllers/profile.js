@@ -73,6 +73,7 @@ function renderProfile() {
 }
 
 function setupEventListeners() {
+    const tabProfileInfo = document.getElementById('tab-profile-info');
     const tabProfileData = document.getElementById('tab-profile-data');
     const tabProfileSettings = document.getElementById('tab-profile-settings');
     const saveProfileBtn = document.getElementById('save-profile-btn');
@@ -94,6 +95,7 @@ function setupEventListeners() {
         });
     }
 
+    if (tabProfileInfo) tabProfileInfo.addEventListener('click', () => switchProfileTab('info'));
     if (tabProfileData) tabProfileData.addEventListener('click', () => switchProfileTab('data'));
     if (tabProfileSettings) tabProfileSettings.addEventListener('click', () => switchProfileTab('settings'));
 
@@ -173,36 +175,47 @@ function setupEventListeners() {
 }
 
 function switchProfileTab(tab) {
+    const profileContentInfo = document.getElementById('profile-content-info');
     const profileContentData = document.getElementById('profile-content-data');
     const profileContentSettings = document.getElementById('profile-content-settings');
+    const tabProfileInfo = document.getElementById('tab-profile-info');
     const tabProfileData = document.getElementById('tab-profile-data');
     const tabProfileSettings = document.getElementById('tab-profile-settings');
 
-    if (tab === 'data') {
-        if (profileContentData) profileContentData.classList.remove('hidden');
-        if (profileContentSettings) profileContentSettings.classList.add('hidden');
+    // Reset all tabs to inactive state
+    const inactiveClasses = ['text-gray-500', 'dark:text-gray-400', 'font-medium'];
+    const activeClasses = ['bg-white', 'dark:bg-surface-dark', 'text-gray-900', 'dark:text-white', 'shadow-sm', 'font-bold'];
 
-        if (tabProfileData) {
-            tabProfileData.classList.add('bg-white', 'dark:bg-surface-dark', 'text-gray-900', 'dark:text-white', 'shadow-sm', 'font-bold');
-            tabProfileData.classList.remove('text-gray-500', 'dark:text-gray-400', 'font-medium');
+    [tabProfileInfo, tabProfileData, tabProfileSettings].forEach(el => {
+        if (el) {
+            el.classList.remove(...activeClasses);
+            el.classList.add(...inactiveClasses);
         }
+    });
 
-        if (tabProfileSettings) {
-            tabProfileSettings.classList.remove('bg-white', 'dark:bg-surface-dark', 'text-gray-900', 'dark:text-white', 'shadow-sm', 'font-bold');
-            tabProfileSettings.classList.add('text-gray-500', 'dark:text-gray-400', 'font-medium');
+    // Hide all contents
+    [profileContentInfo, profileContentData, profileContentSettings].forEach(el => {
+        if(el) el.classList.add('hidden');
+    });
+
+    // Activate specific tab
+    if (tab === 'info') {
+        if(profileContentInfo) profileContentInfo.classList.remove('hidden');
+        if(tabProfileInfo) {
+            tabProfileInfo.classList.remove(...inactiveClasses);
+            tabProfileInfo.classList.add(...activeClasses);
         }
-    } else {
-        if (profileContentData) profileContentData.classList.add('hidden');
-        if (profileContentSettings) profileContentSettings.classList.remove('hidden');
-
-        if (tabProfileSettings) {
-            tabProfileSettings.classList.add('bg-white', 'dark:bg-surface-dark', 'text-gray-900', 'dark:text-white', 'shadow-sm', 'font-bold');
-            tabProfileSettings.classList.remove('text-gray-500', 'dark:text-gray-400', 'font-medium');
+    } else if (tab === 'data') {
+        if(profileContentData) profileContentData.classList.remove('hidden');
+        if(tabProfileData) {
+            tabProfileData.classList.remove(...inactiveClasses);
+            tabProfileData.classList.add(...activeClasses);
         }
-
-        if (tabProfileData) {
-            tabProfileData.classList.remove('bg-white', 'dark:bg-surface-dark', 'text-gray-900', 'dark:text-white', 'shadow-sm', 'font-bold');
-            tabProfileData.classList.add('text-gray-500', 'dark:text-gray-400', 'font-medium');
+    } else if (tab === 'settings') {
+        if(profileContentSettings) profileContentSettings.classList.remove('hidden');
+        if(tabProfileSettings) {
+            tabProfileSettings.classList.remove(...inactiveClasses);
+            tabProfileSettings.classList.add(...activeClasses);
         }
     }
 }
