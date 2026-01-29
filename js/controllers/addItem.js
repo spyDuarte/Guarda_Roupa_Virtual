@@ -2,6 +2,7 @@ import { store } from '../core/store.js';
 import { showToast } from '../utils/toast.js';
 import { GalleryController } from './gallery.js';
 import { updateStats } from './dashboard.js';
+import { compressImage } from '../utils/image.js';
 
 let editingItemId = null;
 
@@ -138,15 +139,18 @@ function setupEventListeners() {
     const itemImageUrl = document.getElementById('item-image-url');
 
     if (itemFileInput) {
-        itemFileInput.addEventListener('change', (e) => {
+        itemFileInput.addEventListener('change', async (e) => {
             const file = e.target.files[0];
             if (file) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    addItemPreview.style.backgroundImage = `url('${event.target.result}')`;
+                try {
+                    showToast('Processando imagem...', 'info');
+                    const compressedDataUrl = await compressImage(file);
+                    addItemPreview.style.backgroundImage = `url('${compressedDataUrl}')`;
                     if (itemImageUrl) itemImageUrl.value = '';
-                };
-                reader.readAsDataURL(file);
+                } catch (err) {
+                    console.error("Error processing image", err);
+                    showToast('Erro ao processar imagem.', 'error');
+                }
             }
         });
     }
@@ -181,6 +185,8 @@ function setupEventListeners() {
 }
 
 async function handleSaveItem() {
+    const saveItemBtn = document.getElementById('save-item-btn');
+    const addToClosetBtn = document.getElementById('add-to-closet-btn');
     const itemNameInput = document.getElementById('item-name');
     const selectedCategoryInput = document.getElementById('selected-category');
     const itemBrandInput = document.getElementById('item-brand');
@@ -205,58 +211,77 @@ async function handleSaveItem() {
         return;
     }
 
-    if (editingItemId) {
-        const itemIndex = store.wardrobeItems.findIndex(i => i.id === editingItemId);
-        if (itemIndex !== -1) {
-            const updatedItem = {
-                ...store.wardrobeItems[itemIndex],
+    // Loading State
+    const originalSaveText = saveItemBtn ? saveItemBtn.textContent : '';
+    const originalAddText = addToClosetBtn ? addToClosetBtn.querySelector('span')?.textContent : '';
+
+    if (saveItemBtn) {
+        saveItemBtn.disabled = true;
+        saveItemBtn.textContent = 'Salvando...';
+    }
+    if (addToClosetBtn) {
+        addToClosetBtn.disabled = true;
+        const span = addToClosetBtn.querySelector('span');
+        if (span) span.textContent = 'Salvando...';
+    }
+
+    try {
+        if (editingItemId) {
+            const itemIndex = store.wardrobeItems.findIndex(i => i.id === editingItemId);
+            if (itemIndex !== -1) {
+                const updatedItem = {
+                    ...store.wardrobeItems[itemIndex],
+                    name: name,
+                    category: category,
+                    brand: brand,
+                    size: size,
+                    notes: notes,
+                };
+
+                 if (imageSrc && !imageSrc.includes('placeholder.com')) {
+                     updatedItem.image = imageSrc;
+                }
+
+                store.wardrobeItems[itemIndex] = updatedItem;
+                await store.saveWardrobeItems();
+                showToast('Item atualizado!', 'success');
+            } else {
+                showToast('Erro ao encontrar item para atualizar.', 'error');
+            }
+        } else {
+            const newItem = {
+                id: Date.now(),
                 name: name,
                 category: category,
                 brand: brand,
                 size: size,
                 notes: notes,
+                image: imageSrc.includes('placeholder.com') ? '' : imageSrc,
+                dateAdded: new Date().toISOString(),
+                usageCount: 0
             };
 
-             if (imageSrc && !imageSrc.includes('placeholder.com')) {
-                 updatedItem.image = imageSrc;
-            }
-
-            store.wardrobeItems[itemIndex] = updatedItem;
-            try {
-                await store.saveWardrobeItems();
-                showToast('Item atualizado!', 'success');
-            } catch (e) {
-                console.error(e);
-                showToast('Erro ao salvar item', 'error');
-                return;
-            }
-        } else {
-            showToast('Erro ao encontrar item para atualizar.', 'error');
-        }
-    } else {
-        const newItem = {
-            id: Date.now(),
-            name: name,
-            category: category,
-            brand: brand,
-            size: size,
-            notes: notes,
-            image: imageSrc.includes('placeholder.com') ? '' : imageSrc,
-            dateAdded: new Date().toISOString(),
-            usageCount: 0
-        };
-
-        try {
             store.wardrobeItems.push(newItem);
             await store.saveWardrobeItems();
             showToast('Item adicionado ao armário!', 'success');
-        } catch (e) {
-            showToast(e.message, 'error');
-            return;
+        }
+
+        closeAddItemOverlay();
+        updateStats();
+        GalleryController.render();
+    } catch (e) {
+        console.error(e);
+        showToast('Erro ao salvar item', 'error');
+    } finally {
+        // Reset Loading State
+        if (saveItemBtn) {
+            saveItemBtn.disabled = false;
+            saveItemBtn.textContent = originalSaveText || 'Salvar';
+        }
+        if (addToClosetBtn) {
+            addToClosetBtn.disabled = false;
+            const span = addToClosetBtn.querySelector('span');
+            if (span) span.textContent = originalAddText || 'Adicionar';
         }
     }
-
-    closeAddItemOverlay();
-    updateStats();
-    GalleryController.render();
 }

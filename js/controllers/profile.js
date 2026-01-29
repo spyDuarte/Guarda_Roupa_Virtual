@@ -400,6 +400,7 @@ function switchProfileTab(tab) {
 }
 
 async function handleSaveProfile() {
+    const saveProfileBtn = document.getElementById('save-profile-btn');
     const profileNameInput = document.getElementById('profile-name-input');
     const profileEmailInput = document.getElementById('profile-email-input');
     const profileBioInput = document.getElementById('profile-bio-input');
@@ -435,37 +436,54 @@ async function handleSaveProfile() {
         return;
     }
 
-    store.userProfile.name = name;
-    store.userProfile.bio = bio;
-
-    // Save Sizes
-    store.userProfile.sizes = {
-        top: sizeTopInput ? sizeTopInput.value.trim() : '',
-        bottom: sizeBottomInput ? sizeBottomInput.value.trim() : '',
-        shoe: sizeShoeInput ? sizeShoeInput.value.trim() : ''
-    };
-
-    // Save Socials
-    store.userProfile.socials = {
-        instagram: socialIgInput ? socialIgInput.value.trim() : '',
-        tiktok: socialTkInput ? socialTkInput.value.trim() : ''
-    };
-
-    await store.saveCurrentUser(email);
-
-    const bgImage = profileAvatarPreview.style.backgroundImage;
-    if (bgImage && bgImage !== 'none') {
-        const url = bgImage.slice(5, -2).replace(/['"]/g, "");
-        if (url === DEFAULT_AVATAR) {
-            store.userProfile.avatar = DEFAULT_AVATAR;
-        } else {
-             store.userProfile.avatar = url;
-        }
+    // Loading State
+    const originalText = saveProfileBtn ? saveProfileBtn.textContent : 'Salvar';
+    if (saveProfileBtn) {
+        saveProfileBtn.disabled = true;
+        saveProfileBtn.textContent = 'Salvando...';
     }
 
-    await store.saveUserProfile();
-    renderProfile();
-    showToast('Perfil atualizado!', 'success');
+    try {
+        store.userProfile.name = name;
+        store.userProfile.bio = bio;
+
+        // Save Sizes
+        store.userProfile.sizes = {
+            top: sizeTopInput ? sizeTopInput.value.trim() : '',
+            bottom: sizeBottomInput ? sizeBottomInput.value.trim() : '',
+            shoe: sizeShoeInput ? sizeShoeInput.value.trim() : ''
+        };
+
+        // Save Socials
+        store.userProfile.socials = {
+            instagram: socialIgInput ? socialIgInput.value.trim() : '',
+            tiktok: socialTkInput ? socialTkInput.value.trim() : ''
+        };
+
+        await store.saveCurrentUser(email);
+
+        const bgImage = profileAvatarPreview.style.backgroundImage;
+        if (bgImage && bgImage !== 'none') {
+            const url = bgImage.slice(5, -2).replace(/['"]/g, "");
+            if (url === DEFAULT_AVATAR) {
+                store.userProfile.avatar = DEFAULT_AVATAR;
+            } else {
+                 store.userProfile.avatar = url;
+            }
+        }
+
+        await store.saveUserProfile();
+        renderProfile();
+        showToast('Perfil atualizado!', 'success');
+    } catch (e) {
+        console.error(e);
+        showToast('Erro ao atualizar perfil.', 'error');
+    } finally {
+        if (saveProfileBtn) {
+            saveProfileBtn.disabled = false;
+            saveProfileBtn.textContent = originalText;
+        }
+    }
 }
 
 async function handleExportData() {
