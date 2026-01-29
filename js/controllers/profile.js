@@ -28,11 +28,31 @@ function renderProfileHeader() {
     const removeAvatarBtn = document.getElementById('remove-avatar-btn');
     const profileMemberSince = document.getElementById('profile-member-since');
 
+    // New Inputs
+    const sizeTopInput = document.getElementById('profile-size-top');
+    const sizeBottomInput = document.getElementById('profile-size-bottom');
+    const sizeShoeInput = document.getElementById('profile-size-shoe');
+    const socialIgInput = document.getElementById('profile-social-instagram');
+    const socialTkInput = document.getElementById('profile-social-tiktok');
+
     const userProfile = store.userProfile;
 
     if (profileNameInput) profileNameInput.value = userProfile.name;
     if (profileBioInput) profileBioInput.value = userProfile.bio;
     if (profileEmailInput) profileEmailInput.value = store.currentUser || '';
+
+    // Populate Sizes
+    if (userProfile.sizes) {
+        if (sizeTopInput) sizeTopInput.value = userProfile.sizes.top || '';
+        if (sizeBottomInput) sizeBottomInput.value = userProfile.sizes.bottom || '';
+        if (sizeShoeInput) sizeShoeInput.value = userProfile.sizes.shoe || '';
+    }
+
+    // Populate Socials
+    if (userProfile.socials) {
+        if (socialIgInput) socialIgInput.value = userProfile.socials.instagram || '';
+        if (socialTkInput) socialTkInput.value = userProfile.socials.tiktok || '';
+    }
 
     if (profileAvatarPreview) {
         const avatarUrl = userProfile.avatar || DEFAULT_AVATAR;
@@ -214,6 +234,10 @@ function setupEventListeners() {
     const profileAvatarInput = document.getElementById('profile-avatar-input');
     const removeAvatarBtn = document.getElementById('remove-avatar-btn');
 
+    // Password Toggle
+    const togglePasswordBtn = document.getElementById('toggle-password-btn');
+    const confirmPasswordChangeBtn = document.getElementById('confirm-password-change');
+
     // Add navigation listeners to update profile view when accessed
     const profileNavBtns = document.querySelectorAll('[data-target="profile"]');
     if (profileNavBtns) {
@@ -254,6 +278,41 @@ function setupEventListeners() {
 
     if (exportDataBtn) exportDataBtn.addEventListener('click', handleExportData);
     if (importDataInput) importDataInput.addEventListener('change', handleImportData);
+
+    if (togglePasswordBtn) {
+        togglePasswordBtn.addEventListener('click', () => {
+            const form = document.getElementById('password-change-form');
+            const icon = document.getElementById('password-toggle-icon');
+            if (form) {
+                form.classList.toggle('hidden');
+                if (icon) {
+                    icon.style.transform = form.classList.contains('hidden') ? 'rotate(0deg)' : 'rotate(180deg)';
+                }
+            }
+        });
+    }
+
+    if (confirmPasswordChangeBtn) {
+        confirmPasswordChangeBtn.addEventListener('click', () => {
+            const currentPass = document.getElementById('current-password');
+            const newPass = document.getElementById('new-password');
+
+            if (!currentPass.value || !newPass.value) {
+                showToast('Preencha ambos os campos.', 'error');
+                return;
+            }
+
+            // Simulate API call
+            setTimeout(() => {
+                showToast('Senha atualizada com sucesso!', 'success');
+                currentPass.value = '';
+                newPass.value = '';
+                document.getElementById('password-change-form').classList.add('hidden');
+                const icon = document.getElementById('password-toggle-icon');
+                if (icon) icon.style.transform = 'rotate(0deg)';
+            }, 500);
+        });
+    }
 
     if (profileAvatarInput) {
         profileAvatarInput.addEventListener('change', (e) => {
@@ -346,6 +405,13 @@ async function handleSaveProfile() {
     const profileBioInput = document.getElementById('profile-bio-input');
     const profileAvatarPreview = document.getElementById('profile-avatar-preview');
 
+    // New Inputs
+    const sizeTopInput = document.getElementById('profile-size-top');
+    const sizeBottomInput = document.getElementById('profile-size-bottom');
+    const sizeShoeInput = document.getElementById('profile-size-shoe');
+    const socialIgInput = document.getElementById('profile-social-instagram');
+    const socialTkInput = document.getElementById('profile-social-tiktok');
+
     const name = profileNameInput.value.trim();
     const bio = profileBioInput.value.trim();
     const email = profileEmailInput.value.trim();
@@ -371,6 +437,20 @@ async function handleSaveProfile() {
 
     store.userProfile.name = name;
     store.userProfile.bio = bio;
+
+    // Save Sizes
+    store.userProfile.sizes = {
+        top: sizeTopInput ? sizeTopInput.value.trim() : '',
+        bottom: sizeBottomInput ? sizeBottomInput.value.trim() : '',
+        shoe: sizeShoeInput ? sizeShoeInput.value.trim() : ''
+    };
+
+    // Save Socials
+    store.userProfile.socials = {
+        instagram: socialIgInput ? socialIgInput.value.trim() : '',
+        tiktok: socialTkInput ? socialTkInput.value.trim() : ''
+    };
+
     await store.saveCurrentUser(email);
 
     const bgImage = profileAvatarPreview.style.backgroundImage;
