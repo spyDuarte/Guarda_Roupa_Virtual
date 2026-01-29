@@ -13,14 +13,20 @@ export function initProfile() {
 }
 
 function renderProfile() {
+    renderProfileHeader();
+    renderStats();
+    renderMostWornItem();
+    renderDataTab();
+    renderSettingsTab();
+}
+
+function renderProfileHeader() {
     const profileNameInput = document.getElementById('profile-name-input');
     const profileEmailInput = document.getElementById('profile-email-input');
     const profileBioInput = document.getElementById('profile-bio-input');
     const profileAvatarPreview = document.getElementById('profile-avatar-preview');
     const removeAvatarBtn = document.getElementById('remove-avatar-btn');
-    const themeToggleBtn = document.getElementById('theme-toggle-btn');
-    const profileTotalItems = document.getElementById('profile-total-items');
-    const profileTotalOutfits = document.getElementById('profile-total-outfits');
+    const profileMemberSince = document.getElementById('profile-member-since');
 
     const userProfile = store.userProfile;
 
@@ -41,9 +47,13 @@ function renderProfile() {
         }
     }
 
-    if (profileTotalItems) profileTotalItems.textContent = store.wardrobeItems.length;
-    if (profileTotalOutfits) profileTotalOutfits.textContent = store.outfits.length;
+    if (profileMemberSince) {
+        const date = userProfile.joinedDate ? new Date(userProfile.joinedDate) : new Date();
+        const formattedDate = date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+        profileMemberSince.textContent = `Membro desde ${formattedDate}`;
+    }
 
+    // Update Dashboard Header if visible
     const headerName = document.querySelector('.text-lg.font-bold');
     if (headerName && document.getElementById('view-dashboard').classList.contains('active')) {
          const dashName = document.querySelector('#view-dashboard h2');
@@ -52,6 +62,15 @@ function renderProfile() {
          const dashAvatar = document.querySelector('#view-dashboard .rounded-full.size-10');
          if (dashAvatar) dashAvatar.style.backgroundImage = `url('${userProfile.avatar || DEFAULT_AVATAR}')`;
     }
+}
+
+function renderStats() {
+    const profileTotalItems = document.getElementById('profile-total-items');
+    const profileTotalOutfits = document.getElementById('profile-total-outfits');
+    const userProfile = store.userProfile;
+
+    if (profileTotalItems) profileTotalItems.textContent = store.wardrobeItems.length;
+    if (profileTotalOutfits) profileTotalOutfits.textContent = store.outfits.length;
 
     // Detailed Stats Logic
     const items = store.wardrobeItems || [];
@@ -97,7 +116,7 @@ function renderProfile() {
         }
     }
     const favBrandEl = document.getElementById('stat-favorite-brand');
-    if (favBrandEl) favBrandEl.textContent = favBrand;
+    if (favBrandEl) favBrandEl.textContent = favBrand === '-' ? 'Nenhuma' : favBrand;
 
     // Most Worn Category
     let maxUsage = -1;
@@ -115,6 +134,53 @@ function renderProfile() {
 
     const mostWornCatEl = document.getElementById('stat-most-worn-category');
     if (mostWornCatEl) mostWornCatEl.textContent = mostWornCat;
+}
+
+function renderMostWornItem() {
+    const container = document.getElementById('stat-most-worn-item-container');
+    if (!container) return;
+
+    const items = store.wardrobeItems || [];
+    let mostWornItem = null;
+    let maxUsage = 0;
+
+    items.forEach(item => {
+        if ((item.usageCount || 0) > maxUsage) {
+            maxUsage = item.usageCount;
+            mostWornItem = item;
+        }
+    });
+
+    if (mostWornItem) {
+        container.classList.remove('hidden');
+        const imgEl = document.getElementById('stat-most-worn-item-image');
+        const nameEl = document.getElementById('stat-most-worn-item-name');
+        const countEl = document.getElementById('stat-most-worn-item-count');
+
+        if (imgEl) imgEl.style.backgroundImage = `url('${mostWornItem.image}')`;
+        if (nameEl) nameEl.textContent = mostWornItem.name;
+        if (countEl) countEl.textContent = `Usado ${mostWornItem.usageCount} vezes`;
+    } else {
+        container.classList.add('hidden');
+    }
+}
+
+function renderDataTab() {
+    const lastBackupEl = document.getElementById('last-backup-date');
+    if (lastBackupEl) {
+        const dateStr = store.userProfile.lastBackupDate;
+        if (dateStr) {
+            const date = new Date(dateStr);
+            lastBackupEl.textContent = `Último backup: ${date.toLocaleString('pt-BR')}`;
+        } else {
+            lastBackupEl.textContent = 'Último backup: Nunca';
+        }
+    }
+}
+
+function renderSettingsTab() {
+    const themeToggleBtn = document.getElementById('theme-toggle-btn');
+    const userProfile = store.userProfile;
 
     if (userProfile.theme === 'dark') {
         document.documentElement.classList.add('dark');
@@ -167,23 +233,14 @@ function setupEventListeners() {
     }
 
     if (clearDataBtn) {
-        clearDataBtn.addEventListener('click', async () => {
-             if (confirm('Tem certeza? Isso apagará todos os seus dados permanentemente.')) {
-                await store.clearAll();
-                updateStats(); // Dashboard stats
-                renderProfile(); // Profile stats
-                GalleryController.render();
-                renderOutfits();
-                showToast('Dados apagados.', 'success');
-            }
-        });
+        clearDataBtn.addEventListener('click', handleClearData);
     }
 
     if (themeToggleBtn) {
         themeToggleBtn.addEventListener('click', async () => {
             store.userProfile.theme = store.userProfile.theme === 'light' ? 'dark' : 'light';
             await store.saveUserProfile();
-            renderProfile();
+            renderProfile(); // This calls renderSettingsTab internally
         });
     }
 
@@ -295,17 +352,20 @@ async function handleSaveProfile() {
 
     if (!name) {
         showToast('Nome é obrigatório.', 'error');
+        profileNameInput.focus();
         return;
     }
 
     if (!email) {
         showToast('Email é obrigatório.', 'error');
+        profileEmailInput.focus();
         return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
         showToast('Email inválido.', 'error');
+        profileEmailInput.focus();
         return;
     }
 
@@ -328,7 +388,12 @@ async function handleSaveProfile() {
     showToast('Perfil atualizado!', 'success');
 }
 
-function handleExportData() {
+async function handleExportData() {
+    // Update last backup date
+    store.userProfile.lastBackupDate = new Date().toISOString();
+    await store.saveUserProfile();
+    renderDataTab();
+
     const data = {
         wardrobeItems: store.wardrobeItems,
         outfits: store.outfits,
@@ -344,6 +409,7 @@ function handleExportData() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+    showToast('Backup exportado!', 'success');
 }
 
 function handleImportData(event) {
@@ -377,4 +443,49 @@ function handleImportData(event) {
         }
     };
     reader.readAsText(file);
+}
+
+function handleClearData() {
+    showConfirmationModal('Tem certeza? Isso apagará todos os seus dados permanentemente.', async () => {
+        await store.clearAll();
+        updateStats(); // Dashboard stats
+        renderProfile(); // Profile stats
+        GalleryController.render();
+        renderOutfits();
+        showToast('Dados apagados.', 'success');
+    });
+}
+
+function showConfirmationModal(message, onConfirm) {
+    const modal = document.getElementById('confirmation-modal');
+    const msgEl = document.getElementById('confirm-modal-message');
+    const cancelBtn = document.getElementById('confirm-modal-cancel');
+    const okBtn = document.getElementById('confirm-modal-ok');
+
+    if (modal && msgEl && cancelBtn && okBtn) {
+        msgEl.textContent = message;
+
+        // Remove old listeners to avoid duplicates if reused (simple approach)
+        const newCancelBtn = cancelBtn.cloneNode(true);
+        const newOkBtn = okBtn.cloneNode(true);
+
+        cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+        okBtn.parentNode.replaceChild(newOkBtn, okBtn);
+
+        newCancelBtn.addEventListener('click', () => {
+            modal.classList.add('hidden');
+        });
+
+        newOkBtn.addEventListener('click', () => {
+            onConfirm();
+            modal.classList.add('hidden');
+        });
+
+        modal.classList.remove('hidden');
+    } else {
+        // Fallback if modal elements missing
+        if (confirm(message)) {
+            onConfirm();
+        }
+    }
 }

@@ -27,6 +27,8 @@ import { dbHelper } from './db.js';
  * @property {string} bio
  * @property {string} avatar
  * @property {string} theme
+ * @property {string} [joinedDate]
+ * @property {string} [lastBackupDate]
  */
 
 /**
@@ -43,7 +45,8 @@ class Store {
             name: 'Ritinha',
             bio: 'ritinha@example.com',
             avatar: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDu0QGjSKdEOEmfc9FykHdh0-333YCIcqrBBf9rq_qFp9MQiuCnr9iAXaCqwNfJRSNkprYJp0aY0CovcW0NzsHGKHdIJ0yynSLBkcP85TqtAzly8NQFf2hD-Lk1clAOPRsjzsDvf2uL9C3jHEhdWrpPb6CSGNVvxIa8cSBcVNqiFeRmNzkOuTjZ8eq2X0bnl6U0LfrS4mDqXtCcQy7GH9oB13mjlq2UNImABSFP14eeqGndeiplEi_83om1nH5-PHx33Bd1LpC5GBS2',
-            theme: 'light'
+            theme: 'light',
+            joinedDate: new Date().toISOString().split('T')[0]
         };
         this.currentUser = null;
         this.userLocation = null;
