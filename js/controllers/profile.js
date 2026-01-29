@@ -53,6 +53,69 @@ function renderProfile() {
          if (dashAvatar) dashAvatar.style.backgroundImage = `url('${userProfile.avatar || DEFAULT_AVATAR}')`;
     }
 
+    // Detailed Stats Logic
+    const items = store.wardrobeItems || [];
+    const counts = { tops: 0, bottoms: 0, shoes: 0, accessories: 0 };
+    const brandCounts = {};
+    const categoryUsage = { tops: 0, bottoms: 0, shoes: 0, accessories: 0 };
+
+    items.forEach(item => {
+        if (counts[item.category] !== undefined) {
+            counts[item.category]++;
+            categoryUsage[item.category] += (item.usageCount || 0);
+        }
+        if (item.brand) {
+            const brand = item.brand.trim();
+            if (brand) {
+                brandCounts[brand] = (brandCounts[brand] || 0) + 1;
+            }
+        }
+    });
+
+    const total = items.length;
+
+    // Update Counts and Bars
+    const categories = ['tops', 'bottoms', 'shoes', 'accessories'];
+    categories.forEach(cat => {
+        const countEl = document.getElementById(`stat-${cat}-count`);
+        const barEl = document.getElementById(`stat-${cat}-bar`);
+
+        if (countEl) countEl.textContent = counts[cat];
+        if (barEl) {
+            const pct = total > 0 ? (counts[cat] / total) * 100 : 0;
+            barEl.style.width = `${pct}%`;
+        }
+    });
+
+    // Favorite Brand
+    let favBrand = '-';
+    let maxBrandCount = 0;
+    for (const [brand, count] of Object.entries(brandCounts)) {
+        if (count > maxBrandCount) {
+            maxBrandCount = count;
+            favBrand = brand;
+        }
+    }
+    const favBrandEl = document.getElementById('stat-favorite-brand');
+    if (favBrandEl) favBrandEl.textContent = favBrand;
+
+    // Most Worn Category
+    let maxUsage = -1;
+    let mostWornCat = '-';
+    const catNames = { tops: 'Parte de Cima', bottoms: 'Parte de Baixo', shoes: 'Sapatos', accessories: 'Acessórios' };
+
+    for (const [cat, usage] of Object.entries(categoryUsage)) {
+        if (usage > maxUsage && counts[cat] > 0) {
+            maxUsage = usage;
+            mostWornCat = catNames[cat];
+        }
+    }
+    if (maxUsage === 0 && total > 0) mostWornCat = 'Sem dados';
+    else if (total === 0) mostWornCat = '-';
+
+    const mostWornCatEl = document.getElementById('stat-most-worn-category');
+    if (mostWornCatEl) mostWornCatEl.textContent = mostWornCat;
+
     if (userProfile.theme === 'dark') {
         document.documentElement.classList.add('dark');
         if (themeToggleBtn) {
@@ -237,6 +300,12 @@ async function handleSaveProfile() {
 
     if (!email) {
         showToast('Email é obrigatório.', 'error');
+        return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        showToast('Email inválido.', 'error');
         return;
     }
 

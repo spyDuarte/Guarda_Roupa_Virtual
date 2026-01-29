@@ -890,6 +890,64 @@
                     </div>
                 </div>
 
+                <!-- Detailed Stats -->
+                <div class="bg-white dark:bg-surface-dark p-4 rounded-xl border border-gray-100 dark:border-gray-800 mb-6">
+                    <h3 class="text-sm font-bold text-gray-900 dark:text-white mb-3">Distribuição do Guarda-Roupa</h3>
+                    <div class="space-y-3">
+                        <!-- Tops -->
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-gray-500 dark:text-gray-400">Parte de Cima</span>
+                                <span id="stat-tops-count" class="font-bold text-gray-900 dark:text-white">0</span>
+                            </div>
+                            <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5">
+                                <div id="stat-tops-bar" class="bg-primary h-1.5 rounded-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <!-- Bottoms -->
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-gray-500 dark:text-gray-400">Parte de Baixo</span>
+                                <span id="stat-bottoms-count" class="font-bold text-gray-900 dark:text-white">0</span>
+                            </div>
+                            <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5">
+                                <div id="stat-bottoms-bar" class="bg-blue-400 h-1.5 rounded-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <!-- Shoes -->
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-gray-500 dark:text-gray-400">Sapatos</span>
+                                <span id="stat-shoes-count" class="font-bold text-gray-900 dark:text-white">0</span>
+                            </div>
+                            <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5">
+                                <div id="stat-shoes-bar" class="bg-orange-400 h-1.5 rounded-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+                         <!-- Accessories -->
+                        <div>
+                            <div class="flex justify-between text-xs mb-1">
+                                <span class="text-gray-500 dark:text-gray-400">Acessórios</span>
+                                <span id="stat-accessories-count" class="font-bold text-gray-900 dark:text-white">0</span>
+                            </div>
+                            <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-1.5">
+                                <div id="stat-accessories-bar" class="bg-purple-400 h-1.5 rounded-full" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 mb-6">
+                     <div class="bg-white dark:bg-surface-dark p-3 rounded-xl border border-gray-100 dark:border-gray-800">
+                        <span class="text-xs text-gray-500 dark:text-gray-400 block mb-1">Marca Favorita</span>
+                        <span id="stat-favorite-brand" class="text-sm font-bold text-gray-900 dark:text-white truncate block">-</span>
+                     </div>
+                     <div class="bg-white dark:bg-surface-dark p-3 rounded-xl border border-gray-100 dark:border-gray-800">
+                        <span class="text-xs text-gray-500 dark:text-gray-400 block mb-1">Categoria + Usada</span>
+                        <span id="stat-most-worn-category" class="text-sm font-bold text-gray-900 dark:text-white block">-</span>
+                     </div>
+                </div>
+
                 <!-- Form -->
                 <div class="space-y-2">
                     <label class="text-sm font-bold text-gray-700 dark:text-gray-300">Email</label>
