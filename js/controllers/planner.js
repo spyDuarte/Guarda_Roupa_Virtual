@@ -3,9 +3,11 @@ import { router } from '../core/router.js';
 import { showToast } from '../utils/toast.js';
 import { GalleryController } from './gallery.js';
 import { updateStats } from './dashboard.js';
+import { getWeeklyForecast } from './weather.js';
 
 let currentDate = new Date();
 let selectedDate = new Date(); // Defaults to today
+let weeklyForecast = null;
 
 // Helper to format date as YYYY-MM-DD for comparison/storage
 function formatDateKey(date) {
@@ -16,10 +18,15 @@ function formatDateKey(date) {
 }
 
 export const PlannerController = {
-    init() {
+    async init() {
         // Reset to current date on init if needed, or keep state
         // currentDate = new Date();
         // selectedDate = new Date();
+
+        if (store.userLocation && !weeklyForecast) {
+            weeklyForecast = await getWeeklyForecast(store.userLocation.latitude, store.userLocation.longitude);
+        }
+
         renderCalendar();
         renderOutfits();
         setupEventListeners();
@@ -223,7 +230,19 @@ export function renderOutfits() {
     // Update Header
     if (selectedDateHeader) {
         const options = { weekday: 'long', month: 'short', day: 'numeric' };
-        selectedDateHeader.textContent = selectedDate.toLocaleDateString('pt-BR', options);
+        selectedDateHeader.innerHTML = selectedDate.toLocaleDateString('pt-BR', options);
+
+        // Inject Weather if available
+        if (weeklyForecast && weeklyForecast[selectedDateKey]) {
+            const w = weeklyForecast[selectedDateKey];
+            const weatherBadge = document.createElement('div');
+            weatherBadge.className = 'inline-flex items-center gap-2 ml-3 px-3 py-1 bg-blue-50 dark:bg-blue-900/20 rounded-full border border-blue-100 dark:border-blue-800 align-middle';
+            weatherBadge.innerHTML = `
+                <span class="material-symbols-outlined text-blue-500 text-lg">${w.info.icon}</span>
+                <span class="text-xs font-bold text-blue-700 dark:text-blue-300">${w.max}° / ${w.min}°</span>
+            `;
+            selectedDateHeader.appendChild(weatherBadge);
+        }
     }
 
     const relevantOutfits = store.outfits.filter(o => {
@@ -286,6 +305,34 @@ export function renderOutfits() {
         const actions = document.createElement('div');
         actions.className = 'flex gap-1';
 
+        const cloneBtn = document.createElement('button');
+        cloneBtn.className = 'p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors';
+        cloneBtn.innerHTML = '<span class="material-symbols-outlined text-lg">content_copy</span>';
+        cloneBtn.title = "Duplicar Look";
+        cloneBtn.onclick = (e) => {
+            e.stopPropagation();
+            createDateModal(async (newDateKey) => {
+                const newOutfit = {
+                    ...outfit,
+                    items: [...outfit.items], // Deep copy items array
+                    id: Date.now(), // New ID
+                    scheduledDate: newDateKey,
+                    dateCreated: new Date().toISOString()
+                };
+                store.outfits.push(newOutfit);
+                await store.saveOutfits();
+                updateStats();
+                showToast(`Look duplicado para ${newDateKey}!`, 'success');
+                // If the new date is the currently selected date, re-render
+                if (newDateKey === formatDateKey(selectedDate)) {
+                    renderOutfits();
+                } else {
+                    // Refresh calendar to show dot on new date
+                    renderCalendar();
+                }
+            });
+        };
+
         const editBtn = document.createElement('button');
         editBtn.className = 'p-2 text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg transition-colors';
         editBtn.innerHTML = '<span class="material-symbols-outlined text-lg">edit</span>';
@@ -321,6 +368,7 @@ export function renderOutfits() {
             }
         };
 
+        actions.appendChild(cloneBtn);
         actions.appendChild(editBtn);
         actions.appendChild(deleteBtn);
 
@@ -362,4 +410,47 @@ export function renderOutfits() {
 // Backward compatibility export
 export function initPlanner() {
     PlannerController.init();
+}
+
+function createDateModal(callback) {
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 z-[60] bg-black/50 flex items-center justify-center p-4';
+    modal.innerHTML = `
+        <div class="bg-white dark:bg-surface-dark rounded-xl w-full max-w-sm overflow-hidden shadow-2xl p-6">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Duplicar Look</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Escolha a data para copiar este look.</p>
+            <input type="date" id="clone-date-input" class="w-full rounded-xl border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-white/5 p-3 text-sm text-gray-900 dark:text-white mb-6">
+            <div class="flex gap-3">
+                <button id="cancel-clone-btn" class="flex-1 py-2 text-gray-500 dark:text-gray-400 font-bold hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg transition-colors">Cancelar</button>
+                <button id="confirm-clone-btn" class="flex-1 py-2 bg-primary text-slate-900 font-bold rounded-lg hover:opacity-90 transition-opacity">Duplicar</button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    // Set default date to tomorrow
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const dateInput = modal.querySelector('#clone-date-input');
+    dateInput.value = formatDateKey(tomorrow);
+
+    const close = () => {
+        modal.remove();
+    };
+
+    modal.querySelector('#cancel-clone-btn').onclick = close;
+    modal.querySelector('#confirm-clone-btn').onclick = () => {
+        const date = dateInput.value;
+        if (date) {
+            callback(date);
+            close();
+        } else {
+            showToast('Selecione uma data.', 'error');
+        }
+    };
+
+    modal.onclick = (e) => {
+        if (e.target === modal) close();
+    };
 }

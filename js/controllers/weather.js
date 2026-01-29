@@ -1,5 +1,6 @@
 import { showToast } from '../utils/toast.js';
 import { router } from '../core/router.js';
+import { store } from '../core/store.js';
 
 const MOCK_WEATHER = {
     temp: 24,
@@ -79,6 +80,9 @@ async function getPreciseLocation(silent = false) {
         });
 
         const { latitude, longitude } = position.coords;
+        // Save location for other controllers (e.g. Planner)
+        store.saveUserLocation({ latitude, longitude });
+
         await fetchWeatherData(latitude, longitude);
 
     } catch (error) {
@@ -145,7 +149,34 @@ async function fetchWeatherData(lat, lon) {
     showToast(`Clima atualizado!`, 'success');
 }
 
-function mapWmoCode(code) {
+export async function getWeeklyForecast(lat, lon) {
+    try {
+        const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto`;
+        const res = await fetch(weatherUrl);
+        if (!res.ok) throw new Error('Forecast API failed');
+        const json = await res.json();
+        const daily = json.daily;
+
+        const forecastMap = {};
+        if (daily && daily.time) {
+            daily.time.forEach((date, i) => {
+                forecastMap[date] = {
+                    date: date,
+                    code: daily.weather_code[i],
+                    max: Math.round(daily.temperature_2m_max[i]),
+                    min: Math.round(daily.temperature_2m_min[i]),
+                    info: mapWmoCode(daily.weather_code[i])
+                };
+            });
+        }
+        return forecastMap;
+    } catch (e) {
+        console.error("Error fetching weekly forecast:", e);
+        return null;
+    }
+}
+
+export function mapWmoCode(code) {
     // WMO Weather interpretation codes (WW)
     if (code === 0) return { text: 'Céu Limpo', icon: 'wb_sunny' };
     if (code >= 1 && code <= 3) return { text: 'Parcialmente Nublado', icon: 'partly_cloudy_day' };
