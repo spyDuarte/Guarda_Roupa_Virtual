@@ -2,6 +2,7 @@ import { store } from '../core/store.js';
 import { router } from '../core/router.js';
 import { GalleryController } from './gallery.js';
 import { openItemModal } from './gallery.js';
+import { showToast } from '../utils/toast.js';
 
 export function initDashboard() {
     updateStats();
@@ -102,7 +103,7 @@ function setupEventListeners() {
     const planOutfitBtn = document.getElementById('plan-outfit-btn');
     if (planOutfitBtn) {
         planOutfitBtn.addEventListener('click', () => {
-            router.navigateTo('planner');
+            generateAndShowRandomOutfit();
         });
     }
 
@@ -122,4 +123,62 @@ function setupEventListeners() {
             router.navigateTo('gallery');
         });
     }
+
+    // Modal listeners for random outfit
+    const shuffleBtn = document.getElementById('shuffle-outfit-btn');
+    const closeOutfitModalBtn = document.getElementById('close-outfit-modal-btn');
+
+    if (shuffleBtn) {
+        shuffleBtn.addEventListener('click', generateAndShowRandomOutfit);
+    }
+
+    if (closeOutfitModalBtn) {
+        closeOutfitModalBtn.addEventListener('click', () => {
+            document.getElementById('outfit-suggestion-modal').classList.add('hidden');
+        });
+    }
+
+    // Close on backdrop click
+    const outfitModal = document.getElementById('outfit-suggestion-modal');
+    if (outfitModal) {
+        outfitModal.addEventListener('click', (e) => {
+            if (e.target === outfitModal) {
+                outfitModal.classList.add('hidden');
+            }
+        });
+    }
+}
+
+function generateAndShowRandomOutfit() {
+    const tops = store.wardrobeItems.filter(i => i.category === 'tops');
+    const bottoms = store.wardrobeItems.filter(i => i.category === 'bottoms');
+    const shoes = store.wardrobeItems.filter(i => i.category === 'shoes');
+
+    if (tops.length === 0 || bottoms.length === 0) {
+        showToast('Adicione partes de cima e baixo para gerar looks!', 'info');
+        return;
+    }
+
+    const randomTop = tops[Math.floor(Math.random() * tops.length)];
+    const randomBottom = bottoms[Math.floor(Math.random() * bottoms.length)];
+    const randomShoe = shoes.length > 0 ? shoes[Math.floor(Math.random() * shoes.length)] : null;
+
+    const modal = document.getElementById('outfit-suggestion-modal');
+    const topSlot = document.getElementById('suggestion-top');
+    const bottomSlot = document.getElementById('suggestion-bottom');
+    const shoeSlot = document.getElementById('suggestion-shoe');
+
+    if (topSlot) topSlot.style.backgroundImage = `url('${randomTop.image}')`;
+    if (bottomSlot) bottomSlot.style.backgroundImage = `url('${randomBottom.image}')`;
+
+    if (shoeSlot) {
+        if (randomShoe) {
+            shoeSlot.style.backgroundImage = `url('${randomShoe.image}')`;
+            shoeSlot.parentElement.classList.remove('hidden');
+        } else {
+            shoeSlot.parentElement.classList.add('hidden');
+        }
+    }
+
+    if (modal) modal.classList.remove('hidden');
 }
