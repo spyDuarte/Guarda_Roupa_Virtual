@@ -46,6 +46,7 @@ class Store {
             theme: 'light'
         };
         this.currentUser = null;
+        this.userLocation = null;
 
         // Init is now async and called explicitly
     }
@@ -59,6 +60,7 @@ class Store {
             const outfits = await dbHelper.get('outfits');
             const userProfile = await dbHelper.get('userProfile');
             const currentUser = await dbHelper.get('currentUser');
+            const userLocation = await dbHelper.get('userLocation');
 
             // Migration Logic: If IDB is empty and localStorage has data
             if (!wardrobeItems && localStorage.getItem('wardrobeItems')) {
@@ -89,9 +91,23 @@ class Store {
                     this.userProfile = { ...this.userProfile, ...userProfile };
                 }
                 this.currentUser = currentUser || null;
+                this.userLocation = userLocation || null;
             }
         } catch (e) {
             console.error('Error initializing store:', e);
+        }
+    }
+
+    async saveUserLocation(location) {
+        this.userLocation = location;
+        try {
+            if (location) {
+                await dbHelper.set('userLocation', location);
+            } else {
+                await dbHelper.delete('userLocation');
+            }
+        } catch (e) {
+            console.error('Error saving user location:', e);
         }
     }
 
