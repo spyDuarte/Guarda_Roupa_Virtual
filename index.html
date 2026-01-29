@@ -876,6 +876,7 @@
                         </label>
                         <button id="remove-avatar-btn" class="text-xs text-red-500 hover:text-red-600 font-medium hidden">Remover Foto</button>
                     </div>
+                    <p id="profile-member-since" class="text-xs text-gray-400 dark:text-gray-500 font-medium mt-1">Membro desde -</p>
                 </div>
 
                 <!-- Stats -->
@@ -948,6 +949,18 @@
                      </div>
                 </div>
 
+                 <!-- Most Worn Item -->
+                <div id="stat-most-worn-item-container" class="bg-white dark:bg-surface-dark p-4 rounded-xl border border-gray-100 dark:border-gray-800 mb-6 hidden">
+                    <h3 class="text-sm font-bold text-gray-900 dark:text-white mb-3">Item Mais Usado</h3>
+                    <div class="flex items-center gap-4">
+                        <div id="stat-most-worn-item-image" class="w-16 h-16 rounded-lg bg-cover bg-center border border-gray-100 dark:border-gray-700 bg-gray-100 dark:bg-white/5"></div>
+                        <div class="flex-1 min-w-0">
+                            <h4 id="stat-most-worn-item-name" class="font-bold text-gray-900 dark:text-white truncate">Nome do Item</h4>
+                            <p id="stat-most-worn-item-count" class="text-xs text-gray-500 dark:text-gray-400">Usado 0 vezes</p>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Form -->
                 <div class="space-y-2">
                     <label class="text-sm font-bold text-gray-700 dark:text-gray-300">Email</label>
@@ -979,6 +992,7 @@
                             <input type="file" id="import-data-input" class="hidden" accept=".json">
                         </label>
                     </div>
+                    <p id="last-backup-date" class="text-xs text-center text-gray-400 dark:text-gray-500 mt-2">Último backup: Nunca</p>
                  </div>
 
                  <div class="p-4 bg-red-50 dark:bg-red-900/10 rounded-xl border border-red-100 dark:border-red-900/20">
@@ -1156,6 +1170,18 @@
 
         <!-- Toast Container -->
         <div id="toast-container" class="fixed top-4 left-1/2 transform -translate-x-1/2 z-[70] flex flex-col gap-2 w-full max-w-xs px-4"></div>
+
+        <!-- Confirmation Modal -->
+        <div id="confirmation-modal" class="fixed inset-0 z-[80] bg-black/50 hidden flex items-center justify-center p-4">
+            <div class="bg-white dark:bg-surface-dark rounded-xl w-full max-w-xs shadow-2xl p-6 transform transition-all scale-100">
+                <h3 id="confirm-modal-title" class="text-lg font-bold text-gray-900 dark:text-white mb-2">Confirmação</h3>
+                <p id="confirm-modal-message" class="text-gray-600 dark:text-gray-300 text-sm mb-6">Tem certeza que deseja realizar esta ação?</p>
+                <div class="flex gap-3">
+                    <button id="confirm-modal-cancel" class="flex-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-bold py-2.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">Cancelar</button>
+                    <button id="confirm-modal-ok" class="flex-1 bg-primary text-slate-900 font-bold py-2.5 rounded-lg hover:opacity-90 transition-opacity">Confirmar</button>
+                </div>
+            </div>
+        </div>
 
         </div> <!-- End of relative flex wrapper -->
     </div> <!-- End of #app-root -->
