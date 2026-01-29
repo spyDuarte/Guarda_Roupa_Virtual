@@ -48,6 +48,7 @@ class Store {
             theme: 'light',
             joinedDate: new Date().toISOString().split('T')[0]
         };
+        this.notifications = [];
         this.currentUser = null;
         this.userLocation = null;
 
@@ -62,6 +63,7 @@ class Store {
             const wardrobeItems = await dbHelper.get('wardrobeItems');
             const outfits = await dbHelper.get('outfits');
             const userProfile = await dbHelper.get('userProfile');
+            const notifications = await dbHelper.get('notifications');
             const currentUser = await dbHelper.get('currentUser');
             const userLocation = await dbHelper.get('userLocation');
 
@@ -93,6 +95,7 @@ class Store {
                 if (userProfile) {
                     this.userProfile = { ...this.userProfile, ...userProfile };
                 }
+                this.notifications = notifications || [];
                 this.currentUser = currentUser || null;
                 this.userLocation = userLocation || null;
             }
@@ -141,6 +144,15 @@ class Store {
         }
     }
 
+    async saveNotifications() {
+        try {
+            await dbHelper.set('notifications', this.notifications);
+        } catch (e) {
+            console.error('Error saving notifications:', e);
+            throw new Error('Failed to save notifications');
+        }
+    }
+
     async saveCurrentUser(email) {
         this.currentUser = email;
         try {
@@ -159,6 +171,7 @@ class Store {
             await dbHelper.clear();
             this.wardrobeItems = [];
             this.outfits = [];
+            this.notifications = [];
         } catch (e) {
             console.error('Error clearing data:', e);
         }
