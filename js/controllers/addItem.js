@@ -181,6 +181,8 @@ function setupEventListeners() {
 }
 
 async function handleSaveItem() {
+    const saveItemBtn = document.getElementById('save-item-btn');
+    const addToClosetBtn = document.getElementById('add-to-closet-btn');
     const itemNameInput = document.getElementById('item-name');
     const selectedCategoryInput = document.getElementById('selected-category');
     const itemBrandInput = document.getElementById('item-brand');
@@ -205,58 +207,88 @@ async function handleSaveItem() {
         return;
     }
 
-    if (editingItemId) {
-        const itemIndex = store.wardrobeItems.findIndex(i => i.id === editingItemId);
-        if (itemIndex !== -1) {
-            const updatedItem = {
-                ...store.wardrobeItems[itemIndex],
+    // Start Loading State
+    if (saveItemBtn) {
+        saveItemBtn.textContent = 'Salvando...';
+        saveItemBtn.disabled = true;
+    }
+    if (addToClosetBtn) {
+        const span = addToClosetBtn.querySelector('span');
+        if (span) {
+            addToClosetBtn.dataset.originalText = span.textContent;
+            span.textContent = 'Salvando...';
+        } else {
+            addToClosetBtn.dataset.originalText = addToClosetBtn.textContent;
+            addToClosetBtn.textContent = 'Salvando...';
+        }
+        addToClosetBtn.disabled = true;
+        addToClosetBtn.classList.add('opacity-75', 'cursor-not-allowed');
+    }
+
+    try {
+        if (editingItemId) {
+            const itemIndex = store.wardrobeItems.findIndex(i => i.id === editingItemId);
+            if (itemIndex !== -1) {
+                const updatedItem = {
+                    ...store.wardrobeItems[itemIndex],
+                    name: name,
+                    category: category,
+                    brand: brand,
+                    size: size,
+                    notes: notes,
+                };
+
+                 if (imageSrc && !imageSrc.includes('placeholder.com')) {
+                     updatedItem.image = imageSrc;
+                }
+
+                store.wardrobeItems[itemIndex] = updatedItem;
+                await store.saveWardrobeItems();
+                showToast('Item atualizado!', 'success');
+            } else {
+                showToast('Erro ao encontrar item para atualizar.', 'error');
+            }
+        } else {
+            const newItem = {
+                id: Date.now(),
                 name: name,
                 category: category,
                 brand: brand,
                 size: size,
                 notes: notes,
+                image: imageSrc.includes('placeholder.com') ? '' : imageSrc,
+                dateAdded: new Date().toISOString(),
+                usageCount: 0
             };
 
-             if (imageSrc && !imageSrc.includes('placeholder.com')) {
-                 updatedItem.image = imageSrc;
-            }
-
-            store.wardrobeItems[itemIndex] = updatedItem;
-            try {
-                await store.saveWardrobeItems();
-                showToast('Item atualizado!', 'success');
-            } catch (e) {
-                console.error(e);
-                showToast('Erro ao salvar item', 'error');
-                return;
-            }
-        } else {
-            showToast('Erro ao encontrar item para atualizar.', 'error');
-        }
-    } else {
-        const newItem = {
-            id: Date.now(),
-            name: name,
-            category: category,
-            brand: brand,
-            size: size,
-            notes: notes,
-            image: imageSrc.includes('placeholder.com') ? '' : imageSrc,
-            dateAdded: new Date().toISOString(),
-            usageCount: 0
-        };
-
-        try {
             store.wardrobeItems.push(newItem);
             await store.saveWardrobeItems();
             showToast('Item adicionado ao armário!', 'success');
-        } catch (e) {
-            showToast(e.message, 'error');
-            return;
+        }
+
+        closeAddItemOverlay();
+        updateStats();
+        GalleryController.render();
+
+    } catch (e) {
+        console.error(e);
+        showToast('Erro ao salvar item', 'error');
+    } finally {
+        // Restore Loading State
+        if (saveItemBtn) {
+            saveItemBtn.textContent = 'Salvar';
+            saveItemBtn.disabled = false;
+        }
+        if (addToClosetBtn) {
+            const originalText = addToClosetBtn.dataset.originalText || 'Adicionar ao Armário';
+            const span = addToClosetBtn.querySelector('span');
+            if (span) {
+                span.textContent = originalText;
+            } else {
+                addToClosetBtn.textContent = originalText;
+            }
+            addToClosetBtn.disabled = false;
+            addToClosetBtn.classList.remove('opacity-75', 'cursor-not-allowed');
         }
     }
-
-    closeAddItemOverlay();
-    updateStats();
-    GalleryController.render();
 }

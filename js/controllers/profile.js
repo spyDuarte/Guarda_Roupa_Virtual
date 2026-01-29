@@ -347,52 +347,62 @@ function setupEventListeners() {
 }
 
 function switchProfileTab(tab) {
-    const profileContentInfo = document.getElementById('profile-content-info');
-    const profileContentData = document.getElementById('profile-content-data');
-    const profileContentSettings = document.getElementById('profile-content-settings');
-    const tabProfileInfo = document.getElementById('tab-profile-info');
-    const tabProfileData = document.getElementById('tab-profile-data');
-    const tabProfileSettings = document.getElementById('tab-profile-settings');
+    const contents = {
+        'info': document.getElementById('profile-content-info'),
+        'data': document.getElementById('profile-content-data'),
+        'settings': document.getElementById('profile-content-settings')
+    };
 
-    // Reset all tabs to inactive state
+    const tabs = {
+        'info': document.getElementById('tab-profile-info'),
+        'data': document.getElementById('tab-profile-data'),
+        'settings': document.getElementById('tab-profile-settings')
+    };
+
+    // 1. Update Tab Buttons (Instant)
     const inactiveClasses = ['text-gray-500', 'dark:text-gray-400', 'font-medium'];
     const activeClasses = ['bg-white', 'dark:bg-surface-dark', 'text-gray-900', 'dark:text-white', 'shadow-sm', 'font-bold'];
 
-    [tabProfileInfo, tabProfileData, tabProfileSettings].forEach(el => {
+    Object.values(tabs).forEach(el => {
         if (el) {
             el.classList.remove(...activeClasses);
             el.classList.add(...inactiveClasses);
         }
     });
 
-    // Hide all contents
-    [profileContentInfo, profileContentData, profileContentSettings].forEach(el => {
-        if(el) el.classList.add('hidden');
-    });
-
-    // Activate specific tab
-    if (tab === 'info') {
-        if(profileContentInfo) profileContentInfo.classList.remove('hidden');
-        if(tabProfileInfo) {
-            tabProfileInfo.classList.remove(...inactiveClasses);
-            tabProfileInfo.classList.add(...activeClasses);
-        }
-    } else if (tab === 'data') {
-        if(profileContentData) profileContentData.classList.remove('hidden');
-        if(tabProfileData) {
-            tabProfileData.classList.remove(...inactiveClasses);
-            tabProfileData.classList.add(...activeClasses);
-        }
-    } else if (tab === 'settings') {
-        if(profileContentSettings) profileContentSettings.classList.remove('hidden');
-        if(tabProfileSettings) {
-            tabProfileSettings.classList.remove(...inactiveClasses);
-            tabProfileSettings.classList.add(...activeClasses);
-        }
+    if (tabs[tab]) {
+        tabs[tab].classList.remove(...inactiveClasses);
+        tabs[tab].classList.add(...activeClasses);
     }
+
+    // 2. Transition Content
+    Object.keys(contents).forEach(key => {
+        const el = contents[key];
+        if (!el) return;
+
+        if (key === tab) {
+            el.classList.remove('hidden');
+            // Force reflow
+            void el.offsetWidth;
+            el.classList.remove('opacity-0');
+            el.classList.add('opacity-100');
+        } else {
+            el.classList.remove('opacity-100');
+            el.classList.add('opacity-0');
+            // Wait for transition to finish before hiding
+            if (!el.classList.contains('hidden')) {
+                setTimeout(() => {
+                    if (el.classList.contains('opacity-0')) { // Check if still inactive
+                        el.classList.add('hidden');
+                    }
+                }, 300);
+            }
+        }
+    });
 }
 
 async function handleSaveProfile() {
+    const saveProfileBtn = document.getElementById('save-profile-btn');
     const profileNameInput = document.getElementById('profile-name-input');
     const profileEmailInput = document.getElementById('profile-email-input');
     const profileBioInput = document.getElementById('profile-bio-input');
@@ -428,37 +438,57 @@ async function handleSaveProfile() {
         return;
     }
 
-    store.userProfile.name = name;
-    store.userProfile.bio = bio;
+    const originalText = saveProfileBtn ? saveProfileBtn.textContent : 'Salvar Alterações';
 
-    // Save Sizes
-    store.userProfile.sizes = {
-        top: sizeTopInput ? sizeTopInput.value.trim() : '',
-        bottom: sizeBottomInput ? sizeBottomInput.value.trim() : '',
-        shoe: sizeShoeInput ? sizeShoeInput.value.trim() : ''
-    };
+    try {
+        if (saveProfileBtn) {
+            saveProfileBtn.disabled = true;
+            saveProfileBtn.textContent = 'Salvando...';
+            saveProfileBtn.classList.add('opacity-75', 'cursor-not-allowed');
+        }
 
-    // Save Socials
-    store.userProfile.socials = {
-        instagram: socialIgInput ? socialIgInput.value.trim() : '',
-        tiktok: socialTkInput ? socialTkInput.value.trim() : ''
-    };
+        store.userProfile.name = name;
+        store.userProfile.bio = bio;
 
-    await store.saveCurrentUser(email);
+        // Save Sizes
+        store.userProfile.sizes = {
+            top: sizeTopInput ? sizeTopInput.value.trim() : '',
+            bottom: sizeBottomInput ? sizeBottomInput.value.trim() : '',
+            shoe: sizeShoeInput ? sizeShoeInput.value.trim() : ''
+        };
 
-    const bgImage = profileAvatarPreview.style.backgroundImage;
-    if (bgImage && bgImage !== 'none') {
-        const url = bgImage.slice(5, -2).replace(/['"]/g, "");
-        if (url === DEFAULT_AVATAR) {
-            store.userProfile.avatar = DEFAULT_AVATAR;
-        } else {
-             store.userProfile.avatar = url;
+        // Save Socials
+        store.userProfile.socials = {
+            instagram: socialIgInput ? socialIgInput.value.trim() : '',
+            tiktok: socialTkInput ? socialTkInput.value.trim() : ''
+        };
+
+        await store.saveCurrentUser(email);
+
+        const bgImage = profileAvatarPreview.style.backgroundImage;
+        if (bgImage && bgImage !== 'none') {
+            const url = bgImage.slice(5, -2).replace(/['"]/g, "");
+            if (url === DEFAULT_AVATAR) {
+                store.userProfile.avatar = DEFAULT_AVATAR;
+            } else {
+                 store.userProfile.avatar = url;
+            }
+        }
+
+        await store.saveUserProfile();
+        renderProfile();
+        showToast('Perfil atualizado!', 'success');
+
+    } catch (e) {
+        console.error(e);
+        showToast('Erro ao salvar perfil.', 'error');
+    } finally {
+        if (saveProfileBtn) {
+            saveProfileBtn.disabled = false;
+            saveProfileBtn.textContent = originalText;
+            saveProfileBtn.classList.remove('opacity-75', 'cursor-not-allowed');
         }
     }
-
-    await store.saveUserProfile();
-    renderProfile();
-    showToast('Perfil atualizado!', 'success');
 }
 
 async function handleExportData() {
@@ -519,14 +549,21 @@ function handleImportData(event) {
 }
 
 function handleClearData() {
-    showConfirmationModal('Tem certeza? Isso apagará todos os seus dados permanentemente.', async () => {
-        await store.clearAll();
-        updateStats(); // Dashboard stats
-        renderProfile(); // Profile stats
-        GalleryController.render();
-        renderOutfits();
-        showToast('Dados apagados.', 'success');
-    });
+    // Explicit confirmation for danger action
+    const confirmation = prompt("ATENÇÃO: Isso apagará TODOS os seus dados.\nPara confirmar, digite 'DELETAR' abaixo:");
+
+    if (confirmation === 'DELETAR') {
+        showConfirmationModal('Última chance: Tem certeza absoluta?', async () => {
+            await store.clearAll();
+            updateStats(); // Dashboard stats
+            renderProfile(); // Profile stats
+            GalleryController.render();
+            renderOutfits();
+            showToast('Dados apagados.', 'success');
+        });
+    } else if (confirmation !== null) {
+        showToast('Ação cancelada. O texto digitado não confere.', 'info');
+    }
 }
 
 function showConfirmationModal(message, onConfirm) {
