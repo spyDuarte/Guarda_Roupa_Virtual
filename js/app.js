@@ -11,7 +11,11 @@ import { router } from './core/router.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     // Initialize Store (Async)
-    await store.init();
+    try {
+        await store.init();
+    } catch (error) {
+        console.error('Failed to initialize store:', error);
+    }
 
     // Initialize Router first
     router.init();

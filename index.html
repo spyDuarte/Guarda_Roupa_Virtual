@@ -85,7 +85,7 @@
                         <h2 class="text-[#111815] dark:text-white text-xl font-bold leading-tight tracking-tight">Ritinha</h2>
                     </div>
                 </div>
-                <button id="dashboard-notification-btn" class="flex items-center justify-center rounded-full size-10 bg-white/50 dark:bg-white/5 hover:bg-white dark:hover:bg-white/20 transition-all text-[#111815] dark:text-white relative">
+                <button id="dashboard-notification-btn" class="flex items-center justify-center rounded-full size-10 bg-white/50 dark:bg-white/5 hover:bg-white dark:hover:bg-white/20 transition-all text-[#111815] dark:text-white relative" aria-label="Notificações">
                     <span class="material-symbols-outlined">notifications</span>
                     <span class="absolute top-2 right-2 size-2 bg-red-500 rounded-full border border-white dark:border-surface-dark notification-dot"></span>
                 </button>
@@ -99,7 +99,7 @@
                     <div class="flex flex-col relative z-10">
                         <div class="flex items-center gap-2 mb-1">
                             <span id="dash-weather-location" class="text-sm font-bold text-primary uppercase tracking-wide">Londres, UK</span>
-                            <button id="weather-refresh-btn" class="p-1 rounded-full hover:bg-white/10 text-primary transition-colors" title="Localização Atual">
+                            <button id="weather-refresh-btn" class="p-1 rounded-full hover:bg-white/10 text-primary transition-colors" title="Localização Atual" aria-label="Atualizar Localização">
                                 <span class="material-symbols-outlined text-[16px]">my_location</span>
                             </button>
                         </div>
@@ -191,7 +191,7 @@
 
             <!-- Floating Action Button -->
             <div class="fixed bottom-24 right-4 z-20 md:hidden">
-                <button id="fab-add-item" class="bg-[#11211c] dark:bg-primary text-white dark:text-[#11211c] rounded-full size-14 shadow-lg flex items-center justify-center hover:scale-105 transition-transform">
+                <button id="fab-add-item" class="bg-[#11211c] dark:bg-primary text-white dark:text-[#11211c] rounded-full size-14 shadow-lg flex items-center justify-center hover:scale-105 transition-transform" aria-label="Adicionar Item">
                     <span class="material-symbols-outlined text-[28px]">add</span>
                 </button>
             </div>
@@ -572,12 +572,12 @@
             <!-- Top Navigation Bar -->
 <div class="sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md">
 <div class="flex items-center p-4 justify-between max-w-4xl mx-auto">
-<button id="weather-back-btn" class="text-slate-900 dark:text-white flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-white/10 transition-colors">
+<button id="weather-back-btn" class="text-slate-900 dark:text-white flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-white/10 transition-colors" aria-label="Voltar">
 <span class="material-symbols-outlined">arrow_back_ios_new</span>
 </button>
 <h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-tight flex-1 text-center font-display">Estilo & Clima</h2>
 <div class="flex w-10 items-center justify-end">
-<button id="weather-notification-btn" class="flex cursor-pointer items-center justify-center rounded-full h-10 w-10 bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-white relative">
+<button id="weather-notification-btn" class="flex cursor-pointer items-center justify-center rounded-full h-10 w-10 bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-white relative" aria-label="Notificações">
 <span class="material-symbols-outlined text-2xl">notifications</span>
 <span class="absolute top-2 right-2 size-2 bg-red-500 rounded-full border border-white dark:border-surface-dark notification-dot hidden"></span>
 </button>
@@ -739,13 +739,13 @@
             <div class="flex h-full flex-col">
              <!-- Top Header -->
             <header class="sticky top-0 z-20 flex items-center bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md p-4 pb-2 justify-between transition-colors">
-                <button id="gallery-back-btn" class="text-slate-900 dark:text-white flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-white/10 transition-colors">
+                <button id="gallery-back-btn" class="text-slate-900 dark:text-white flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-white/10 transition-colors" aria-label="Voltar">
                     <span class="material-symbols-outlined">arrow_back_ios_new</span>
                 </button>
                 <h2 id="gallery-title" class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-tight flex-1 text-center">Guarda-Roupa</h2>
                 <div class="flex items-center gap-2">
                     <div class="relative">
-                        <button id="gallery-sort-btn" class="flex size-10 items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-white/10 transition-colors text-slate-900 dark:text-white">
+                        <button id="gallery-sort-btn" class="flex size-10 items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-white/10 transition-colors text-slate-900 dark:text-white" aria-label="Ordenar">
                             <span class="material-symbols-outlined">sort</span>
                         </button>
                         <div id="gallery-sort-menu" class="hidden absolute right-0 top-12 w-40 bg-white dark:bg-surface-dark rounded-xl shadow-lg border border-gray-100 dark:border-gray-800 z-30 p-1">
@@ -754,7 +754,7 @@
                             <button class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg sort-option" data-sort="most_worn">Mais Usados</button>
                         </div>
                     </div>
-                    <button id="gallery-add-btn" class="flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary dark:text-primary hover:bg-primary/20 transition-colors">
+                    <button id="gallery-add-btn" class="flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary dark:text-primary hover:bg-primary/20 transition-colors" aria-label="Adicionar Item">
                         <span class="material-symbols-outlined font-semibold">add</span>
                     </button>
                 </div>
@@ -806,18 +806,18 @@
              <!-- Header / Month Navigator -->
             <header class="sticky top-0 z-10 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm pt-4">
                 <div class="relative flex items-center justify-between px-4 py-4">
-                    <button id="planner-prev-month" class="flex size-10 items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-[#111815] dark:text-white">
+                    <button id="planner-prev-month" class="flex size-10 items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-[#111815] dark:text-white" aria-label="Mês Anterior">
                         <span class="material-symbols-outlined">chevron_left</span>
                     </button>
                     <h2 id="planner-month-year" class="text-lg font-bold leading-tight tracking-[-0.015em] text-center flex-1">Outubro 2023</h2>
                     <div class="flex items-center gap-1">
-                        <button id="planner-next-month" class="flex size-10 items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-[#111815] dark:text-white">
+                        <button id="planner-next-month" class="flex size-10 items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-[#111815] dark:text-white" aria-label="Próximo Mês">
                             <span class="material-symbols-outlined">chevron_right</span>
                         </button>
                         <button id="planner-today-btn" class="hidden md:flex items-center justify-center px-3 py-1.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors text-xs font-bold ml-1">
                             Hoje
                         </button>
-                        <button id="planner-today-btn-mobile" class="md:hidden flex size-10 items-center justify-center rounded-full text-primary hover:bg-primary/10 transition-colors">
+                        <button id="planner-today-btn-mobile" class="md:hidden flex size-10 items-center justify-center rounded-full text-primary hover:bg-primary/10 transition-colors" aria-label="Hoje">
                             <span class="material-symbols-outlined text-[20px]">today</span>
                         </button>
                     </div>
@@ -1076,7 +1076,7 @@
         <div id="view-add-item" class="fixed inset-0 z-50 bg-background-light dark:bg-background-dark hidden overflow-y-auto flex flex-col">
             <!-- Top Navigation Bar -->
             <div class="sticky top-0 z-50 flex items-center justify-between bg-background-light/90 dark:bg-background-dark/90 backdrop-blur-md px-4 py-3 border-b border-gray-200/50 dark:border-white/5">
-                <button id="close-add-item-btn" class="flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors text-gray-900 dark:text-white">
+                <button id="close-add-item-btn" class="flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/10 transition-colors text-gray-900 dark:text-white" aria-label="Fechar">
                     <span class="material-symbols-outlined" style="font-size: 24px;">close</span>
                 </button>
                 <h2 class="text-gray-900 dark:text-white text-lg font-bold leading-tight flex-1 text-center">Adicionar Novo Item</h2>
@@ -1092,16 +1092,16 @@
                     </div>
                     <!-- Camera Controls Overlay -->
                     <div class="absolute bottom-6 left-0 right-0 px-6 flex items-center justify-between gap-6">
-                        <label class="flex shrink-0 items-center justify-center rounded-full size-12 bg-white/20 backdrop-blur-sm border border-white/30 text-white transition-transform active:scale-95 cursor-pointer">
+                        <label class="flex shrink-0 items-center justify-center rounded-full size-12 bg-white/20 backdrop-blur-sm border border-white/30 text-white transition-transform active:scale-95 cursor-pointer" aria-label="Escolher da Galeria">
                             <span class="material-symbols-outlined" style="font-size: 24px;">photo_library</span>
                             <input type="file" id="item-file-input" accept="image/*" class="hidden">
                         </label>
-                        <button id="camera-btn-mock" class="flex shrink-0 items-center justify-center rounded-full size-20 bg-transparent border-4 border-white text-white shadow-lg transition-transform active:scale-95">
+                        <button id="camera-btn-mock" class="flex shrink-0 items-center justify-center rounded-full size-20 bg-transparent border-4 border-white text-white shadow-lg transition-transform active:scale-95" aria-label="Tirar Foto">
                             <div class="size-16 rounded-full bg-white flex items-center justify-center">
                                 <span class="material-symbols-outlined text-gray-900" style="font-size: 32px;">camera_alt</span>
                             </div>
                         </button>
-                        <button class="flex shrink-0 items-center justify-center rounded-full size-12 bg-white/20 backdrop-blur-sm border border-white/30 text-white transition-transform active:scale-95">
+                        <button class="flex shrink-0 items-center justify-center rounded-full size-12 bg-white/20 backdrop-blur-sm border border-white/30 text-white transition-transform active:scale-95" aria-label="Flash">
                             <span class="material-symbols-outlined" style="font-size: 24px;">flash_on</span>
                         </button>
                     </div>
@@ -1205,7 +1205,7 @@
              <div class="bg-white dark:bg-surface-dark rounded-xl w-full max-w-sm overflow-hidden shadow-2xl">
                  <div class="relative w-full aspect-[3/4]">
                      <img id="modal-image" src="" class="w-full h-full object-cover">
-                     <button id="close-item-modal" class="absolute top-4 right-4 bg-black/50 text-white rounded-full p-2">
+                     <button id="close-item-modal" class="absolute top-4 right-4 bg-black/50 text-white rounded-full p-2" aria-label="Fechar">
                          <span class="material-symbols-outlined">close</span>
                      </button>
                  </div>

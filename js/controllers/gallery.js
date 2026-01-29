@@ -137,6 +137,66 @@ function updateFilterChips() {
     }
 }
 
+function createGalleryItem(item) {
+    const div = document.createElement('div');
+    div.className = 'group flex flex-col gap-2 cursor-pointer';
+    div.setAttribute('data-id', item.id);
+
+    const imgContainer = document.createElement('div');
+    imgContainer.className = 'item-image-container relative w-full aspect-[3/4] rounded-xl overflow-hidden bg-white dark:bg-surface-dark shadow-sm border border-slate-100 dark:border-white/5';
+    // Add Accessibility Attributes
+    imgContainer.setAttribute('role', 'img');
+    imgContainer.setAttribute('aria-label', item.name);
+
+    const imgBg = document.createElement('div');
+    imgBg.className = 'absolute inset-0 bg-center bg-no-repeat bg-cover transition-transform duration-500 group-hover:scale-105';
+    imgBg.style.backgroundImage = `url("${item.image || 'https://via.placeholder.com/200?text=No+Image'}")`;
+
+    imgContainer.appendChild(imgBg);
+
+    // Favorite Indicator
+    if (item.isFavorite) {
+        const heart = document.createElement('div');
+        heart.className = 'absolute top-2 left-2 text-red-500 bg-white/90 dark:bg-black/60 backdrop-blur-sm rounded-full p-1 z-10 flex items-center justify-center shadow-sm';
+        heart.innerHTML = '<span class="material-symbols-outlined text-[16px] font-bold" style="font-variation-settings: \'FILL\' 1;">favorite</span>';
+        imgContainer.appendChild(heart);
+    }
+
+    if (isSelectionMode) {
+        if (selectedOutfitItems.includes(item.id)) {
+            imgContainer.classList.add('ring-4', 'ring-primary');
+            const check = document.createElement('div');
+            check.className = 'absolute top-2 right-2 bg-primary text-slate-900 rounded-full p-1 z-10';
+            check.innerHTML = '<span class="material-symbols-outlined text-sm font-bold">check</span>';
+            imgContainer.appendChild(check);
+        } else {
+            div.classList.add('opacity-50');
+        }
+
+        div.onclick = () => toggleItemSelection(item.id);
+    } else {
+            div.onclick = () => openItemModal(item);
+    }
+
+    const infoDiv = document.createElement('div');
+
+    const nameP = document.createElement('p');
+    nameP.className = 'text-slate-900 dark:text-white text-sm font-bold leading-tight truncate';
+    nameP.textContent = item.name;
+
+    const brandP = document.createElement('p');
+    brandP.className = 'text-slate-500 dark:text-slate-400 text-xs font-medium mt-0.5';
+    brandP.textContent = item.brand || item.category;
+
+    infoDiv.appendChild(nameP);
+    infoDiv.appendChild(brandP);
+
+    div.appendChild(imgContainer);
+    div.appendChild(infoDiv);
+
+    return div;
+}
+
 function renderGallery() {
     const galleryGrid = document.getElementById('gallery-grid');
     const gallerySearch = document.getElementById('gallery-search');
@@ -211,60 +271,8 @@ function renderGallery() {
     const fragment = document.createDocumentFragment();
 
     filteredItems.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'group flex flex-col gap-2 cursor-pointer';
-        div.setAttribute('data-id', item.id);
-
-        const imgContainer = document.createElement('div');
-        imgContainer.className = 'item-image-container relative w-full aspect-[3/4] rounded-xl overflow-hidden bg-white dark:bg-surface-dark shadow-sm border border-slate-100 dark:border-white/5';
-
-        const imgBg = document.createElement('div');
-        imgBg.className = 'absolute inset-0 bg-center bg-no-repeat bg-cover transition-transform duration-500 group-hover:scale-105';
-        imgBg.style.backgroundImage = `url("${item.image || 'https://via.placeholder.com/200?text=No+Image'}")`;
-
-        imgContainer.appendChild(imgBg);
-
-        // Favorite Indicator
-        if (item.isFavorite) {
-            const heart = document.createElement('div');
-            heart.className = 'absolute top-2 left-2 text-red-500 bg-white/90 dark:bg-black/60 backdrop-blur-sm rounded-full p-1 z-10 flex items-center justify-center shadow-sm';
-            heart.innerHTML = '<span class="material-symbols-outlined text-[16px] font-bold" style="font-variation-settings: \'FILL\' 1;">favorite</span>';
-            imgContainer.appendChild(heart);
-        }
-
-        if (isSelectionMode) {
-            if (selectedOutfitItems.includes(item.id)) {
-                imgContainer.classList.add('ring-4', 'ring-primary');
-                const check = document.createElement('div');
-                check.className = 'absolute top-2 right-2 bg-primary text-slate-900 rounded-full p-1 z-10';
-                check.innerHTML = '<span class="material-symbols-outlined text-sm font-bold">check</span>';
-                imgContainer.appendChild(check);
-            } else {
-                div.classList.add('opacity-50');
-            }
-
-            div.onclick = () => toggleItemSelection(item.id);
-        } else {
-             div.onclick = () => openItemModal(item);
-        }
-
-        const infoDiv = document.createElement('div');
-
-        const nameP = document.createElement('p');
-        nameP.className = 'text-slate-900 dark:text-white text-sm font-bold leading-tight truncate';
-        nameP.textContent = item.name;
-
-        const brandP = document.createElement('p');
-        brandP.className = 'text-slate-500 dark:text-slate-400 text-xs font-medium mt-0.5';
-        brandP.textContent = item.brand || item.category;
-
-        infoDiv.appendChild(nameP);
-        infoDiv.appendChild(brandP);
-
-        div.appendChild(imgContainer);
-        div.appendChild(infoDiv);
-
-        fragment.appendChild(div);
+        const itemEl = createGalleryItem(item);
+        fragment.appendChild(itemEl);
     });
     galleryGrid.appendChild(fragment);
 }
@@ -378,27 +386,29 @@ function setupModal() {
         // Inject extra buttons if needed
         const actionContainer = editItemBtn.parentElement;
         if (actionContainer) {
-             // Clear previous injected buttons to prevent duplicates
-             const existingFav = document.getElementById('toggle-favorite-btn');
-             const existingWear = document.getElementById('log-usage-btn');
-             if (existingFav) existingFav.remove();
-             if (existingWear) existingWear.remove();
+             // Safe way to check/prevent duplicates: Search within container
+             const existingFav = actionContainer.querySelector('#toggle-favorite-btn');
+             const existingWear = actionContainer.querySelector('#log-usage-btn');
 
-             // Favorite Button
-             const favBtn = document.createElement('button');
-             favBtn.id = 'toggle-favorite-btn';
-             favBtn.className = 'flex-none bg-gray-100 dark:bg-gray-800 text-gray-400 hover:text-red-500 font-bold py-2 px-3 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors flex items-center justify-center';
-             favBtn.innerHTML = '<span class="material-symbols-outlined">favorite_border</span>';
-             favBtn.onclick = handleToggleFavorite;
-             actionContainer.insertBefore(favBtn, editItemBtn);
+             if (!existingFav) {
+                // Favorite Button
+                const favBtn = document.createElement('button');
+                favBtn.id = 'toggle-favorite-btn';
+                favBtn.className = 'flex-none bg-gray-100 dark:bg-gray-800 text-gray-400 hover:text-red-500 font-bold py-2 px-3 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors flex items-center justify-center';
+                favBtn.innerHTML = '<span class="material-symbols-outlined">favorite_border</span>';
+                favBtn.onclick = handleToggleFavorite;
+                actionContainer.insertBefore(favBtn, editItemBtn);
+             }
 
-             // Log Usage Button
-             const wearBtn = document.createElement('button');
-             wearBtn.id = 'log-usage-btn';
-             wearBtn.className = 'flex-1 bg-primary/10 text-primary font-bold py-2 rounded-lg hover:bg-primary/20 transition-colors';
-             wearBtn.textContent = 'Usar';
-             wearBtn.onclick = handleLogUsage;
-             actionContainer.insertBefore(wearBtn, editItemBtn);
+             if (!existingWear) {
+                // Log Usage Button
+                const wearBtn = document.createElement('button');
+                wearBtn.id = 'log-usage-btn';
+                wearBtn.className = 'flex-1 bg-primary/10 text-primary font-bold py-2 rounded-lg hover:bg-primary/20 transition-colors';
+                wearBtn.textContent = 'Usar';
+                wearBtn.onclick = handleLogUsage;
+                actionContainer.insertBefore(wearBtn, editItemBtn);
+             }
         }
     }
 }
