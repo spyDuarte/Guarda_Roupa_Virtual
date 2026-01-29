@@ -109,7 +109,6 @@ function setupEventListeners() {
     const closeAddItemBtn = document.getElementById('close-add-item-btn');
     const saveItemBtn = document.getElementById('save-item-btn');
     const addToClosetBtn = document.getElementById('add-to-closet-btn');
-    const fabAddItem = document.getElementById('fab-add-item');
     const galleryAddBtn = document.getElementById('gallery-add-btn');
 
     if (closeAddItemBtn) closeAddItemBtn.addEventListener('click', closeAddItemOverlay);
@@ -124,7 +123,6 @@ function setupEventListeners() {
     }
 
     // Trigger open from other places
-    if (fabAddItem) fabAddItem.addEventListener('click', openAddItemOverlay);
     if (galleryAddBtn) galleryAddBtn.addEventListener('click', openAddItemOverlay);
 
     const addItemTriggers = document.querySelectorAll('.add-item-trigger');
