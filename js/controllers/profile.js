@@ -121,8 +121,14 @@ function renderStats() {
 
         if (countEl) countEl.textContent = counts[cat];
         if (barEl) {
+            barEl.classList.add('bar-animate');
+            barEl.style.width = '0%';
+
             const pct = total > 0 ? (counts[cat] / total) * 100 : 0;
-            barEl.style.width = `${pct}%`;
+
+            setTimeout(() => {
+                barEl.style.width = `${pct}%`;
+            }, 100);
         }
     });
 
