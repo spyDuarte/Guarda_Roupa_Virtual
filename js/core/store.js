@@ -55,6 +55,7 @@ class Store {
         this.notifications = [];
         this.currentUser = null;
         this.userLocation = null;
+        this.weatherCache = null;
 
         // Init is now async and called explicitly
     }
@@ -70,6 +71,7 @@ class Store {
             const notifications = await dbHelper.get('notifications');
             const currentUser = await dbHelper.get('currentUser');
             const userLocation = await dbHelper.get('userLocation');
+            const weatherCache = await dbHelper.get('weatherCache');
 
             // Migration Logic: If IDB is empty and localStorage has data
             if (!wardrobeItems && localStorage.getItem('wardrobeItems')) {
@@ -102,6 +104,7 @@ class Store {
                 this.notifications = notifications || [];
                 this.currentUser = currentUser || null;
                 this.userLocation = userLocation || null;
+                this.weatherCache = weatherCache || null;
             }
         } catch (e) {
             console.error('Error initializing store:', e);
@@ -118,6 +121,15 @@ class Store {
             }
         } catch (e) {
             console.error('Error saving user location:', e);
+        }
+    }
+
+    async saveWeatherCache(data) {
+        this.weatherCache = data;
+        try {
+            await dbHelper.set('weatherCache', data);
+        } catch (e) {
+            console.error('Error saving weather cache:', e);
         }
     }
 

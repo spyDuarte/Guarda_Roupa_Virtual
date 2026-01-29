@@ -32,15 +32,16 @@ export async function initWeather() {
     }
 
     // Attempt to fetch location on init (fails gracefully to mock if permission denied/ignored)
-    // We start with mock data visibly, then try to update.
-    updateUI(MOCK_WEATHER);
-
-    if (navigator.geolocation) {
-        // We don't want to force the prompt immediately if the user hasn't interacted,
-        // but for a "feature add" request, usually immediate feedback is desired.
-        // Let's check permissions first if possible, or just try.
-        // For this implementation, we will try to get it.
-        getPreciseLocation(true); // silent mode
+    // Check cache first
+    const CACHE_DURATION = 30 * 60 * 1000; // 30 mins
+    if (store.weatherCache && store.weatherCache.timestamp && (Date.now() - store.weatherCache.timestamp < CACHE_DURATION)) {
+        updateUI(store.weatherCache.data);
+    } else {
+        // We start with mock data visibly, then try to update.
+        updateUI(MOCK_WEATHER);
+        if (navigator.geolocation) {
+            getPreciseLocation(true); // silent mode
+        }
     }
 }
 
@@ -144,6 +145,12 @@ async function fetchWeatherData(lat, lon) {
         icon: weatherInfo.icon,
         isMock: false
     };
+
+    // Save to cache
+    store.saveWeatherCache({
+        data: data,
+        timestamp: Date.now()
+    });
 
     updateUI(data);
     showToast(`Clima atualizado!`, 'success');

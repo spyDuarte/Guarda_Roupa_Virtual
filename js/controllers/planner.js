@@ -4,18 +4,11 @@ import { showToast } from '../utils/toast.js';
 import { GalleryController } from './gallery.js';
 import { updateStats } from './dashboard.js';
 import { getWeeklyForecast } from './weather.js';
+import { formatDateKey } from '../utils/date.js';
 
 let currentDate = new Date();
 let selectedDate = new Date(); // Defaults to today
 let weeklyForecast = null;
-
-// Helper to format date as YYYY-MM-DD for comparison/storage
-function formatDateKey(date) {
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, '0');
-    const d = String(date.getDate()).padStart(2, '0');
-    return `${y}-${m}-${d}`;
-}
 
 export const PlannerController = {
     async init() {

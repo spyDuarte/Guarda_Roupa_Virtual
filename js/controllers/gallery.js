@@ -213,9 +213,10 @@ function renderGallery() {
     filteredItems.forEach(item => {
         const div = document.createElement('div');
         div.className = 'group flex flex-col gap-2 cursor-pointer';
+        div.setAttribute('data-id', item.id);
 
         const imgContainer = document.createElement('div');
-        imgContainer.className = 'relative w-full aspect-[3/4] rounded-xl overflow-hidden bg-white dark:bg-surface-dark shadow-sm border border-slate-100 dark:border-white/5';
+        imgContainer.className = 'item-image-container relative w-full aspect-[3/4] rounded-xl overflow-hidden bg-white dark:bg-surface-dark shadow-sm border border-slate-100 dark:border-white/5';
 
         const imgBg = document.createElement('div');
         imgBg.className = 'absolute inset-0 bg-center bg-no-repeat bg-cover transition-transform duration-500 group-hover:scale-105';
@@ -299,7 +300,29 @@ function toggleItemSelection(id) {
         selectedOutfitItems.push(id);
     }
     updateSelectionUI();
-    renderGallery();
+
+    // Optimize: Update only the specific item in DOM
+    const itemEl = document.querySelector(`[data-id="${id}"]`);
+    if (itemEl) {
+        const imgContainer = itemEl.querySelector('.item-image-container');
+        if (imgContainer) {
+            if (selectedOutfitItems.includes(id)) {
+                imgContainer.classList.add('ring-4', 'ring-primary');
+                if (!imgContainer.querySelector('.check-indicator')) {
+                    const check = document.createElement('div');
+                    check.className = 'check-indicator absolute top-2 right-2 bg-primary text-slate-900 rounded-full p-1 z-10';
+                    check.innerHTML = '<span class="material-symbols-outlined text-sm font-bold">check</span>';
+                    imgContainer.appendChild(check);
+                }
+                itemEl.classList.remove('opacity-50');
+            } else {
+                imgContainer.classList.remove('ring-4', 'ring-primary');
+                const check = imgContainer.querySelector('.check-indicator');
+                if (check) check.remove();
+                itemEl.classList.add('opacity-50');
+            }
+        }
+    }
 }
 
 // Modal Logic
@@ -354,7 +377,13 @@ function setupModal() {
 
         // Inject extra buttons if needed
         const actionContainer = editItemBtn.parentElement;
-        if (actionContainer && !document.getElementById('log-usage-btn')) {
+        if (actionContainer) {
+             // Clear previous injected buttons to prevent duplicates
+             const existingFav = document.getElementById('toggle-favorite-btn');
+             const existingWear = document.getElementById('log-usage-btn');
+             if (existingFav) existingFav.remove();
+             if (existingWear) existingWear.remove();
+
              // Favorite Button
              const favBtn = document.createElement('button');
              favBtn.id = 'toggle-favorite-btn';
