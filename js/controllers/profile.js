@@ -205,25 +205,12 @@ function renderDataTab() {
 }
 
 function renderSettingsTab() {
-    const themeToggleBtn = document.getElementById('theme-toggle-btn');
     const userProfile = store.userProfile;
 
     if (userProfile.theme === 'dark') {
         document.documentElement.classList.add('dark');
-        if (themeToggleBtn) {
-            const dot = themeToggleBtn.querySelector('div');
-            if (dot) dot.style.transform = 'translateX(24px)';
-            themeToggleBtn.classList.remove('bg-gray-200');
-            themeToggleBtn.classList.add('bg-primary');
-        }
     } else {
         document.documentElement.classList.remove('dark');
-         if (themeToggleBtn) {
-            const dot = themeToggleBtn.querySelector('div');
-            if (dot) dot.style.transform = 'translateX(0)';
-            themeToggleBtn.classList.add('bg-gray-200');
-            themeToggleBtn.classList.remove('bg-primary');
-        }
     }
 }
 
