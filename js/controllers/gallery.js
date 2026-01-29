@@ -139,7 +139,7 @@ function updateFilterChips() {
 
 function createGalleryItem(item) {
     const div = document.createElement('div');
-    div.className = 'group flex flex-col gap-2 cursor-pointer';
+    div.className = 'group flex flex-col gap-2 cursor-pointer opacity-0 transition-opacity duration-500 ease-out';
     div.setAttribute('data-id', item.id);
 
     const imgContainer = document.createElement('div');
@@ -275,6 +275,16 @@ function renderGallery() {
         fragment.appendChild(itemEl);
     });
     galleryGrid.appendChild(fragment);
+
+    // Stagger Animation
+    requestAnimationFrame(() => {
+        const items = galleryGrid.querySelectorAll('.group.opacity-0');
+        items.forEach((el, index) => {
+            setTimeout(() => {
+                el.classList.remove('opacity-0');
+            }, index * 30); // 30ms delay
+        });
+    });
 }
 
 function setupSelectionUI() {
