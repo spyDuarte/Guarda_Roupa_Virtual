@@ -85,9 +85,9 @@
                         <h2 class="text-[#111815] dark:text-white text-xl font-bold leading-tight tracking-tight">Ritinha</h2>
                     </div>
                 </div>
-                <button class="flex items-center justify-center rounded-full size-10 bg-white/50 dark:bg-white/5 hover:bg-white dark:hover:bg-white/20 transition-all text-[#111815] dark:text-white relative">
+                <button id="dashboard-notification-btn" class="flex items-center justify-center rounded-full size-10 bg-white/50 dark:bg-white/5 hover:bg-white dark:hover:bg-white/20 transition-all text-[#111815] dark:text-white relative">
                     <span class="material-symbols-outlined">notifications</span>
-                    <span class="absolute top-2 right-2 size-2 bg-red-500 rounded-full border border-white dark:border-surface-dark"></span>
+                    <span class="absolute top-2 right-2 size-2 bg-red-500 rounded-full border border-white dark:border-surface-dark notification-dot"></span>
                 </button>
             </div>
             <!-- Weather Widget -->
@@ -577,8 +577,9 @@
 </button>
 <h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-tight flex-1 text-center font-display">Estilo & Clima</h2>
 <div class="flex w-10 items-center justify-end">
-<button class="flex cursor-pointer items-center justify-center rounded-full h-10 w-10 bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-white">
+<button id="weather-notification-btn" class="flex cursor-pointer items-center justify-center rounded-full h-10 w-10 bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-white relative">
 <span class="material-symbols-outlined text-2xl">notifications</span>
+<span class="absolute top-2 right-2 size-2 bg-red-500 rounded-full border border-white dark:border-surface-dark notification-dot hidden"></span>
 </button>
 </div>
 </div>
@@ -1235,6 +1236,18 @@
         </div>
 
         </div> <!-- End of relative flex wrapper -->
+
+        <!-- Notification Dropdown (Hidden) -->
+        <div id="notification-dropdown" class="fixed top-20 right-4 z-[100] w-80 bg-white dark:bg-surface-dark rounded-2xl shadow-xl border border-gray-100 dark:border-gray-800 hidden origin-top-right transition-all transform opacity-0 scale-95 flex flex-col max-h-[70vh]">
+            <div class="p-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center shrink-0">
+                <h3 class="font-bold text-gray-900 dark:text-white">Notificações</h3>
+                <button id="clear-notifications-btn" class="text-xs text-primary font-bold hover:opacity-80">Limpar Tudo</button>
+            </div>
+            <div id="notification-list" class="overflow-y-auto p-2 flex-1">
+                <!-- Notification Items will be injected here -->
+            </div>
+        </div>
+
     </div> <!-- End of #app-root -->
 </body>
 </html>

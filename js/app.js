@@ -6,6 +6,7 @@ import { initPlanner } from './controllers/planner.js';
 import { initProfile } from './controllers/profile.js';
 import { initAddItem } from './controllers/addItem.js';
 import { initWeather } from './controllers/weather.js';
+import { initNotifications } from './controllers/notifications.js';
 import { router } from './core/router.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -23,4 +24,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     initProfile();
     initAddItem();
     initWeather();
+    initNotifications();
 });
