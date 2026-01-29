@@ -1045,8 +1045,10 @@
              <div id="profile-content-settings" class="hidden space-y-4">
                  <div class="flex items-center justify-between p-4 bg-white dark:bg-surface-dark rounded-xl border border-gray-100 dark:border-gray-800">
                     <span class="font-bold text-gray-900 dark:text-white">Modo Escuro</span>
-                    <button id="theme-toggle-btn" class="w-12 h-6 bg-gray-200 dark:bg-gray-700 rounded-full relative transition-colors">
-                        <div class="absolute top-1 left-1 dark:left-7 w-4 h-4 bg-white rounded-full transition-all duration-300"></div>
+                    <button id="theme-toggle-btn" class="w-14 h-8 bg-gray-200 dark:bg-primary rounded-full relative transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 dark:focus:ring-offset-surface-dark" aria-label="Alternar tema">
+                        <span class="material-symbols-outlined absolute left-1.5 top-1.5 text-[20px] text-gray-500 dark:text-primary-900 transition-opacity opacity-100 dark:opacity-0">light_mode</span>
+                        <span class="material-symbols-outlined absolute right-1.5 top-1.5 text-[20px] text-white transition-opacity opacity-0 dark:opacity-100">dark_mode</span>
+                        <div class="absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-md transition-transform duration-300 dark:translate-x-6"></div>
                     </button>
                  </div>
 
