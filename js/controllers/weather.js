@@ -1,4 +1,5 @@
 import { showToast } from '../utils/toast.js';
+import { router } from '../core/router.js';
 
 const MOCK_WEATHER = {
     temp: 24,
@@ -12,6 +13,14 @@ const MOCK_WEATHER = {
 };
 
 export async function initWeather() {
+    // Attach listener to back button
+    const backBtn = document.getElementById('weather-back-btn');
+    if (backBtn) {
+        backBtn.addEventListener('click', () => {
+            router.navigateTo('dashboard');
+        });
+    }
+
     // Attach listener to refresh button
     const refreshBtn = document.getElementById('weather-refresh-btn');
     if (refreshBtn) {
