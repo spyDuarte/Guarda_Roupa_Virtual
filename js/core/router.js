@@ -86,12 +86,25 @@ class Router {
                 const icon = btn.querySelector('.material-symbols-outlined');
 
                 if (btnTarget === targetViewId) {
+                    btn.classList.add('nav-item-active');
                     btn.classList.remove('text-gray-400', 'dark:text-gray-500');
                     btn.classList.add('text-primary');
+
+                    // Add background for sidebar items
+                    if (this.sidebar && this.sidebar.contains(btn)) {
+                        btn.classList.add('bg-primary/10', 'dark:bg-primary/10');
+                    }
+
                     if (icon) icon.classList.add('fill-current');
                 } else {
+                    btn.classList.remove('nav-item-active');
                     btn.classList.add('text-gray-400', 'dark:text-gray-500');
                     btn.classList.remove('text-primary');
+
+                    if (this.sidebar && this.sidebar.contains(btn)) {
+                        btn.classList.remove('bg-primary/10', 'dark:bg-primary/10');
+                    }
+
                     if (icon) icon.classList.remove('fill-current');
                 }
             });

@@ -143,7 +143,7 @@ function createGalleryItem(item) {
     div.setAttribute('data-id', item.id);
 
     const imgContainer = document.createElement('div');
-    imgContainer.className = 'item-image-container relative w-full aspect-[3/4] rounded-xl overflow-hidden bg-white dark:bg-surface-dark shadow-sm border border-slate-100 dark:border-white/5';
+    imgContainer.className = 'item-image-container relative w-full aspect-[3/4] rounded-xl overflow-hidden bg-white dark:bg-surface-dark shadow-sm group-hover:shadow-md transition-all duration-300 border border-slate-100 dark:border-white/5';
     // Add Accessibility Attributes
     imgContainer.setAttribute('role', 'img');
     imgContainer.setAttribute('aria-label', item.name);
