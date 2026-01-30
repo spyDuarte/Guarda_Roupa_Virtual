@@ -799,48 +799,52 @@
         <div id="view-planner" class="view-section pb-24">
              <!-- Header / Month Navigator -->
             <header class="sticky top-0 z-10 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm pt-4">
-                <div class="relative flex items-center justify-between px-4 py-4">
-                    <button id="planner-prev-month" class="flex size-10 items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-[#111815] dark:text-white" aria-label="Mês Anterior">
-                        <span class="material-symbols-outlined">chevron_left</span>
-                    </button>
-                    <h2 id="planner-month-year" class="text-lg font-bold leading-tight tracking-[-0.015em] text-center flex-1">Outubro 2023</h2>
-                    <div class="flex items-center gap-1">
-                        <button id="planner-next-month" class="flex size-10 items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-[#111815] dark:text-white" aria-label="Próximo Mês">
-                            <span class="material-symbols-outlined">chevron_right</span>
+                <div class="max-w-4xl mx-auto">
+                    <div class="relative flex items-center justify-between px-4 py-4">
+                        <button id="planner-prev-month" class="flex size-10 items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-[#111815] dark:text-white" aria-label="Mês Anterior">
+                            <span class="material-symbols-outlined">chevron_left</span>
                         </button>
-                        <button id="planner-today-btn" class="hidden md:flex items-center justify-center px-3 py-1.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors text-xs font-bold ml-1">
-                            Hoje
-                        </button>
-                        <button id="planner-today-btn-mobile" class="md:hidden flex size-10 items-center justify-center rounded-full text-primary hover:bg-primary/10 transition-colors" aria-label="Hoje">
-                            <span class="material-symbols-outlined text-[20px]">today</span>
-                        </button>
+                        <h2 id="planner-month-year" class="text-lg font-bold leading-tight tracking-[-0.015em] text-center flex-1">Outubro 2023</h2>
+                        <div class="flex items-center gap-1">
+                            <button id="planner-next-month" class="flex size-10 items-center justify-center rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-[#111815] dark:text-white" aria-label="Próximo Mês">
+                                <span class="material-symbols-outlined">chevron_right</span>
+                            </button>
+                            <button id="planner-today-btn" class="hidden md:flex items-center justify-center px-3 py-1.5 rounded-full bg-primary/10 text-primary hover:bg-primary/20 transition-colors text-xs font-bold ml-1">
+                                Hoje
+                            </button>
+                            <button id="planner-today-btn-mobile" class="md:hidden flex size-10 items-center justify-center rounded-full text-primary hover:bg-primary/10 transition-colors" aria-label="Hoje">
+                                <span class="material-symbols-outlined text-[20px]">today</span>
+                            </button>
+                        </div>
                     </div>
-                </div>
-                <!-- Days of Week -->
-                <div class="grid grid-cols-7 mb-2 px-2">
-                    <div class="text-gray-500 dark:text-gray-400 text-[13px] font-bold text-center py-2">D</div>
-                    <div class="text-gray-500 dark:text-gray-400 text-[13px] font-bold text-center py-2">S</div>
-                    <div class="text-gray-500 dark:text-gray-400 text-[13px] font-bold text-center py-2">T</div>
-                    <div class="text-gray-500 dark:text-gray-400 text-[13px] font-bold text-center py-2">Q</div>
-                    <div class="text-gray-500 dark:text-gray-400 text-[13px] font-bold text-center py-2">Q</div>
-                    <div class="text-gray-500 dark:text-gray-400 text-[13px] font-bold text-center py-2">S</div>
-                    <div class="text-gray-500 dark:text-gray-400 text-[13px] font-bold text-center py-2">S</div>
-                </div>
-                <!-- Calendar Grid -->
-                <div id="calendar-grid" class="grid grid-cols-7 gap-y-2 px-2 pb-4">
-                    <!-- Days injected by JS -->
+                    <!-- Days of Week -->
+                    <div class="grid grid-cols-7 mb-2 px-2">
+                        <div class="text-gray-500 dark:text-gray-400 text-[13px] font-bold text-center py-2">D</div>
+                        <div class="text-gray-500 dark:text-gray-400 text-[13px] font-bold text-center py-2">S</div>
+                        <div class="text-gray-500 dark:text-gray-400 text-[13px] font-bold text-center py-2">T</div>
+                        <div class="text-gray-500 dark:text-gray-400 text-[13px] font-bold text-center py-2">Q</div>
+                        <div class="text-gray-500 dark:text-gray-400 text-[13px] font-bold text-center py-2">Q</div>
+                        <div class="text-gray-500 dark:text-gray-400 text-[13px] font-bold text-center py-2">S</div>
+                        <div class="text-gray-500 dark:text-gray-400 text-[13px] font-bold text-center py-2">S</div>
+                    </div>
+                    <!-- Calendar Grid -->
+                    <div id="calendar-grid" class="grid grid-cols-7 gap-y-2 px-2 pb-4">
+                        <!-- Days injected by JS -->
+                    </div>
                 </div>
             </header>
             <!-- Outfits Grid -->
             <div class="px-4 mb-6 pt-4 min-h-[300px]">
-                <h3 id="planner-selected-date" class="text-xl font-bold text-slate-900 dark:text-white mb-4"></h3>
+                <div class="max-w-4xl mx-auto">
+                    <h3 id="planner-selected-date" class="text-xl font-bold text-slate-900 dark:text-white mb-4"></h3>
 
-                <!-- This button will be conditionally hidden/shown via JS based on content -->
-                <button id="create-outfit-btn" class="w-full bg-primary text-slate-900 font-bold py-3 rounded-xl mb-4 shadow-sm hover:opacity-90 transition-opacity">
-                    Criar Novo Look
-                </button>
-                <div id="outfits-grid" class="flex flex-col gap-3">
-                    <!-- Outfits will be injected here -->
+                    <!-- This button will be conditionally hidden/shown via JS based on content -->
+                    <button id="create-outfit-btn" class="w-full bg-primary text-slate-900 font-bold py-3 rounded-xl mb-4 shadow-sm hover:opacity-90 transition-opacity">
+                        Criar Novo Look
+                    </button>
+                    <div id="outfits-grid" class="flex flex-col gap-3">
+                        <!-- Outfits will be injected here -->
+                    </div>
                 </div>
             </div>
         </div>
