@@ -178,9 +178,9 @@ function renderCalendar() {
         if (isSelected) {
             classes += 'bg-[#11211c] dark:bg-primary text-white dark:text-[#11211c] font-black shadow-lg scale-110 z-10';
         } else if (isToday) {
-            classes += 'border-2 border-primary text-primary font-bold';
+            classes += 'border-2 border-primary text-primary font-bold hover:scale-105';
         } else {
-            classes += 'text-slate-500 dark:text-gray-400 hover:bg-black/5 dark:hover:bg-white/5 font-medium';
+            classes += 'text-slate-500 dark:text-gray-400 hover:bg-primary/20 hover:text-primary-dark hover:scale-110 hover:shadow-md font-medium';
         }
 
         btn.className = classes;
@@ -189,19 +189,23 @@ function renderCalendar() {
         // Check for outfits on this day
         const outfitsOnDay = store.outfits.filter(o => o.scheduledDate === dateKey);
         if (outfitsOnDay.length > 0) {
-            const pill = document.createElement('div');
-            // If selected, adapt color to contrast
-            const pillClass = isSelected
-                ? 'bg-primary text-slate-900'
-                : 'bg-primary text-slate-900 shadow-sm';
-
-            pill.className = `absolute -bottom-1 left-1/2 -translate-x-1/2 h-4 px-1.5 rounded-full flex items-center justify-center text-[9px] font-bold ${pillClass}`;
-
-            // Show count if > 1, otherwise just a dot-like pill or "1"
-            pill.textContent = outfitsOnDay.length > 1 ? outfitsOnDay.length : '•';
-            if (outfitsOnDay.length === 1) pill.style.fontSize = '14px'; // Make dot bigger
-
-            btn.appendChild(pill);
+            // Show count if > 1, otherwise just a dot
+            if (outfitsOnDay.length > 1) {
+                const pill = document.createElement('div');
+                 const pillClass = isSelected
+                    ? 'bg-primary text-slate-900'
+                    : 'bg-primary text-slate-900 shadow-sm';
+                pill.className = `absolute -bottom-1 left-1/2 -translate-x-1/2 h-3.5 min-w-[14px] px-1 rounded-full flex items-center justify-center text-[8px] font-bold ${pillClass}`;
+                pill.textContent = outfitsOnDay.length;
+                btn.appendChild(pill);
+            } else {
+                 const dot = document.createElement('div');
+                 const dotClass = isSelected
+                    ? 'bg-primary'
+                    : 'bg-primary';
+                 dot.className = `absolute bottom-1.5 left-1/2 -translate-x-1/2 size-1 rounded-full ${dotClass}`;
+                 btn.appendChild(dot);
+            }
         }
 
         btn.onclick = () => PlannerController.selectDate(date);
@@ -252,14 +256,20 @@ export function renderOutfits() {
 
     if (relevantOutfits.length === 0) {
         const emptyState = document.createElement('div');
-        emptyState.className = 'flex flex-col items-center justify-center py-12 text-center';
+        emptyState.className = 'flex flex-col items-center justify-center py-12 text-center text-gray-400 opacity-0 transition-opacity duration-500 ease-out';
         emptyState.innerHTML = `
-            <div class="bg-gray-50 dark:bg-white/5 p-6 rounded-full mb-4">
+            <div class="bg-gray-50 dark:bg-white/5 p-6 rounded-full mb-4 shadow-sm">
                 <span class="material-symbols-outlined text-5xl text-gray-300 dark:text-gray-600">checkroom</span>
             </div>
             <h3 class="text-gray-900 dark:text-white font-bold text-lg mb-1">Nada planejado</h3>
             <p class="text-gray-500 dark:text-gray-400 text-sm mb-6 max-w-[200px]">Crie um look para se preparar para o dia.</p>
         `;
+
+        requestAnimationFrame(() => {
+            setTimeout(() => {
+                emptyState.classList.remove('opacity-0');
+            }, 100);
+        });
 
         const ctaBtn = document.createElement('button');
         ctaBtn.className = 'bg-primary text-slate-900 font-bold py-3 px-8 rounded-xl shadow-lg shadow-primary/20 hover:scale-105 transition-transform';
@@ -276,7 +286,7 @@ export function renderOutfits() {
 
     relevantOutfits.forEach(outfit => {
         const card = document.createElement('div');
-        card.className = 'glass-panel p-5 rounded-3xl flex flex-col gap-4 card-hover';
+        card.className = 'glass-panel p-5 rounded-3xl flex flex-col gap-4 card-hover opacity-0 transition-opacity duration-500 ease-out';
 
         // Header: Title and Actions
         const header = document.createElement('div');
@@ -390,13 +400,23 @@ export function renderOutfits() {
 
         // "Wear This" Button
         const wearBtn = document.createElement('button');
-        wearBtn.className = 'w-full py-2.5 rounded-lg bg-gray-100 dark:bg-white/5 text-gray-900 dark:text-white font-bold text-sm hover:bg-primary hover:text-slate-900 transition-colors flex items-center justify-center gap-2 group';
+        wearBtn.className = 'w-full py-2.5 rounded-lg bg-gray-100 dark:bg-white/5 text-gray-900 dark:text-white font-bold text-sm hover:bg-primary hover:text-slate-900 hover:shadow-lg transition-all flex items-center justify-center gap-2 group';
         wearBtn.innerHTML = '<span class="material-symbols-outlined text-lg group-hover:scale-110 transition-transform">checkroom</span> Usar Isto';
         wearBtn.onclick = () => PlannerController.wearOutfit(outfit);
 
         card.appendChild(wearBtn);
 
         outfitsGrid.appendChild(card);
+    });
+
+    // Stagger Animation
+    requestAnimationFrame(() => {
+        const items = outfitsGrid.querySelectorAll('.opacity-0');
+        items.forEach((el, index) => {
+            setTimeout(() => {
+                el.classList.remove('opacity-0');
+            }, index * 50); // 50ms delay
+        });
     });
 }
 
