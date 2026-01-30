@@ -6,8 +6,17 @@
 .material-symbols-outlined.filled {
     font-variation-settings: 'FILL' 1;
 }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
 .view-section { display: none; }
-.view-section.active { display: block; }
+.view-section.active {
+    display: block;
+    animation: fadeIn 0.3s ease-in-out forwards;
+}
 
 .calendar-gradient {
     background: linear-gradient(180deg, rgba(71, 235, 180, 0.05) 0%, rgba(17, 33, 28, 0) 100%);
