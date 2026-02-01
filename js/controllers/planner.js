@@ -473,9 +473,9 @@ function createDateModal(callback) {
 
 function createNameModal(callback) {
     const modal = document.createElement('div');
-    modal.className = 'fixed inset-0 z-[60] bg-black/50 flex items-center justify-center p-4';
+    modal.className = 'fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4';
     modal.innerHTML = `
-        <div class="bg-white dark:bg-surface-dark rounded-xl w-full max-w-sm overflow-hidden shadow-2xl p-6">
+        <div class="bg-white dark:bg-surface-dark rounded-xl w-full max-w-sm overflow-hidden shadow-2xl p-6 relative z-10">
             <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Nomear Look</h3>
             <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Dê um nome para sua nova combinação.</p>
             <input type="text" id="outfit-name-input" class="w-full rounded-xl border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-white/5 p-3 text-sm text-gray-900 dark:text-white mb-6" placeholder="Ex: Look de Trabalho">
