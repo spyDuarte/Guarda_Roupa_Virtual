@@ -195,7 +195,7 @@
 
 
         <!-- LOGIN VIEW -->
-        <div id="view-login" class="view-section h-full relative z-50 bg-background-light dark:bg-background-dark">
+        <div id="view-login" class="view-section hidden h-full relative z-50 bg-background-light dark:bg-background-dark">
             <div class="relative flex min-h-screen w-full flex-col overflow-hidden">
 <!-- Background Image with Overlay -->
 <div class="absolute inset-0 z-0 h-full w-full">
@@ -278,7 +278,7 @@
         </div>
 
         <!-- REGISTRATION VIEW -->
-        <div id="view-registration" class="view-section h-full relative z-50 bg-background-light dark:bg-background-dark">
+        <div id="view-registration" class="view-section hidden h-full relative z-50 bg-background-light dark:bg-background-dark">
             <!-- Abstract Background Texture -->
 <div class="absolute top-0 left-0 w-full h-[500px] bg-gradient-radial from-[#47ebb4]/10 to-transparent opacity-50 pointer-events-none transform -translate-y-1/2 scale-150 z-0" data-alt="Abstract soft green glow gradient background"></div>
 <!-- Navigation Bar -->
@@ -361,7 +361,7 @@
         </div>
 
         <!-- ONBOARDING CREATE VIEW -->
-        <div id="view-onboarding-create" class="view-section h-full relative z-50 bg-background-light dark:bg-background-dark">
+        <div id="view-onboarding-create" class="view-section hidden h-full relative z-50 bg-background-light dark:bg-background-dark">
             <div class="relative flex min-h-screen w-full flex-col bg-background-light dark:bg-background-dark overflow-x-hidden">
 <!-- TopAppBar -->
 <div class="flex items-center bg-transparent p-4 pb-2 justify-end">
@@ -422,7 +422,7 @@
         </div>
 
         <!-- ONBOARDING ORGANIZE VIEW -->
-        <div id="view-onboarding-organize" class="view-section h-full relative z-50 bg-background-light dark:bg-background-dark">
+        <div id="view-onboarding-organize" class="view-section hidden h-full relative z-50 bg-background-light dark:bg-background-dark">
             <div class="relative flex h-screen w-full flex-col overflow-hidden max-w-[430px] mx-auto shadow-2xl">
 <!-- TopAppBar -->
 <div class="flex items-center bg-transparent p-6 pb-2 justify-end z-10">
@@ -468,7 +468,7 @@
         </div>
 
         <!-- ONBOARDING PLAN VIEW -->
-        <div id="view-onboarding-plan" class="view-section h-full relative z-50 bg-background-light dark:bg-background-dark">
+        <div id="view-onboarding-plan" class="view-section hidden h-full relative z-50 bg-background-light dark:bg-background-dark">
             <!-- Top Navigation -->
 <div class="flex items-center p-4 justify-between">
 <button class="text-white flex size-12 shrink-0 items-center justify-start hover:bg-white/5 rounded-full transition-colors">
@@ -564,149 +564,96 @@
         </div>
 
         <!-- WEATHER STYLE VIEW -->
-        <div id="view-weather-style" class="view-section h-full relative z-50 bg-background-light dark:bg-background-dark">
-            <!-- Top Navigation Bar -->
-<div class="sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md">
-<div class="flex items-center p-4 justify-between max-w-4xl mx-auto">
-<button id="weather-back-btn" class="text-slate-900 dark:text-white flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-slate-200 dark:hover:bg-white/10 transition-colors" aria-label="Voltar">
-<span class="material-symbols-outlined">arrow_back_ios_new</span>
-</button>
-<h2 class="text-slate-900 dark:text-white text-lg font-bold leading-tight tracking-tight flex-1 text-center font-display">Estilo & Clima</h2>
-<div class="flex w-10 items-center justify-end">
-<button id="weather-notification-btn" class="flex cursor-pointer items-center justify-center rounded-full h-10 w-10 bg-slate-200 dark:bg-slate-800 text-slate-900 dark:text-white relative" aria-label="Notificações">
-<span class="material-symbols-outlined text-2xl">notifications</span>
-<span class="absolute top-2 right-2 size-2 bg-red-500 rounded-full border border-white dark:border-surface-dark notification-dot hidden"></span>
-</button>
-</div>
-</div>
-</div>
-<!-- Main Content Container -->
-<div class="max-w-4xl mx-auto px-4">
-<!-- Weather Widget Card -->
-<div class="py-4">
-<div class="glass-card rounded-xl p-6 relative overflow-hidden">
-<!-- Subtle background glow -->
-<div class="absolute -top-10 -right-10 w-32 h-32 bg-primary/20 blur-3xl rounded-full"></div>
-<div class="flex justify-between items-start">
-<div>
-<p class="text-primary text-sm font-semibold uppercase tracking-wider mb-1">Clima Atual</p>
-                <h1 id="style-weather-temp" class="text-white text-4xl font-bold font-display">18°C</h1>
-                <p id="style-weather-condition" class="text-slate-300 text-lg">Parcialmente Nublado</p>
-<div class="flex items-center gap-1 mt-2 text-slate-400">
-<span class="material-symbols-outlined text-sm">location_on</span>
-                    <span id="style-weather-location" class="text-sm font-medium">Londres, UK</span>
-</div>
-</div>
-<div class="flex flex-col items-center">
-<span class="material-symbols-outlined text-6xl text-primary drop-shadow-[0_0_15px_rgba(71,235,180,0.5)]">partly_cloudy_day</span>
-<div class="mt-2 flex gap-2">
-<span class="bg-white/10 px-2 py-1 rounded text-[10px] text-white">H: 21°</span>
-<span class="bg-white/10 px-2 py-1 rounded text-[10px] text-white">L: 14°</span>
-</div>
-</div>
-</div>
-<div class="mt-6 flex justify-between border-t border-white/5 pt-4">
-<div class="text-center">
-<p class="text-[10px] text-slate-400 uppercase">Umidade</p>
-                    <p id="style-weather-humidity" class="text-white text-sm font-bold font-display">42%</p>
-</div>
-<div class="text-center border-x border-white/5 px-6">
-<p class="text-[10px] text-slate-400 uppercase">Vento</p>
-                    <p id="style-weather-wind" class="text-white text-sm font-bold font-display">12 km/h</p>
-</div>
-<div class="text-center">
-<p class="text-[10px] text-slate-400 uppercase">Índice UV</p>
-                    <p id="style-weather-uv" class="text-white text-sm font-bold font-display">Médio</p>
-</div>
-</div>
-</div>
-</div>
-<!-- Section Header -->
-<div class="flex items-center justify-between pb-3 pt-5">
-<h2 class="text-slate-900 dark:text-white text-[22px] font-bold leading-tight tracking-tight font-display">Recomendado para Hoje</h2>
-<button class="text-primary text-sm font-medium">Ver Tudo</button>
-</div>
-<!-- Outfit Suggestions List -->
-<div class="space-y-4 md:grid md:grid-cols-2 md:space-y-0 md:gap-4">
-<!-- Recommendation Card 1 -->
-<div class="glass-card rounded-xl overflow-hidden p-4">
-<div class="flex items-stretch justify-between gap-4">
-<div class="flex flex-[2_2_0px] flex-col justify-between">
-<div class="flex flex-col gap-1">
-<div class="flex items-center gap-2 mb-1">
-<span class="bg-primary/20 text-primary text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter">Casual</span>
-</div>
-<p class="text-white text-lg font-bold leading-tight font-display">Casual Chique</p>
-<p class="text-slate-400 text-sm font-normal leading-normal">Uma jaqueta leve é perfeita para esta brisa.</p>
-</div>
-<button class="mt-4 flex min-w-[100px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-4 bg-primary text-background-dark gap-2 text-sm font-bold leading-normal transition-transform active:scale-95">
-<span class="material-symbols-outlined text-lg">check_circle</span>
-<span class="truncate">Usar Isto</span>
-</button>
-</div>
-<div class="w-32 h-32 bg-center bg-no-repeat bg-cover rounded-lg shrink-0 border border-white/10" data-alt="A stylish casual outfit with a denim jacket and white t-shirt" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDLu_Y2Cxt8y57-gOKANFKimI6P9xdT4EYXR_GD6fn-rd0vmhNaq0W4Ktcv4K7XgT2fW8qy-m_JoqLqDw7C467hTa3yZYODIemZZHNbVcPBbqrzsR0cPA8PotvygqDRk8Il0bNqsAuDW6Q1ICo3O3pUup7_GiBQjX_X7vOVEIdBiawhAb4QIvtKWqrENmZ7qBrDnSbACurfgyeH7KrSQHhtLGGXe45MQWUgXkxvujbf75W7lab5zRNcwkMkqarv3wa2FMrPhLocmXAv");'>
-</div>
-</div>
-</div>
-<!-- Recommendation Card 2 -->
-<div class="glass-card rounded-xl overflow-hidden p-4 border border-primary/20">
-<div class="flex items-stretch justify-between gap-4">
-<div class="flex flex-[2_2_0px] flex-col justify-between">
-<div class="flex flex-col gap-1">
-<div class="flex items-center gap-2 mb-1">
-<span class="bg-primary text-background-dark text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter">Combinação Perfeita</span>
-</div>
-<p class="text-white text-lg font-bold leading-tight font-display">Pronto para o Escritório</p>
-<p class="text-slate-400 text-sm font-normal leading-normal">Use com um blazer para o trajeto matinal.</p>
-</div>
-<button class="mt-4 flex min-w-[100px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-4 bg-white/10 text-white gap-2 text-sm font-bold leading-normal">
-<span class="material-symbols-outlined text-lg">check_circle</span>
-<span class="truncate">Usar Isto</span>
-</button>
-</div>
-<div class="w-32 h-32 bg-center bg-no-repeat bg-cover rounded-lg shrink-0 border border-white/10" data-alt="Professional office attire with a grey blazer and black trousers" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuAGUns0aMgKh2zLDX3Uqf6Z3zdZ57lBw-NOAzZyILdhBdEXqBa0ofSjlC0IJzy0kgYYGDIpE_kgC6oaMImk-qDSwLjmLKjagimdWaPDRx78juUgIyXLXus5sMIqPU1n9LHdT6aS6t_fq3_g8k5NWRDd5YQPapoUbuWhmAQZ-sAdcaP-bd5fE0ZHyI2oTxepZ1TZ1kSnC9-Zpz3UDEHcoqFkxroKU6o_-1by2eIdkQP9p36lPeutIpaoXdJmiFm9LqriRJRFNaa5Dwmj");'>
-</div>
-</div>
-</div>
-<!-- Recommendation Card 3 -->
-<div class="glass-card rounded-xl overflow-hidden p-4">
-<div class="flex items-stretch justify-between gap-4">
-<div class="flex flex-[2_2_0px] flex-col justify-between">
-<div class="flex flex-col gap-1">
-<div class="flex items-center gap-2 mb-1">
-<span class="bg-primary/20 text-primary text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-tighter">Noite</span>
-</div>
-<p class="text-white text-lg font-bold leading-tight font-display">Encontro no Café</p>
-<p class="text-slate-400 text-sm font-normal leading-normal">Suéteres de tricô são ótimos para o frio da noite.</p>
-</div>
-<button class="mt-4 flex min-w-[100px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-4 bg-white/10 text-white gap-2 text-sm font-bold leading-normal">
-<span class="material-symbols-outlined text-lg">check_circle</span>
-<span class="truncate">Usar Isto</span>
-</button>
-</div>
-<div class="w-32 h-32 bg-center bg-no-repeat bg-cover rounded-lg shrink-0 border border-white/10" data-alt="Cozy beige knit sweater with jeans" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDmkLgOMPcLZJnXMxvxIakSkh6Z_ilTPnnVdpwmNMuCh8y3dJBtG3XUdCPqL3ZYsPkz3Oa7pFlxmd2URmzkNJIHoVwk37vQ--HZJlC9RogE3wIE1WUd1U7_nCksa-fnDwrkA18aiUN2xDFN7dEyNa6volFMR1o2_dk1KmUAjrJQgF7mVfS5VRiNAfQTiq6KD0XeLv9uau0bLOGJ4R_mwpZDLYuQWWA8pCTCOdr9bkkGP6qyleu0d5PZeLfsJ68AekvdWtSwR8UCGbLG");'>
-</div>
-</div>
-</div>
-</div>
-<!-- Quick Tips Section -->
-<div class="mt-8 mb-4">
-<h3 class="text-white text-base font-bold mb-3 font-display">Dicas de Estilo para o Clima</h3>
-<div class="grid grid-cols-2 gap-3">
-<div class="bg-white/5 p-3 rounded-lg border border-white/5">
-<span class="material-symbols-outlined text-primary mb-1">umbrella</span>
-<p class="text-xs text-slate-300">Tenha um guarda-chuva à mão para a garoa.</p>
-</div>
-<div class="bg-white/5 p-3 rounded-lg border border-white/5">
-<span class="material-symbols-outlined text-primary mb-1">air</span>
-<p class="text-xs text-slate-300">Vento forte hoje; evite tecidos leves.</p>
-</div>
-</div>
-</div>
-</div>
+        <div id="view-weather-style" class="view-section hidden h-full relative z-50 bg-background-light dark:bg-background-dark">
+            <div id="weather-style-container" class="min-h-full transition-all duration-700 bg-background-light dark:bg-background-dark">
+                <!-- Top Navigation Bar (Absolute over background) -->
+                <div class="sticky top-0 z-50 backdrop-blur-sm">
+                    <div class="flex items-center p-4 justify-between max-w-4xl mx-auto">
+                        <button id="weather-back-btn" class="text-white flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-white/20 transition-colors" aria-label="Voltar">
+                            <span class="material-symbols-outlined drop-shadow-md">arrow_back_ios_new</span>
+                        </button>
+                        <h2 class="text-white text-lg font-bold leading-tight tracking-tight flex-1 text-center font-display drop-shadow-md">Estilo & Clima</h2>
+                        <div class="flex w-10 items-center justify-end">
+                            <button id="weather-notification-btn" class="flex cursor-pointer items-center justify-center rounded-full h-10 w-10 bg-white/20 text-white relative hover:bg-white/30 transition-colors" aria-label="Notificações">
+                                <span class="material-symbols-outlined text-2xl drop-shadow-md">notifications</span>
+                                <span class="absolute top-2 right-2 size-2 bg-red-500 rounded-full border border-white dark:border-surface-dark notification-dot hidden"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Content Container -->
+                <div class="max-w-4xl mx-auto px-6 pb-24 pt-4 text-white">
+
+                    <!-- Main Weather Display -->
+                    <div class="flex flex-col items-center justify-center py-6 gap-2">
+                        <span class="material-symbols-outlined text-8xl drop-shadow-[0_4px_24px_rgba(0,0,0,0.3)] animate-pulse-slow">partly_cloudy_day</span>
+                        <h1 id="style-weather-temp" class="text-6xl font-bold tracking-tighter drop-shadow-lg">--°</h1>
+                        <p id="style-weather-condition" class="text-xl font-medium opacity-90 drop-shadow-md">Carregando...</p>
+                        <div class="flex items-center gap-1 mt-1 bg-white/10 px-3 py-1 rounded-full backdrop-blur-md border border-white/20">
+                            <span class="material-symbols-outlined text-sm">location_on</span>
+                            <span id="style-weather-location" class="text-sm font-semibold">Localizando...</span>
+                        </div>
+                    </div>
+
+                    <!-- Weather Details Grid -->
+                    <div class="grid grid-cols-3 gap-3 my-8">
+                        <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3 flex flex-col items-center justify-center border border-white/10 shadow-lg">
+                            <span class="material-symbols-outlined text-xl mb-1 opacity-80">water_drop</span>
+                            <span id="style-weather-humidity" class="font-bold text-lg">--%</span>
+                            <span class="text-[10px] uppercase tracking-wider opacity-70">Umidade</span>
+                        </div>
+                        <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3 flex flex-col items-center justify-center border border-white/10 shadow-lg">
+                            <span class="material-symbols-outlined text-xl mb-1 opacity-80">air</span>
+                            <span id="style-weather-wind" class="font-bold text-lg">--km/h</span>
+                            <span class="text-[10px] uppercase tracking-wider opacity-70">Vento</span>
+                        </div>
+                        <div class="bg-white/10 backdrop-blur-md rounded-2xl p-3 flex flex-col items-center justify-center border border-white/10 shadow-lg">
+                            <span class="material-symbols-outlined text-xl mb-1 opacity-80">light_mode</span>
+                            <span id="style-weather-uv" class="font-bold text-lg">--</span>
+                            <span class="text-[10px] uppercase tracking-wider opacity-70">UV</span>
+                        </div>
+                    </div>
+
+                    <!-- Outfit Suggestions -->
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-bold drop-shadow-md">Recomendado para Hoje</h3>
+                    </div>
+
+                    <div class="space-y-4">
+                        <!-- Suggestion Card 1 -->
+                        <div class="bg-white/10 backdrop-blur-xl rounded-2xl p-4 border border-white/20 shadow-xl">
+                            <div class="flex items-start gap-4">
+                                <div class="w-20 h-20 rounded-xl bg-cover bg-center shrink-0 border border-white/20 shadow-inner" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDLu_Y2Cxt8y57-gOKANFKimI6P9xdT4EYXR_GD6fn-rd0vmhNaq0W4Ktcv4K7XgT2fW8qy-m_JoqLqDw7C467hTa3yZYODIemZZHNbVcPBbqrzsR0cPA8PotvygqDRk8Il0bNqsAuDW6Q1ICo3O3pUup7_GiBQjX_X7vOVEIdBiawhAb4QIvtKWqrENmZ7qBrDnSbACurfgyeH7KrSQHhtLGGXe45MQWUgXkxvujbf75W7lab5zRNcwkMkqarv3wa2FMrPhLocmXAv');"></div>
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="bg-white/20 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider backdrop-blur-md">Casual</span>
+                                    </div>
+                                    <h4 class="font-bold text-lg leading-tight mb-1">Casual Chique</h4>
+                                    <p class="text-sm opacity-80 leading-relaxed">Uma jaqueta leve é perfeita para esta temperatura.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                         <!-- Suggestion Card 2 -->
+                         <div class="bg-white/10 backdrop-blur-xl rounded-2xl p-4 border border-white/20 shadow-xl">
+                            <div class="flex items-start gap-4">
+                                <div class="w-20 h-20 rounded-xl bg-cover bg-center shrink-0 border border-white/20 shadow-inner" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAGUns0aMgKh2zLDX3Uqf6Z3zdZ57lBw-NOAzZyILdhBdEXqBa0ofSjlC0IJzy0kgYYGDIpE_kgC6oaMImk-qDSwLjmLKjagimdWaPDRx78juUgIyXLXus5sMIqPU1n9LHdT6aS6t_fq3_g8k5NWRDd5YQPapoUbuWhmAQZ-sAdcaP-bd5fE0ZHyI2oTxepZ1TZ1kSnC9-Zpz3UDEHcoqFkxroKU6o_-1by2eIdkQP9p36lPeutIpaoXdJmiFm9LqriRJRFNaa5Dwmj');"></div>
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span class="bg-primary text-[#11211c] text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider shadow-lg shadow-primary/30">Ideal</span>
+                                    </div>
+                                    <h4 class="font-bold text-lg leading-tight mb-1">Trabalho</h4>
+                                    <p class="text-sm opacity-80 leading-relaxed">Blazer estruturado para conforto e estilo profissional.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 <!-- GALLERY VIEW -->
-        <div id="view-gallery" class="view-section h-full pb-24 md:pb-6">
+        <div id="view-gallery" class="view-section hidden h-full pb-24 md:pb-6">
             <div class="flex h-full flex-col">
              <!-- Top Header -->
             <header class="sticky top-0 z-20 flex items-center bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md p-4 pb-2 justify-between transition-colors">
@@ -773,7 +720,7 @@
         </div>
 
         <!-- PLANNER VIEW -->
-        <div id="view-planner" class="view-section pb-24 md:pb-6">
+        <div id="view-planner" class="view-section hidden w-full flex-1 flex flex-col pb-24 md:pb-6">
              <!-- Header / Month Navigator -->
             <header class="sticky top-0 z-10 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-sm pt-4">
                 <div class="max-w-4xl mx-auto">
@@ -827,7 +774,7 @@
         </div>
 
         <!-- PROFILE VIEW -->
-        <div id="view-profile" class="view-section p-4 pb-24 md:pb-6">
+        <div id="view-profile" class="view-section hidden p-4 pb-24 md:pb-6">
              <!-- Header -->
              <div class="flex items-center justify-between mb-6 pt-6">
                 <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Perfil</h2>

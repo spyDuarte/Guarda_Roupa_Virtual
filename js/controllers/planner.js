@@ -176,7 +176,7 @@ function renderCalendar() {
         let classes = 'aspect-square flex flex-col items-center justify-center rounded-full text-xs relative transition-all duration-200 ';
 
         if (isSelected) {
-            classes += 'bg-[#11211c] dark:bg-primary text-white dark:text-[#11211c] font-black shadow-lg scale-110 z-10';
+            classes += 'bg-primary text-[#11211c] font-black shadow-lg scale-110 z-10';
         } else if (isToday) {
             classes += 'border-2 border-primary text-primary font-bold hover:scale-105';
         } else {
@@ -189,23 +189,15 @@ function renderCalendar() {
         // Check for outfits on this day
         const outfitsOnDay = store.outfits.filter(o => o.scheduledDate === dateKey);
         if (outfitsOnDay.length > 0) {
-            // Show count if > 1, otherwise just a dot
-            if (outfitsOnDay.length > 1) {
-                const pill = document.createElement('div');
-                 const pillClass = isSelected
-                    ? 'bg-primary text-slate-900'
-                    : 'bg-primary text-slate-900 shadow-sm';
-                pill.className = `absolute -bottom-1 left-1/2 -translate-x-1/2 h-3.5 min-w-[14px] px-1 rounded-full flex items-center justify-center text-[8px] font-bold ${pillClass}`;
-                pill.textContent = outfitsOnDay.length;
-                btn.appendChild(pill);
-            } else {
-                 const dot = document.createElement('div');
-                 const dotClass = isSelected
-                    ? 'bg-primary'
-                    : 'bg-primary';
-                 dot.className = `absolute bottom-1.5 left-1/2 -translate-x-1/2 size-1 rounded-full ${dotClass}`;
-                 btn.appendChild(dot);
-            }
+            const dot = document.createElement('div');
+            // If selected, maybe white or dark? Since bg is primary (green), dark dot is good.
+            // If not selected, primary dot.
+            const dotClass = isSelected
+               ? 'bg-[#11211c] dark:bg-[#11211c]'
+               : 'bg-primary';
+
+            dot.className = `absolute bottom-1 left-1/2 -translate-x-1/2 size-1.5 rounded-full ${dotClass}`;
+            btn.appendChild(dot);
         }
 
         btn.onclick = () => PlannerController.selectDate(date);
@@ -256,13 +248,13 @@ export function renderOutfits() {
 
     if (relevantOutfits.length === 0) {
         const emptyState = document.createElement('div');
-        emptyState.className = 'flex flex-col items-center justify-center py-12 text-center text-gray-400 opacity-0 transition-opacity duration-500 ease-out';
+        emptyState.className = 'flex flex-col items-center justify-center py-12 text-center text-gray-400 opacity-0 transition-opacity duration-500 ease-out animate-slide-up';
         emptyState.innerHTML = `
-            <div class="bg-gray-50 dark:bg-white/5 p-6 rounded-full mb-4 shadow-sm">
-                <span class="material-symbols-outlined text-5xl text-gray-300 dark:text-gray-600">checkroom</span>
+            <div class="bg-gradient-to-br from-primary/20 to-primary/5 p-8 rounded-full mb-6 shadow-inner ring-1 ring-primary/20">
+                <span class="material-symbols-outlined text-6xl text-primary drop-shadow-sm">checkroom</span>
             </div>
-            <h3 class="text-gray-900 dark:text-white font-bold text-lg mb-1">Nada planejado</h3>
-            <p class="text-gray-500 dark:text-gray-400 text-sm mb-6 max-w-[200px]">Crie um look para se preparar para o dia.</p>
+            <h3 class="text-gray-900 dark:text-white font-bold text-xl mb-2">Nada planejado para hoje</h3>
+            <p class="text-gray-500 dark:text-gray-400 text-base mb-8 max-w-[240px]">Que tal criar uma combinação incrível?</p>
         `;
 
         requestAnimationFrame(() => {
@@ -272,10 +264,9 @@ export function renderOutfits() {
         });
 
         const ctaBtn = document.createElement('button');
-        ctaBtn.className = 'bg-primary text-slate-900 font-bold py-3 px-8 rounded-xl shadow-lg shadow-primary/20 hover:scale-105 transition-transform';
-        ctaBtn.innerHTML = '<span class="flex items-center gap-2">Planejar Look <span class="material-symbols-outlined">arrow_forward</span></span>';
+        ctaBtn.className = 'bg-primary text-[#11211c] font-bold py-4 px-10 rounded-2xl shadow-[0_8px_20px_-4px_rgba(71,235,180,0.4)] hover:scale-105 hover:shadow-[0_12px_25px_-6px_rgba(71,235,180,0.5)] transition-all';
+        ctaBtn.innerHTML = '<span class="flex items-center gap-2">Criar Novo Look <span class="material-symbols-outlined font-bold">add</span></span>';
         ctaBtn.onclick = () => {
-             // Simulate click on main button or direct logic
              if (createBtn) createBtn.click();
         };
 
@@ -379,29 +370,36 @@ export function renderOutfits() {
         header.appendChild(actions);
         card.appendChild(header);
 
-        // Preview Grid (up to 4 items)
+        // Preview Grid (Collage Style)
         const previewGrid = document.createElement('div');
-        previewGrid.className = 'flex gap-2 overflow-hidden';
+        previewGrid.className = 'grid grid-cols-4 gap-2';
 
         const itemIds = outfit.items || [];
         const items = itemIds.map(id => store.wardrobeItems.find(i => i.id === id)).filter(Boolean);
 
         if (items.length > 0) {
+            // Main item (larger) if possible, but simplest is just a row/grid.
+            // Let's do a uniform row of larger images, or a grid if many.
             items.slice(0, 4).forEach(item => {
+                const imgWrapper = document.createElement('div');
+                imgWrapper.className = 'aspect-square rounded-2xl overflow-hidden bg-gray-100 dark:bg-white/5 shadow-inner border border-gray-100 dark:border-white/5';
+
                 const img = document.createElement('div');
-                img.className = 'size-16 rounded-2xl bg-cover bg-center bg-gray-100 dark:bg-white/5 shadow-inner shrink-0';
-                img.style.backgroundImage = `url('${item.image || "https://via.placeholder.com/50"}')`;
-                previewGrid.appendChild(img);
+                img.className = 'w-full h-full bg-cover bg-center transition-transform hover:scale-110 duration-500';
+                img.style.backgroundImage = `url('${item.image || "https://via.placeholder.com/100"}')`;
+
+                imgWrapper.appendChild(img);
+                previewGrid.appendChild(imgWrapper);
             });
         } else {
-             previewGrid.innerHTML = '<div class="w-full h-16 bg-gray-50 dark:bg-white/5 rounded-2xl flex items-center justify-center text-gray-400 text-xs font-medium">Sem itens</div>';
+             previewGrid.innerHTML = '<div class="col-span-4 h-24 bg-gray-50 dark:bg-white/5 rounded-2xl flex items-center justify-center text-gray-400 text-xs font-medium">Sem itens</div>';
         }
         card.appendChild(previewGrid);
 
         // "Wear This" Button
         const wearBtn = document.createElement('button');
-        wearBtn.className = 'w-full py-2.5 rounded-lg bg-gray-100 dark:bg-white/5 text-gray-900 dark:text-white font-bold text-sm hover:bg-primary hover:text-slate-900 hover:shadow-lg transition-all flex items-center justify-center gap-2 group';
-        wearBtn.innerHTML = '<span class="material-symbols-outlined text-lg group-hover:scale-110 transition-transform">checkroom</span> Usar Isto';
+        wearBtn.className = 'w-full py-4 rounded-xl bg-[#11211c] dark:bg-primary text-white dark:text-[#11211c] font-bold text-base shadow-lg shadow-black/5 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 group mt-2';
+        wearBtn.innerHTML = '<span class="material-symbols-outlined group-hover:rotate-12 transition-transform">checkroom</span> Usar Hoje';
         wearBtn.onclick = () => PlannerController.wearOutfit(outfit);
 
         card.appendChild(wearBtn);
