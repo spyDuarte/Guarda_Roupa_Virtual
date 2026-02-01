@@ -54,11 +54,13 @@ class Router {
         Object.keys(this.views).forEach(key => {
             if (this.views[key] && key !== 'addItem') {
                 this.views[key].classList.remove('active');
+                this.views[key].classList.add('hidden');
             }
         });
 
         // Show target view
         if (this.views[targetViewId]) {
+            this.views[targetViewId].classList.remove('hidden');
             this.views[targetViewId].classList.add('active');
         } else {
             console.warn(`View ${targetViewId} not found`);

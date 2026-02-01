@@ -216,8 +216,6 @@ function updateUI(data) {
     const dashCond = document.getElementById('dash-weather-condition');
 
     // Also update the big icon in the dashboard if possible.
-    // It's in a parent container with class 'text-[120px]'.
-    // We can try to find it relative to the widget or via a selector.
     const dashWidget = document.getElementById('weather-widget');
     if (dashWidget) {
         const iconContainer = dashWidget.querySelector('.material-symbols-outlined.text-\\[120px\\]');
@@ -229,6 +227,7 @@ function updateUI(data) {
     if (dashCond) dashCond.textContent = data.condition;
 
     // Weather Style View
+    const styleContainer = document.getElementById('weather-style-container');
     const styleTemp = document.getElementById('style-weather-temp');
     const styleCond = document.getElementById('style-weather-condition');
     const styleLoc = document.getElementById('style-weather-location');
@@ -239,14 +238,30 @@ function updateUI(data) {
     // Weather View Icon
     const viewStyle = document.getElementById('view-weather-style');
     if (viewStyle) {
-        const iconEl = viewStyle.querySelector('.material-symbols-outlined.text-6xl');
+        // Update the big icon in the new immersive layout
+        const iconEl = viewStyle.querySelector('.material-symbols-outlined.text-8xl');
         if (iconEl) iconEl.textContent = data.icon;
     }
 
-    if (styleTemp) styleTemp.textContent = `${data.temp}°C`;
+    // Dynamic Background
+    if (styleContainer) {
+        styleContainer.classList.remove('weather-gradient-sunny', 'weather-gradient-cloudy', 'weather-gradient-rainy', 'weather-gradient-night');
+
+        let gradientClass = 'weather-gradient-cloudy'; // default
+        const icon = data.icon;
+
+        if (['wb_sunny', 'clear_day'].includes(icon)) gradientClass = 'weather-gradient-sunny';
+        else if (['partly_cloudy_day', 'cloud', 'foggy'].includes(icon)) gradientClass = 'weather-gradient-cloudy';
+        else if (['rainy', 'thunderstorm', 'ac_unit'].includes(icon)) gradientClass = 'weather-gradient-rainy';
+        else if (['clear_night', 'partly_cloudy_night', 'nights_stay'].includes(icon)) gradientClass = 'weather-gradient-night';
+
+        styleContainer.classList.add(gradientClass);
+    }
+
+    if (styleTemp) styleTemp.textContent = `${data.temp}°`;
     if (styleCond) styleCond.textContent = data.condition;
     if (styleLoc) styleLoc.textContent = data.location;
     if (styleHum) styleHum.textContent = `${data.humidity}%`;
-    if (styleWind) styleWind.textContent = `${data.wind} km/h`;
+    if (styleWind) styleWind.textContent = `${data.wind}km/h`;
     if (styleUv) styleUv.textContent = data.uv;
 }
