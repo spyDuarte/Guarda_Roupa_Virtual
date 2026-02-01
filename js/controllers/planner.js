@@ -1,7 +1,7 @@
 import { store } from '../core/store.js';
 import { router } from '../core/router.js';
 import { showToast } from '../utils/toast.js';
-import { GalleryController } from './gallery.js';
+import { GalleryController, openItemModal } from './gallery.js';
 import { updateStats } from './dashboard.js';
 import { getWeeklyForecast } from './weather.js';
 import { formatDateKey } from '../utils/date.js';
@@ -106,27 +106,26 @@ function setupEventListeners() {
                     return;
                 }
 
-                const name = prompt('Nomeie seu look:');
-                if (!name) return;
+                createNameModal(async (name) => {
+                    const newOutfit = {
+                        id: Date.now(),
+                        name: name,
+                        items: selectedItems,
+                        dateCreated: new Date().toISOString(),
+                        scheduledDate: formatDateKey(selectedDate)
+                    };
 
-                const newOutfit = {
-                    id: Date.now(),
-                    name: name,
-                    items: selectedItems,
-                    dateCreated: new Date().toISOString(),
-                    scheduledDate: formatDateKey(selectedDate)
-                };
+                    store.outfits.push(newOutfit);
+                    await store.saveOutfits();
+                    updateStats();
+                    showToast('Look criado!', 'success');
+                    GalleryController.cancelSelectionMode();
 
-                store.outfits.push(newOutfit);
-                await store.saveOutfits();
-                updateStats();
-                showToast('Look criado!', 'success');
-                GalleryController.cancelSelectionMode();
-
-                // Return to planner and update
-                router.navigateTo('planner');
-                renderCalendar(); // To show dot
-                renderOutfits();
+                    // Return to planner and update
+                    router.navigateTo('planner');
+                    renderCalendar(); // To show dot
+                    renderOutfits();
+                });
             });
             router.navigateTo('gallery');
         });
@@ -267,7 +266,8 @@ export function renderOutfits() {
         ctaBtn.className = 'bg-primary text-[#11211c] font-bold py-4 px-10 rounded-2xl shadow-[0_8px_20px_-4px_rgba(71,235,180,0.4)] hover:scale-105 hover:shadow-[0_12px_25px_-6px_rgba(71,235,180,0.5)] transition-all';
         ctaBtn.innerHTML = '<span class="flex items-center gap-2">Criar Novo Look <span class="material-symbols-outlined font-bold">add</span></span>';
         ctaBtn.onclick = () => {
-             if (createBtn) createBtn.click();
+             const btn = document.getElementById('create-outfit-btn');
+             if (btn) btn.click();
         };
 
         emptyState.appendChild(ctaBtn);
@@ -382,11 +382,16 @@ export function renderOutfits() {
             // Let's do a uniform row of larger images, or a grid if many.
             items.slice(0, 4).forEach(item => {
                 const imgWrapper = document.createElement('div');
-                imgWrapper.className = 'aspect-square rounded-2xl overflow-hidden bg-gray-100 dark:bg-white/5 shadow-inner border border-gray-100 dark:border-white/5';
+                imgWrapper.className = 'aspect-square rounded-2xl overflow-hidden bg-gray-100 dark:bg-white/5 shadow-inner border border-gray-100 dark:border-white/5 cursor-pointer';
 
                 const img = document.createElement('div');
                 img.className = 'w-full h-full bg-cover bg-center transition-transform hover:scale-110 duration-500';
                 img.style.backgroundImage = `url('${item.image || "https://via.placeholder.com/100"}')`;
+
+                imgWrapper.onclick = (e) => {
+                    e.stopPropagation();
+                    openItemModal(item);
+                };
 
                 imgWrapper.appendChild(img);
                 previewGrid.appendChild(imgWrapper);
@@ -460,6 +465,54 @@ function createDateModal(callback) {
             showToast('Selecione uma data.', 'error');
         }
     };
+
+    modal.onclick = (e) => {
+        if (e.target === modal) close();
+    };
+}
+
+function createNameModal(callback) {
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 z-[60] bg-black/50 flex items-center justify-center p-4';
+    modal.innerHTML = `
+        <div class="bg-white dark:bg-surface-dark rounded-xl w-full max-w-sm overflow-hidden shadow-2xl p-6">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Nomear Look</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Dê um nome para sua nova combinação.</p>
+            <input type="text" id="outfit-name-input" class="w-full rounded-xl border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-white/5 p-3 text-sm text-gray-900 dark:text-white mb-6" placeholder="Ex: Look de Trabalho">
+            <div class="flex gap-3">
+                <button id="cancel-name-btn" class="flex-1 py-2 text-gray-500 dark:text-gray-400 font-bold hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg transition-colors">Cancelar</button>
+                <button id="confirm-name-btn" class="flex-1 py-2 bg-primary text-slate-900 font-bold rounded-lg hover:opacity-90 transition-opacity">Salvar</button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    const nameInput = modal.querySelector('#outfit-name-input');
+    // setTimeout to ensure focus works after DOM insertion
+    setTimeout(() => nameInput.focus(), 50);
+
+    const close = () => {
+        modal.remove();
+    };
+
+    modal.querySelector('#cancel-name-btn').onclick = close;
+    modal.querySelector('#confirm-name-btn').onclick = () => {
+        const name = nameInput.value.trim();
+        if (name) {
+            callback(name);
+            close();
+        } else {
+            showToast('Digite um nome para o look.', 'error');
+        }
+    };
+
+    // Allow Enter key to confirm
+    nameInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+             modal.querySelector('#confirm-name-btn').click();
+        }
+    });
 
     modal.onclick = (e) => {
         if (e.target === modal) close();
