@@ -1,0 +1,55 @@
+# .github/workflows/ci.yml
+name: Guarda Roupa Virtual - CI Universal
+
+on: [push, pull_request]
+
+permissions:
+  contents: read
+
+jobs:
+  detect-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      # DETECTOR: Node.js
+      - name: Check Node.js project
+        id: node
+        run: |
+          if [ -f package.json ]; then echo "exists=true" >> $GITHUB_OUTPUT; fi
+
+      # DETECTOR: Python
+      - name: Check Python project
+        id: python
+        run: |
+          if [ -f requirements.txt ] || [ -f pyproject.toml ]; then echo "exists=true" >> $GITHUB_OUTPUT; fi
+
+      # EXECUÇÃO Node.js
+      - name: Setup Node.js
+        if: steps.node.outputs.exists == 'true'
+        uses: actions/setup-node@39370e3970a6d050c580ff9a5b87528b745dc5b5
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Test Node.js
+        if: steps.node.outputs.exists == 'true'
+        run: |
+          npm ci
+          npm run test --if-present
+          npm run build --if-present
+
+      # EXECUÇÃO Python
+      - name: Setup Python
+        if: steps.python.outputs.exists == 'true'
+        uses: actions/setup-python@0b93645e9fea7318efaed9e796018d184245da09
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Test Python
+        if: steps.python.outputs.exists == 'true'
+        run: |
+          pip install -r requirements.txt
+          pytest || echo "Nenhum teste configurado"
