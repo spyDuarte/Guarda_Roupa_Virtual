@@ -115,7 +115,12 @@ class Router {
 
         // Show target view
         targetView.classList.remove('hidden');
+        // Force reflow to ensure animation triggers
+        void targetView.offsetWidth;
         targetView.classList.add('active');
+
+        // Reset scroll position
+        window.scrollTo(0, 0);
 
         this.updateBottomNav(targetView);
         this.updateSidebar(targetViewId);
