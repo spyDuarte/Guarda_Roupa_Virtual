@@ -106,6 +106,10 @@ function setupEventListeners() {
                     return;
                 }
 
+                const dateOptions = { weekday: 'long' };
+                const dayName = selectedDate.toLocaleDateString('pt-BR', dateOptions);
+                const defaultName = `Look de ${dayName.charAt(0).toUpperCase() + dayName.slice(1)}`;
+
                 createNameModal(async (name) => {
                     const newOutfit = {
                         id: Date.now(),
@@ -125,7 +129,7 @@ function setupEventListeners() {
                     router.navigateTo('planner');
                     renderCalendar(); // To show dot
                     renderOutfits();
-                });
+                }, defaultName);
             });
             router.navigateTo('gallery');
         });
@@ -172,12 +176,12 @@ function renderCalendar() {
         const isToday = formatDateKey(new Date()) === dateKey;
 
         // Base classes
-        let classes = 'aspect-square flex flex-col items-center justify-center rounded-full text-xs relative transition-all duration-200 ';
+        let classes = 'aspect-square flex flex-col items-center justify-center rounded-xl text-xs relative transition-all duration-200 ';
 
         if (isSelected) {
             classes += 'bg-primary text-[#11211c] font-black shadow-lg scale-110 z-10';
         } else if (isToday) {
-            classes += 'border-2 border-primary text-primary font-bold hover:scale-105';
+            classes += 'bg-primary/10 text-primary font-bold border border-primary/20 hover:scale-105';
         } else {
             classes += 'text-slate-500 dark:text-gray-400 hover:bg-primary/20 hover:text-primary-dark hover:scale-110 hover:shadow-md font-medium';
         }
@@ -471,14 +475,14 @@ function createDateModal(callback) {
     };
 }
 
-function createNameModal(callback) {
+function createNameModal(callback, defaultValue = '') {
     const modal = document.createElement('div');
     modal.className = 'fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4';
     modal.innerHTML = `
         <div class="bg-white dark:bg-surface-dark rounded-xl w-full max-w-sm overflow-hidden shadow-2xl p-6 relative z-10">
             <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Nomear Look</h3>
             <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Dê um nome para sua nova combinação.</p>
-            <input type="text" id="outfit-name-input" class="w-full rounded-xl border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-white/5 p-3 text-sm text-gray-900 dark:text-white mb-6" placeholder="Ex: Look de Trabalho">
+            <input type="text" id="outfit-name-input" class="w-full rounded-xl border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-white/5 p-3 text-sm text-gray-900 dark:text-white mb-6" placeholder="Ex: Look de Trabalho" value="${defaultValue}">
             <div class="flex gap-3">
                 <button id="cancel-name-btn" class="flex-1 py-2 text-gray-500 dark:text-gray-400 font-bold hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg transition-colors">Cancelar</button>
                 <button id="confirm-name-btn" class="flex-1 py-2 bg-primary text-slate-900 font-bold rounded-lg hover:opacity-90 transition-opacity">Salvar</button>
@@ -490,7 +494,10 @@ function createNameModal(callback) {
 
     const nameInput = modal.querySelector('#outfit-name-input');
     // setTimeout to ensure focus works after DOM insertion
-    setTimeout(() => nameInput.focus(), 50);
+    setTimeout(() => {
+        nameInput.focus();
+        if (defaultValue) nameInput.select();
+    }, 50);
 
     const close = () => {
         modal.remove();
