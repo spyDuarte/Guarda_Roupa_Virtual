@@ -3,7 +3,7 @@ import { router } from '../core/router.js';
 import { showToast } from '../utils/toast.js';
 import { GalleryController, openItemModal } from './gallery.js';
 import { updateStats } from './dashboard.js';
-import { getWeeklyForecast } from './weather.js';
+import { getWeeklyForecast, mapWmoCode } from './weather.js';
 import { formatDateKey } from '../utils/date.js';
 
 let currentDate = new Date();
@@ -193,6 +193,16 @@ function renderCalendar() {
             btn.appendChild(dot);
         }
 
+        // Check for weather
+        if (weeklyForecast && weeklyForecast[dateKey]) {
+            const w = weeklyForecast[dateKey];
+            const weatherInfo = mapWmoCode(w.code);
+            const weatherIcon = document.createElement('span');
+            weatherIcon.className = 'material-symbols-outlined text-[10px] absolute top-1 right-1 text-gray-400 dark:text-gray-500';
+            weatherIcon.textContent = weatherInfo.icon;
+            btn.appendChild(weatherIcon);
+        }
+
         btn.onclick = () => PlannerController.selectDate(date);
 
         calendarGrid.appendChild(btn);
@@ -245,6 +255,14 @@ export function renderOutfits() {
             <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">Nada planejado para este dia.</p>
         `;
 
+        const surpriseBtn = document.createElement('button');
+        surpriseBtn.className = 'mt-4 px-6 py-2 bg-primary text-[#11211c] rounded-full font-bold text-sm hover:scale-105 transition-transform flex items-center gap-2 shadow-lg shadow-primary/20';
+        surpriseBtn.innerHTML = '<span class="material-symbols-outlined">auto_awesome</span> Gerar Look Aleatório';
+        surpriseBtn.type = "button";
+        surpriseBtn.onclick = () => generateRandomOutfit(selectedDate);
+
+        emptyState.appendChild(surpriseBtn);
+
         requestAnimationFrame(() => {
             setTimeout(() => {
                 emptyState.classList.remove('opacity-0');
@@ -279,10 +297,30 @@ export function renderOutfits() {
         const actions = document.createElement('div');
         actions.className = 'flex gap-0.5';
 
+        const moveBtn = document.createElement('button');
+        moveBtn.className = 'size-8 flex items-center justify-center text-gray-400 hover:text-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/20 rounded-full transition-colors';
+        moveBtn.innerHTML = '<span class="material-symbols-outlined text-lg">event</span>';
+        moveBtn.title = "Mover Look";
+        moveBtn.ariaLabel = "Mover Look";
+        moveBtn.type = "button";
+        moveBtn.onclick = (e) => {
+            e.stopPropagation();
+            createDateModal(async (newDateKey) => {
+                outfit.scheduledDate = newDateKey;
+                await store.saveOutfits();
+                updateStats();
+                showToast(`Look movido para ${newDateKey}!`, 'success');
+                renderCalendar();
+                renderOutfits();
+            }, 'Mover Look', 'Mover');
+        };
+
         const cloneBtn = document.createElement('button');
         cloneBtn.className = 'size-8 flex items-center justify-center text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-full transition-colors';
         cloneBtn.innerHTML = '<span class="material-symbols-outlined text-lg">content_copy</span>';
         cloneBtn.title = "Duplicar Look";
+        cloneBtn.ariaLabel = "Duplicar Look";
+        cloneBtn.type = "button";
         cloneBtn.onclick = (e) => {
             e.stopPropagation();
             createDateModal(async (newDateKey) => {
@@ -304,7 +342,7 @@ export function renderOutfits() {
                     // Refresh calendar to show dot on new date
                     renderCalendar();
                 }
-            });
+            }, 'Duplicar Look', 'Duplicar');
         };
 
         const editBtn = document.createElement('button');
@@ -342,6 +380,7 @@ export function renderOutfits() {
             }
         };
 
+        actions.appendChild(moveBtn);
         actions.appendChild(cloneBtn);
         actions.appendChild(editBtn);
         actions.appendChild(deleteBtn);
@@ -406,17 +445,17 @@ export function initPlanner() {
     PlannerController.init();
 }
 
-function createDateModal(callback) {
+function createDateModal(callback, title = 'Selecione a Data', confirmText = 'Confirmar') {
     const modal = document.createElement('div');
     modal.className = 'fixed inset-0 z-[60] bg-black/50 flex items-center justify-center p-4';
     modal.innerHTML = `
         <div class="bg-white dark:bg-surface-dark rounded-xl w-full max-w-sm overflow-hidden shadow-2xl p-6">
-            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Duplicar Look</h3>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Escolha a data para copiar este look.</p>
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">${title}</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Escolha a data.</p>
             <input type="date" id="clone-date-input" class="w-full rounded-xl border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-white/5 p-3 text-sm text-gray-900 dark:text-white mb-6">
             <div class="flex gap-3">
                 <button id="cancel-clone-btn" class="flex-1 py-2 text-gray-500 dark:text-gray-400 font-bold hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg transition-colors">Cancelar</button>
-                <button id="confirm-clone-btn" class="flex-1 py-2 bg-primary text-slate-900 font-bold rounded-lg hover:opacity-90 transition-opacity">Duplicar</button>
+                <button id="confirm-clone-btn" class="flex-1 py-2 bg-primary text-slate-900 font-bold rounded-lg hover:opacity-90 transition-opacity">${confirmText}</button>
             </div>
         </div>
     `;
@@ -447,6 +486,46 @@ function createDateModal(callback) {
     modal.onclick = (e) => {
         if (e.target === modal) close();
     };
+}
+
+function generateRandomOutfit(date) {
+    const tops = store.wardrobeItems.filter(i => i.category === 'tops');
+    const bottoms = store.wardrobeItems.filter(i => i.category === 'bottoms');
+    const shoes = store.wardrobeItems.filter(i => i.category === 'shoes');
+
+    if (tops.length === 0 || bottoms.length === 0) {
+        showToast('Adicione partes de cima e baixo primeiro!', 'info');
+        return;
+    }
+
+    const randomTop = tops[Math.floor(Math.random() * tops.length)];
+    const randomBottom = bottoms[Math.floor(Math.random() * bottoms.length)];
+    const items = [randomTop, randomBottom];
+
+    if (shoes.length > 0) {
+            const randomShoe = shoes[Math.floor(Math.random() * shoes.length)];
+            items.push(randomShoe);
+    }
+
+    const dateOptions = { weekday: 'long' };
+    const dayName = date.toLocaleDateString('pt-BR', dateOptions);
+    const defaultName = `Surpresa de ${dayName.charAt(0).toUpperCase() + dayName.slice(1)}`;
+
+    createNameModal(async (name) => {
+            const newOutfit = {
+            id: Date.now(),
+            name: name,
+            items: items.map(i => i.id),
+            dateCreated: new Date().toISOString(),
+            scheduledDate: formatDateKey(date)
+        };
+        store.outfits.push(newOutfit);
+        await store.saveOutfits();
+        updateStats();
+        showToast('Look surpresa criado!', 'success');
+        renderCalendar();
+        renderOutfits();
+    }, defaultName);
 }
 
 function createNameModal(callback, defaultValue = '') {
