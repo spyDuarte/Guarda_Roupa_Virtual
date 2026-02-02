@@ -12,10 +12,6 @@ let weeklyForecast = null;
 
 export const PlannerController = {
     async init() {
-        // Reset to current date on init if needed, or keep state
-        // currentDate = new Date();
-        // selectedDate = new Date();
-
         if (store.userLocation && !weeklyForecast) {
             weeklyForecast = await getWeeklyForecast(store.userLocation.latitude, store.userLocation.longitude);
         }
@@ -61,11 +57,9 @@ function setupEventListeners() {
     const prevBtn = document.getElementById('planner-prev-month');
     const nextBtn = document.getElementById('planner-next-month');
     const todayBtn = document.getElementById('planner-today-btn');
-    const todayBtnMobile = document.getElementById('planner-today-btn-mobile');
     const createOutfitBtn = document.getElementById('create-outfit-btn');
 
     if (prevBtn) {
-        // Clone to remove old listeners if any (simple way to avoid duplicates if init called multiple times)
         const newBtn = prevBtn.cloneNode(true);
         prevBtn.parentNode.replaceChild(newBtn, prevBtn);
         newBtn.addEventListener('click', () => PlannerController.navigateMonth(-1));
@@ -86,12 +80,6 @@ function setupEventListeners() {
     if (todayBtn) {
         const newBtn = todayBtn.cloneNode(true);
         todayBtn.parentNode.replaceChild(newBtn, todayBtn);
-        newBtn.addEventListener('click', handleToday);
-    }
-
-    if (todayBtnMobile) {
-        const newBtn = todayBtnMobile.cloneNode(true);
-        todayBtnMobile.parentNode.replaceChild(newBtn, todayBtnMobile);
         newBtn.addEventListener('click', handleToday);
     }
 
@@ -176,14 +164,17 @@ function renderCalendar() {
         const isToday = formatDateKey(new Date()) === dateKey;
 
         // Base classes
-        let classes = 'aspect-square flex flex-col items-center justify-center rounded-xl text-xs relative transition-all duration-200 ';
+        let classes = 'aspect-square flex flex-col items-center justify-center rounded-xl text-xs font-medium relative transition-all duration-200 ';
 
         if (isSelected) {
-            classes += 'bg-primary text-[#11211c] font-black shadow-lg scale-110 z-10';
+            // Selected: Dark background (light text), or White background (dark text) in dark mode
+            classes += 'bg-[#11211c] dark:bg-white text-white dark:text-[#11211c] shadow-lg scale-105 z-10 font-bold';
         } else if (isToday) {
-            classes += 'bg-primary/10 text-primary font-bold border border-primary/20 hover:scale-105';
+            // Today: Primary border/text
+            classes += 'bg-primary/10 text-primary border border-primary/30 font-bold';
         } else {
-            classes += 'text-slate-500 dark:text-gray-400 hover:bg-primary/20 hover:text-primary-dark hover:scale-110 hover:shadow-md font-medium';
+            // Normal: Gray text, hover effect
+            classes += 'text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-[#111815] dark:hover:text-white';
         }
 
         btn.className = classes;
@@ -193,13 +184,12 @@ function renderCalendar() {
         const outfitsOnDay = store.outfits.filter(o => o.scheduledDate === dateKey);
         if (outfitsOnDay.length > 0) {
             const dot = document.createElement('div');
-            // If selected, maybe white or dark? Since bg is primary (green), dark dot is good.
-            // If not selected, primary dot.
+            // If selected, dot should contrast with background
             const dotClass = isSelected
-               ? 'bg-[#11211c] dark:bg-[#11211c]'
+               ? 'bg-primary'
                : 'bg-primary';
 
-            dot.className = `absolute bottom-1 left-1/2 -translate-x-1/2 size-1.5 rounded-full ${dotClass}`;
+            dot.className = `absolute bottom-1.5 left-1/2 -translate-x-1/2 size-1 rounded-full ${dotClass}`;
             btn.appendChild(dot);
         }
 
@@ -212,7 +202,6 @@ function renderCalendar() {
 export function renderOutfits() {
     const outfitsGrid = document.getElementById('outfits-grid');
     const selectedDateHeader = document.getElementById('planner-selected-date');
-    const createBtn = document.getElementById('create-outfit-btn');
 
     if (!outfitsGrid) return;
     outfitsGrid.innerHTML = '';
@@ -221,17 +210,19 @@ export function renderOutfits() {
 
     // Update Header
     if (selectedDateHeader) {
-        const options = { weekday: 'long', month: 'short', day: 'numeric' };
-        selectedDateHeader.innerHTML = selectedDate.toLocaleDateString('pt-BR', options);
+        const options = { weekday: 'long', month: 'long', day: 'numeric' };
+        // Capitalize first letter
+        const dateStr = selectedDate.toLocaleDateString('pt-BR', options);
+        selectedDateHeader.innerHTML = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
 
         // Inject Weather if available
         if (weeklyForecast && weeklyForecast[selectedDateKey]) {
             const w = weeklyForecast[selectedDateKey];
-            const weatherBadge = document.createElement('div');
-            weatherBadge.className = 'inline-flex items-center gap-2 ml-3 px-3 py-1 bg-blue-50 dark:bg-blue-900/20 rounded-full border border-blue-100 dark:border-blue-800 align-middle';
+            const weatherBadge = document.createElement('span');
+            weatherBadge.className = 'inline-flex items-center gap-1.5 ml-2 px-2 py-0.5 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800 align-middle';
             weatherBadge.innerHTML = `
-                <span class="material-symbols-outlined text-blue-500 text-lg">${w.info.icon}</span>
-                <span class="text-xs font-bold text-blue-700 dark:text-blue-300">${w.max}° / ${w.min}°</span>
+                <span class="material-symbols-outlined text-blue-500 text-sm">${w.info.icon}</span>
+                <span class="text-[10px] font-bold text-blue-700 dark:text-blue-300">${w.max}°</span>
             `;
             selectedDateHeader.appendChild(weatherBadge);
         }
@@ -244,20 +235,14 @@ export function renderOutfits() {
         return o.dateCreated.split('T')[0] === selectedDateKey;
     });
 
-    // Toggle main create button based on content
-    if (createBtn) {
-        createBtn.style.display = relevantOutfits.length > 0 ? 'block' : 'none';
-    }
-
     if (relevantOutfits.length === 0) {
         const emptyState = document.createElement('div');
         emptyState.className = 'flex flex-col items-center justify-center py-12 text-center text-gray-400 opacity-0 transition-opacity duration-500 ease-out animate-slide-up';
         emptyState.innerHTML = `
-            <div class="bg-gradient-to-br from-primary/20 to-primary/5 p-8 rounded-full mb-6 shadow-inner ring-1 ring-primary/20">
-                <span class="material-symbols-outlined text-6xl text-primary drop-shadow-sm">checkroom</span>
+            <div class="bg-gray-50 dark:bg-white/5 p-6 rounded-full mb-4 ring-1 ring-black/5 dark:ring-white/10">
+                <span class="material-symbols-outlined text-4xl text-gray-300 dark:text-gray-600">event_note</span>
             </div>
-            <h3 class="text-gray-900 dark:text-white font-bold text-xl mb-2">Nada planejado para hoje</h3>
-            <p class="text-gray-500 dark:text-gray-400 text-base mb-8 max-w-[240px]">Que tal criar uma combinação incrível?</p>
+            <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">Nada planejado para este dia.</p>
         `;
 
         requestAnimationFrame(() => {
@@ -266,22 +251,13 @@ export function renderOutfits() {
             }, 100);
         });
 
-        const ctaBtn = document.createElement('button');
-        ctaBtn.className = 'bg-primary text-[#11211c] font-bold py-4 px-10 rounded-2xl shadow-[0_8px_20px_-4px_rgba(71,235,180,0.4)] hover:scale-105 hover:shadow-[0_12px_25px_-6px_rgba(71,235,180,0.5)] transition-all';
-        ctaBtn.innerHTML = '<span class="flex items-center gap-2">Criar Novo Look <span class="material-symbols-outlined font-bold">add</span></span>';
-        ctaBtn.onclick = () => {
-             const btn = document.getElementById('create-outfit-btn');
-             if (btn) btn.click();
-        };
-
-        emptyState.appendChild(ctaBtn);
         outfitsGrid.appendChild(emptyState);
         return;
     }
 
     relevantOutfits.forEach(outfit => {
         const card = document.createElement('div');
-        card.className = 'glass-panel p-5 rounded-3xl flex flex-col gap-4 card-hover opacity-0 transition-opacity duration-500 ease-out';
+        card.className = 'glass-panel p-4 rounded-2xl flex flex-col gap-3 card-hover opacity-0 transition-opacity duration-500 ease-out border border-white/60 dark:border-white/5';
 
         // Header: Title and Actions
         const header = document.createElement('div');
@@ -290,21 +266,21 @@ export function renderOutfits() {
         const titleBlock = document.createElement('div');
 
         const h3 = document.createElement('h3');
-        h3.className = 'text-[#111815] dark:text-white font-bold text-lg leading-tight';
+        h3.className = 'text-[#111815] dark:text-white font-bold text-base leading-tight';
         h3.textContent = outfit.name || 'Look Sem Título';
 
         const p = document.createElement('p');
-        p.className = 'text-gray-500 dark:text-gray-400 text-xs font-bold uppercase tracking-wider mt-1';
-        p.textContent = `${outfit.items?.length || 0} itens`;
+        p.className = 'text-gray-400 dark:text-gray-500 text-[10px] font-bold uppercase tracking-wider mt-0.5';
+        p.textContent = `${outfit.items?.length || 0} ITENS`;
 
         titleBlock.appendChild(h3);
         titleBlock.appendChild(p);
 
         const actions = document.createElement('div');
-        actions.className = 'flex gap-1';
+        actions.className = 'flex gap-0.5';
 
         const cloneBtn = document.createElement('button');
-        cloneBtn.className = 'p-2 text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors';
+        cloneBtn.className = 'size-8 flex items-center justify-center text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-full transition-colors';
         cloneBtn.innerHTML = '<span class="material-symbols-outlined text-lg">content_copy</span>';
         cloneBtn.title = "Duplicar Look";
         cloneBtn.onclick = (e) => {
@@ -332,7 +308,7 @@ export function renderOutfits() {
         };
 
         const editBtn = document.createElement('button');
-        editBtn.className = 'p-2 text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-white/5 rounded-lg transition-colors';
+        editBtn.className = 'size-8 flex items-center justify-center text-gray-400 hover:text-primary hover:bg-gray-50 dark:hover:bg-white/5 rounded-full transition-colors';
         editBtn.innerHTML = '<span class="material-symbols-outlined text-lg">edit</span>';
         editBtn.onclick = (e) => {
             e.stopPropagation();
@@ -352,7 +328,7 @@ export function renderOutfits() {
         };
 
         const deleteBtn = document.createElement('button');
-        deleteBtn.className = 'p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors';
+        deleteBtn.className = 'size-8 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-full transition-colors';
         deleteBtn.innerHTML = '<span class="material-symbols-outlined text-lg">delete</span>';
         deleteBtn.onclick = async (e) => {
             e.stopPropagation();
@@ -382,11 +358,9 @@ export function renderOutfits() {
         const items = itemIds.map(id => store.wardrobeItems.find(i => i.id === id)).filter(Boolean);
 
         if (items.length > 0) {
-            // Main item (larger) if possible, but simplest is just a row/grid.
-            // Let's do a uniform row of larger images, or a grid if many.
             items.slice(0, 4).forEach(item => {
                 const imgWrapper = document.createElement('div');
-                imgWrapper.className = 'aspect-square rounded-2xl overflow-hidden bg-gray-100 dark:bg-white/5 shadow-inner border border-gray-100 dark:border-white/5 cursor-pointer';
+                imgWrapper.className = 'aspect-square rounded-xl overflow-hidden bg-gray-50 dark:bg-white/5 shadow-sm border border-gray-100 dark:border-white/5 cursor-pointer';
 
                 const img = document.createElement('div');
                 img.className = 'w-full h-full bg-cover bg-center transition-transform hover:scale-110 duration-500';
@@ -401,14 +375,14 @@ export function renderOutfits() {
                 previewGrid.appendChild(imgWrapper);
             });
         } else {
-             previewGrid.innerHTML = '<div class="col-span-4 h-24 bg-gray-50 dark:bg-white/5 rounded-2xl flex items-center justify-center text-gray-400 text-xs font-medium">Sem itens</div>';
+             previewGrid.innerHTML = '<div class="col-span-4 h-20 bg-gray-50 dark:bg-white/5 rounded-xl flex items-center justify-center text-gray-400 text-xs font-medium">Sem itens</div>';
         }
         card.appendChild(previewGrid);
 
         // "Wear This" Button
         const wearBtn = document.createElement('button');
-        wearBtn.className = 'w-full py-4 rounded-xl bg-[#11211c] dark:bg-primary text-white dark:text-[#11211c] font-bold text-base shadow-lg shadow-black/5 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 group mt-2';
-        wearBtn.innerHTML = '<span class="material-symbols-outlined group-hover:rotate-12 transition-transform">checkroom</span> Usar Hoje';
+        wearBtn.className = 'w-full py-3 rounded-xl bg-[#11211c] dark:bg-white text-white dark:text-[#11211c] font-bold text-sm shadow-md hover:scale-[1.01] active:scale-[0.98] transition-all flex items-center justify-center gap-2 group mt-1';
+        wearBtn.innerHTML = '<span class="material-symbols-outlined text-lg group-hover:rotate-12 transition-transform">checkroom</span> Usar Hoje';
         wearBtn.onclick = () => PlannerController.wearOutfit(outfit);
 
         card.appendChild(wearBtn);
