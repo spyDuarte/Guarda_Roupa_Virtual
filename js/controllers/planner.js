@@ -5,6 +5,7 @@ import { GalleryController, openItemModal } from './gallery.js';
 import { updateStats } from './dashboard.js';
 import { getWeeklyForecast, mapWmoCode } from './weather.js';
 import { formatDateKey } from '../utils/date.js';
+import { createDateModal, createInputModal } from '../utils/modal.js';
 
 let currentDate = new Date();
 let selectedDate = new Date(); // Defaults to today
@@ -32,23 +33,44 @@ export const PlannerController = {
         renderOutfits();
     },
 
-    async wearOutfit(outfit) {
+    async wearOutfit(outfit, btnElement) {
         if (!outfit.items || outfit.items.length === 0) return;
 
-        let updatedCount = 0;
-        outfit.items.forEach(itemId => {
-            const item = store.wardrobeItems.find(i => i.id === itemId);
-            if (item) {
-                item.usageCount = (item.usageCount || 0) + 1;
-                item.lastWorn = new Date().toISOString();
-                updatedCount++;
-            }
-        });
+        if (btnElement) {
+            btnElement.disabled = true;
+            btnElement.classList.add('opacity-70', 'cursor-not-allowed');
+            const originalText = btnElement.innerHTML;
+            btnElement.innerHTML = '<span class="material-symbols-outlined animate-spin text-lg">progress_activity</span> Salvando...';
 
-        if (updatedCount > 0) {
-            await store.saveWardrobeItems();
-            updateStats();
-            showToast(`Marcado "${outfit.name || 'Look'}" como usado!`, 'success');
+            // Restore function for finally block
+            var restoreBtn = () => {
+                btnElement.disabled = false;
+                btnElement.classList.remove('opacity-70', 'cursor-not-allowed');
+                btnElement.innerHTML = originalText;
+            };
+        }
+
+        try {
+            let updatedCount = 0;
+            outfit.items.forEach(itemId => {
+                const item = store.wardrobeItems.find(i => i.id === itemId);
+                if (item) {
+                    item.usageCount = (item.usageCount || 0) + 1;
+                    item.lastWorn = new Date().toISOString();
+                    updatedCount++;
+                }
+            });
+
+            if (updatedCount > 0) {
+                await store.saveWardrobeItems();
+                updateStats();
+                showToast(`Marcado "${outfit.name || 'Look'}" como usado!`, 'success');
+            }
+        } catch (error) {
+            console.error('Error wearing outfit:', error);
+            showToast('Erro ao atualizar uso do look.', 'error');
+        } finally {
+            if (restoreBtn) restoreBtn();
         }
     }
 };
@@ -98,26 +120,36 @@ function setupEventListeners() {
                 const dayName = selectedDate.toLocaleDateString('pt-BR', dateOptions);
                 const defaultName = `Look de ${dayName.charAt(0).toUpperCase() + dayName.slice(1)}`;
 
-                createNameModal(async (name) => {
-                    const newOutfit = {
-                        id: Date.now(),
-                        name: name,
-                        items: selectedItems,
-                        dateCreated: new Date().toISOString(),
-                        scheduledDate: formatDateKey(selectedDate)
-                    };
+                createInputModal(async (name) => {
+                    try {
+                        const newOutfit = {
+                            id: Date.now(),
+                            name: name,
+                            items: selectedItems,
+                            dateCreated: new Date().toISOString(),
+                            scheduledDate: formatDateKey(selectedDate)
+                        };
 
-                    store.outfits.push(newOutfit);
-                    await store.saveOutfits();
-                    updateStats();
-                    showToast('Look criado!', 'success');
-                    GalleryController.cancelSelectionMode();
+                        store.outfits.push(newOutfit);
+                        await store.saveOutfits();
+                        updateStats();
+                        showToast('Look criado!', 'success');
+                        GalleryController.cancelSelectionMode();
 
-                    // Return to planner and update
-                    router.navigateTo('planner');
-                    renderCalendar(); // To show dot
-                    renderOutfits();
-                }, defaultName);
+                        // Return to planner and update
+                        router.navigateTo('planner');
+                        renderCalendar(); // To show dot
+                        renderOutfits();
+                    } catch (e) {
+                        console.error('Error creating outfit:', e);
+                        showToast('Erro ao criar look.', 'error');
+                    }
+                }, {
+                    title: 'Nomear Look',
+                    description: 'Dê um nome para sua nova combinação.',
+                    placeholder: 'Ex: Look de Trabalho',
+                    defaultValue: defaultName
+                });
             });
             router.navigateTo('gallery');
         });
@@ -306,12 +338,17 @@ export function renderOutfits() {
         moveBtn.onclick = (e) => {
             e.stopPropagation();
             createDateModal(async (newDateKey) => {
-                outfit.scheduledDate = newDateKey;
-                await store.saveOutfits();
-                updateStats();
-                showToast(`Look movido para ${newDateKey}!`, 'success');
-                renderCalendar();
-                renderOutfits();
+                try {
+                    outfit.scheduledDate = newDateKey;
+                    await store.saveOutfits();
+                    updateStats();
+                    showToast(`Look movido para ${newDateKey}!`, 'success');
+                    renderCalendar();
+                    renderOutfits();
+                } catch (e) {
+                    console.error('Error moving outfit:', e);
+                    showToast('Erro ao mover look.', 'error');
+                }
             }, 'Mover Look', 'Mover');
         };
 
@@ -324,23 +361,28 @@ export function renderOutfits() {
         cloneBtn.onclick = (e) => {
             e.stopPropagation();
             createDateModal(async (newDateKey) => {
-                const newOutfit = {
-                    ...outfit,
-                    items: [...outfit.items], // Deep copy items array
-                    id: Date.now(), // New ID
-                    scheduledDate: newDateKey,
-                    dateCreated: new Date().toISOString()
-                };
-                store.outfits.push(newOutfit);
-                await store.saveOutfits();
-                updateStats();
-                showToast(`Look duplicado para ${newDateKey}!`, 'success');
-                // If the new date is the currently selected date, re-render
-                if (newDateKey === formatDateKey(selectedDate)) {
-                    renderOutfits();
-                } else {
-                    // Refresh calendar to show dot on new date
-                    renderCalendar();
+                try {
+                    const newOutfit = {
+                        ...outfit,
+                        items: [...outfit.items], // Deep copy items array
+                        id: Date.now(), // New ID
+                        scheduledDate: newDateKey,
+                        dateCreated: new Date().toISOString()
+                    };
+                    store.outfits.push(newOutfit);
+                    await store.saveOutfits();
+                    updateStats();
+                    showToast(`Look duplicado para ${newDateKey}!`, 'success');
+                    // If the new date is the currently selected date, re-render
+                    if (newDateKey === formatDateKey(selectedDate)) {
+                        renderOutfits();
+                    } else {
+                        // Refresh calendar to show dot on new date
+                        renderCalendar();
+                    }
+                } catch (e) {
+                    console.error('Error cloning outfit:', e);
+                    showToast('Erro ao duplicar look.', 'error');
                 }
             }, 'Duplicar Look', 'Duplicar');
         };
@@ -422,7 +464,7 @@ export function renderOutfits() {
         const wearBtn = document.createElement('button');
         wearBtn.className = 'w-full py-3 rounded-xl bg-[#11211c] dark:bg-white text-white dark:text-[#11211c] font-bold text-sm shadow-md hover:scale-[1.01] active:scale-[0.98] transition-all flex items-center justify-center gap-2 group mt-1';
         wearBtn.innerHTML = '<span class="material-symbols-outlined text-lg group-hover:rotate-12 transition-transform">checkroom</span> Usar Hoje';
-        wearBtn.onclick = () => PlannerController.wearOutfit(outfit);
+        wearBtn.onclick = (e) => PlannerController.wearOutfit(outfit, e.currentTarget);
 
         card.appendChild(wearBtn);
 
@@ -445,48 +487,6 @@ export function initPlanner() {
     PlannerController.init();
 }
 
-function createDateModal(callback, title = 'Selecione a Data', confirmText = 'Confirmar') {
-    const modal = document.createElement('div');
-    modal.className = 'fixed inset-0 z-[60] bg-black/50 flex items-center justify-center p-4';
-    modal.innerHTML = `
-        <div class="bg-white dark:bg-surface-dark rounded-xl w-full max-w-sm overflow-hidden shadow-2xl p-6">
-            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">${title}</h3>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Escolha a data.</p>
-            <input type="date" id="clone-date-input" class="w-full rounded-xl border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-white/5 p-3 text-sm text-gray-900 dark:text-white mb-6">
-            <div class="flex gap-3">
-                <button id="cancel-clone-btn" class="flex-1 py-2 text-gray-500 dark:text-gray-400 font-bold hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg transition-colors">Cancelar</button>
-                <button id="confirm-clone-btn" class="flex-1 py-2 bg-primary text-slate-900 font-bold rounded-lg hover:opacity-90 transition-opacity">${confirmText}</button>
-            </div>
-        </div>
-    `;
-
-    document.body.appendChild(modal);
-
-    // Set default date to tomorrow
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const dateInput = modal.querySelector('#clone-date-input');
-    dateInput.value = formatDateKey(tomorrow);
-
-    const close = () => {
-        modal.remove();
-    };
-
-    modal.querySelector('#cancel-clone-btn').onclick = close;
-    modal.querySelector('#confirm-clone-btn').onclick = () => {
-        const date = dateInput.value;
-        if (date) {
-            callback(date);
-            close();
-        } else {
-            showToast('Selecione uma data.', 'error');
-        }
-    };
-
-    modal.onclick = (e) => {
-        if (e.target === modal) close();
-    };
-}
 
 function generateRandomOutfit(date) {
     const tops = store.wardrobeItems.filter(i => i.category === 'tops');
@@ -511,70 +511,29 @@ function generateRandomOutfit(date) {
     const dayName = date.toLocaleDateString('pt-BR', dateOptions);
     const defaultName = `Surpresa de ${dayName.charAt(0).toUpperCase() + dayName.slice(1)}`;
 
-    createNameModal(async (name) => {
+    createInputModal(async (name) => {
+        try {
             const newOutfit = {
-            id: Date.now(),
-            name: name,
-            items: items.map(i => i.id),
-            dateCreated: new Date().toISOString(),
-            scheduledDate: formatDateKey(date)
-        };
-        store.outfits.push(newOutfit);
-        await store.saveOutfits();
-        updateStats();
-        showToast('Look surpresa criado!', 'success');
-        renderCalendar();
-        renderOutfits();
-    }, defaultName);
-}
-
-function createNameModal(callback, defaultValue = '') {
-    const modal = document.createElement('div');
-    modal.className = 'fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4';
-    modal.innerHTML = `
-        <div class="bg-white dark:bg-surface-dark rounded-xl w-full max-w-sm overflow-hidden shadow-2xl p-6 relative z-10">
-            <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Nomear Look</h3>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">Dê um nome para sua nova combinação.</p>
-            <input type="text" id="outfit-name-input" class="w-full rounded-xl border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-white/5 p-3 text-sm text-gray-900 dark:text-white mb-6" placeholder="Ex: Look de Trabalho" value="${defaultValue}">
-            <div class="flex gap-3">
-                <button id="cancel-name-btn" class="flex-1 py-2 text-gray-500 dark:text-gray-400 font-bold hover:bg-gray-100 dark:hover:bg-white/5 rounded-lg transition-colors">Cancelar</button>
-                <button id="confirm-name-btn" class="flex-1 py-2 bg-primary text-slate-900 font-bold rounded-lg hover:opacity-90 transition-opacity">Salvar</button>
-            </div>
-        </div>
-    `;
-
-    document.body.appendChild(modal);
-
-    const nameInput = modal.querySelector('#outfit-name-input');
-    // setTimeout to ensure focus works after DOM insertion
-    setTimeout(() => {
-        nameInput.focus();
-        if (defaultValue) nameInput.select();
-    }, 50);
-
-    const close = () => {
-        modal.remove();
-    };
-
-    modal.querySelector('#cancel-name-btn').onclick = close;
-    modal.querySelector('#confirm-name-btn').onclick = () => {
-        const name = nameInput.value.trim();
-        if (name) {
-            callback(name);
-            close();
-        } else {
-            showToast('Digite um nome para o look.', 'error');
+                id: Date.now(),
+                name: name,
+                items: items.map(i => i.id),
+                dateCreated: new Date().toISOString(),
+                scheduledDate: formatDateKey(date)
+            };
+            store.outfits.push(newOutfit);
+            await store.saveOutfits();
+            updateStats();
+            showToast('Look surpresa criado!', 'success');
+            renderCalendar();
+            renderOutfits();
+        } catch (e) {
+            console.error('Error creating random outfit:', e);
+            showToast('Erro ao criar look surpresa.', 'error');
         }
-    };
-
-    // Allow Enter key to confirm
-    nameInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-             modal.querySelector('#confirm-name-btn').click();
-        }
+    }, {
+        title: 'Nomear Look',
+        description: 'Dê um nome para sua nova combinação.',
+        placeholder: 'Ex: Look de Trabalho',
+        defaultValue: defaultName
     });
-
-    modal.onclick = (e) => {
-        if (e.target === modal) close();
-    };
 }
