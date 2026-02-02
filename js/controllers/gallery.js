@@ -4,6 +4,7 @@ import { showToast } from '../utils/toast.js';
 import { debounce } from '../utils/debounce.js';
 import { updateStats, renderMostWorn } from './dashboard.js';
 import { openEditItemOverlay, openAddItemOverlay } from './addItem.js';
+import { $, $$, byId, create, toggle } from '../utils/dom.js';
 
 let currentCategory = 'all';
 let currentSort = 'newest';
@@ -34,8 +35,8 @@ export const GalleryController = {
         selectedOutfitItems = [...initialItems];
         onSelectionComplete = callback;
 
-        const selectionBar = document.getElementById('selection-bar');
-        const bottomNav = document.getElementById('bottom-nav');
+        const selectionBar = byId('selection-bar');
+        const bottomNav = byId('bottom-nav');
 
         if (selectionBar) selectionBar.classList.remove('hidden');
         if (bottomNav) bottomNav.classList.add('hidden');
@@ -49,8 +50,8 @@ export const GalleryController = {
         selectedOutfitItems = [];
         onSelectionComplete = null;
 
-        const selectionBar = document.getElementById('selection-bar');
-        const bottomNav = document.getElementById('bottom-nav');
+        const selectionBar = byId('selection-bar');
+        const bottomNav = byId('bottom-nav');
 
         if (selectionBar) selectionBar.classList.add('hidden');
         if (bottomNav) bottomNav.classList.remove('hidden');
@@ -60,21 +61,21 @@ export const GalleryController = {
 };
 
 function setupEventListeners() {
-    const filterChips = document.querySelectorAll('.filter-chip');
+    const filterChips = $$('.filter-chip');
     filterChips.forEach(chip => {
         chip.addEventListener('click', () => {
             GalleryController.setCategory(chip.getAttribute('data-category'));
         });
     });
 
-    const gallerySearch = document.getElementById('gallery-search');
+    const gallerySearch = byId('gallery-search');
     if (gallerySearch) {
         gallerySearch.addEventListener('input', debounce(() => {
             renderGallery();
         }, 300));
     }
 
-    const galleryBackBtn = document.getElementById('gallery-back-btn');
+    const galleryBackBtn = byId('gallery-back-btn');
     if (galleryBackBtn) {
         galleryBackBtn.addEventListener('click', () => {
             router.navigateTo('dashboard');
@@ -82,8 +83,8 @@ function setupEventListeners() {
     }
 
     // Sort Logic
-    const sortBtn = document.getElementById('gallery-sort-btn');
-    const sortMenu = document.getElementById('gallery-sort-menu');
+    const sortBtn = byId('gallery-sort-btn');
+    const sortMenu = byId('gallery-sort-menu');
 
     if (sortBtn && sortMenu) {
         sortBtn.addEventListener('click', (e) => {
@@ -98,7 +99,7 @@ function setupEventListeners() {
         });
     }
 
-    const sortOptions = document.querySelectorAll('.sort-option');
+    const sortOptions = $$('.sort-option');
     sortOptions.forEach(opt => {
         opt.addEventListener('click', () => {
             currentSort = opt.getAttribute('data-sort');
@@ -108,8 +109,8 @@ function setupEventListeners() {
 }
 
 function updateFilterChips() {
-    const filterChips = document.querySelectorAll('.filter-chip');
-    const galleryTitle = document.getElementById('gallery-title');
+    const filterChips = $$('.filter-chip');
+    const galleryTitle = byId('gallery-title');
 
     filterChips.forEach(chip => {
         const cat = chip.getAttribute('data-category');
@@ -138,78 +139,60 @@ function updateFilterChips() {
 }
 
 function createGalleryItem(item) {
-    const div = document.createElement('div');
-    div.className = 'group flex flex-col gap-2 cursor-pointer opacity-0 transition-opacity duration-500 ease-out';
-    div.setAttribute('data-id', item.id);
+    const isSelected = isSelectionMode && selectedOutfitItems.includes(item.id);
+    const divClass = `group flex flex-col gap-2 cursor-pointer transition-opacity duration-500 ease-out opacity-0 ${isSelectionMode && !isSelected ? 'opacity-50' : ''}`;
 
-    const imgContainer = document.createElement('div');
-    imgContainer.className = 'item-image-container relative w-full aspect-[3/4] rounded-xl overflow-hidden bg-white dark:bg-surface-dark shadow-sm group-hover:shadow-md transition-all duration-300 border border-slate-100 dark:border-white/5';
-    // Add Accessibility Attributes
-    imgContainer.setAttribute('role', 'img');
-    imgContainer.setAttribute('aria-label', item.name);
-
-    const imgBg = document.createElement('div');
-    imgBg.className = 'absolute inset-0 bg-center bg-no-repeat bg-cover transition-transform duration-500 group-hover:scale-105';
-    imgBg.style.backgroundImage = `url("${item.image || 'https://via.placeholder.com/200?text=No+Image'}")`;
-
-    imgContainer.appendChild(imgBg);
+    // Image Container
+    const imgContainer = create('div', {
+        className: `item-image-container relative w-full aspect-[3/4] rounded-xl overflow-hidden bg-white dark:bg-surface-dark shadow-sm group-hover:shadow-md transition-all duration-300 border border-slate-100 dark:border-white/5 ${isSelected ? 'ring-4 ring-primary' : ''}`,
+        role: 'img',
+        'aria-label': item.name
+    }, [
+        create('div', {
+            className: 'absolute inset-0 bg-center bg-no-repeat bg-cover transition-transform duration-500 group-hover:scale-105',
+            style: { backgroundImage: `url("${item.image || 'https://via.placeholder.com/200?text=No+Image'}")` }
+        })
+    ]);
 
     // Favorite Indicator
     if (item.isFavorite) {
-        const heart = document.createElement('div');
-        heart.className = 'absolute top-2 left-2 text-red-500 bg-white/90 dark:bg-black/60 backdrop-blur-sm rounded-full p-1 z-10 flex items-center justify-center shadow-sm';
-        heart.innerHTML = '<span class="material-symbols-outlined text-[16px] font-bold" style="font-variation-settings: \'FILL\' 1;">favorite</span>';
-        imgContainer.appendChild(heart);
+        imgContainer.appendChild(create('div', {
+            className: 'absolute top-2 left-2 text-red-500 bg-white/90 dark:bg-black/60 backdrop-blur-sm rounded-full p-1 z-10 flex items-center justify-center shadow-sm',
+            innerHTML: '<span class="material-symbols-outlined text-[16px] font-bold" style="font-variation-settings: \'FILL\' 1;">favorite</span>'
+        }));
     }
 
-    if (isSelectionMode) {
-        if (selectedOutfitItems.includes(item.id)) {
-            imgContainer.classList.add('ring-4', 'ring-primary');
-            const check = document.createElement('div');
-            check.className = 'absolute top-2 right-2 bg-primary text-slate-900 rounded-full p-1 z-10';
-            check.innerHTML = '<span class="material-symbols-outlined text-sm font-bold">check</span>';
-            imgContainer.appendChild(check);
-        } else {
-            div.classList.add('opacity-50');
-        }
-
-        div.onclick = () => toggleItemSelection(item.id);
-    } else {
-            div.onclick = () => openItemModal(item);
+    // Selection Checkmark
+    if (isSelected) {
+        imgContainer.appendChild(create('div', {
+            className: 'check-indicator absolute top-2 right-2 bg-primary text-slate-900 rounded-full p-1 z-10',
+            innerHTML: '<span class="material-symbols-outlined text-sm font-bold">check</span>'
+        }));
     }
 
-    const infoDiv = document.createElement('div');
+    // Info Section
+    const infoDiv = create('div', {}, [
+        create('p', {
+            className: 'text-slate-900 dark:text-white text-sm font-bold leading-tight truncate',
+            textContent: item.name
+        }),
+        create('p', {
+            className: 'text-slate-500 dark:text-slate-400 text-xs font-medium mt-0.5',
+            textContent: item.brand || item.category
+        })
+    ]);
 
-    const nameP = document.createElement('p');
-    nameP.className = 'text-slate-900 dark:text-white text-sm font-bold leading-tight truncate';
-    nameP.textContent = item.name;
-
-    const brandP = document.createElement('p');
-    brandP.className = 'text-slate-500 dark:text-slate-400 text-xs font-medium mt-0.5';
-    brandP.textContent = item.brand || item.category;
-
-    infoDiv.appendChild(nameP);
-    infoDiv.appendChild(brandP);
-
-    div.appendChild(imgContainer);
-    div.appendChild(infoDiv);
-
-    return div;
+    return create('div', {
+        className: divClass,
+        'data-id': item.id,
+        onclick: isSelectionMode ? () => toggleItemSelection(item.id) : () => openItemModal(item)
+    }, [imgContainer, infoDiv]);
 }
 
-function renderGallery() {
-    const galleryGrid = document.getElementById('gallery-grid');
-    const gallerySearch = document.getElementById('gallery-search');
-
-    if (!galleryGrid) return;
-
-    galleryGrid.innerHTML = '';
-
-    const searchTerm = gallerySearch ? gallerySearch.value.toLowerCase().trim() : '';
-
-    let filteredItems = store.wardrobeItems.filter(item => {
-        const matchesCategory = currentCategory === 'all' ||
-                                (currentCategory === 'favorites' ? item.isFavorite : item.category === currentCategory);
+function filterItems(items, category, searchTerm) {
+    return items.filter(item => {
+        const matchesCategory = category === 'all' ||
+                                (category === 'favorites' ? item.isFavorite : item.category === category);
 
         if (!matchesCategory) return false;
 
@@ -233,35 +216,53 @@ function renderGallery() {
                               (item.brand && item._normalizedBrand && item._normalizedBrand.includes(searchTerm));
         return matchesSearch;
     });
+}
 
-    // Sort Items
-    filteredItems.sort((a, b) => {
-        if (currentSort === 'newest') {
+function sortItems(items, sortMode) {
+    return items.sort((a, b) => {
+        if (sortMode === 'newest') {
             return new Date(b.dateAdded || 0) - new Date(a.dateAdded || 0);
-        } else if (currentSort === 'oldest') {
+        } else if (sortMode === 'oldest') {
             return new Date(a.dateAdded || 0) - new Date(b.dateAdded || 0);
-        } else if (currentSort === 'most_worn') {
+        } else if (sortMode === 'most_worn') {
             return (b.usageCount || 0) - (a.usageCount || 0);
         }
         return 0;
     });
+}
+
+function renderGallery() {
+    const galleryGrid = byId('gallery-grid');
+    const gallerySearch = byId('gallery-search');
+
+    if (!galleryGrid) return;
+
+    galleryGrid.innerHTML = '';
+
+    const searchTerm = gallerySearch ? gallerySearch.value.toLowerCase().trim() : '';
+
+    // Filter
+    let filteredItems = filterItems(store.wardrobeItems, currentCategory, searchTerm);
+
+    // Sort
+    sortItems(filteredItems, currentSort);
 
     if (filteredItems.length === 0) {
-        const noItemsDiv = document.createElement('div');
-        noItemsDiv.className = 'col-span-2 md:col-span-4 lg:col-span-5 flex flex-col items-center justify-center py-10 gap-4';
-
-        const p = document.createElement('p');
-        p.className = 'text-gray-500 font-medium';
-        p.textContent = searchTerm ? 'Nenhum item encontrado para sua busca.' : 'Seu guarda-roupa está vazio.';
-
-        noItemsDiv.appendChild(p);
+        const noItemsDiv = create('div', {
+            className: 'col-span-2 md:col-span-4 lg:col-span-5 flex flex-col items-center justify-center py-10 gap-4'
+        }, [
+            create('p', {
+                className: 'text-gray-500 font-medium',
+                textContent: searchTerm ? 'Nenhum item encontrado para sua busca.' : 'Seu guarda-roupa está vazio.'
+            })
+        ]);
 
         if (!searchTerm && currentCategory === 'all') {
-             const addBtn = document.createElement('button');
-             addBtn.className = 'bg-primary/10 text-primary font-bold px-4 py-2 rounded-lg hover:bg-primary/20 transition-colors';
-             addBtn.textContent = 'Adicione Seu Primeiro Item';
-             addBtn.onclick = () => openAddItemOverlay();
-             noItemsDiv.appendChild(addBtn);
+             noItemsDiv.appendChild(create('button', {
+                 className: 'bg-primary/10 text-primary font-bold px-4 py-2 rounded-lg hover:bg-primary/20 transition-colors',
+                 textContent: 'Adicione Seu Primeiro Item',
+                 onclick: () => openAddItemOverlay()
+             }));
         }
 
         galleryGrid.appendChild(noItemsDiv);
@@ -288,8 +289,8 @@ function renderGallery() {
 }
 
 function setupSelectionUI() {
-    const cancelSelectionBtn = document.getElementById('cancel-selection-btn');
-    const saveOutfitBtn = document.getElementById('save-outfit-btn');
+    const cancelSelectionBtn = byId('cancel-selection-btn');
+    const saveOutfitBtn = byId('save-outfit-btn');
 
     if (cancelSelectionBtn) {
         cancelSelectionBtn.addEventListener('click', GalleryController.cancelSelectionMode);
@@ -305,7 +306,7 @@ function setupSelectionUI() {
 }
 
 function updateSelectionUI() {
-    const selectionCountEl = document.getElementById('selection-count');
+    const selectionCountEl = byId('selection-count');
     if (selectionCountEl) {
         selectionCountEl.textContent = `${selectedOutfitItems.length} itens selecionados`;
     }
@@ -320,17 +321,17 @@ function toggleItemSelection(id) {
     updateSelectionUI();
 
     // Optimize: Update only the specific item in DOM
-    const itemEl = document.querySelector(`[data-id="${id}"]`);
+    const itemEl = $(`[data-id="${id}"]`);
     if (itemEl) {
-        const imgContainer = itemEl.querySelector('.item-image-container');
+        const imgContainer = $('.item-image-container', itemEl);
         if (imgContainer) {
             if (selectedOutfitItems.includes(id)) {
                 imgContainer.classList.add('ring-4', 'ring-primary');
                 if (!imgContainer.querySelector('.check-indicator')) {
-                    const check = document.createElement('div');
-                    check.className = 'check-indicator absolute top-2 right-2 bg-primary text-slate-900 rounded-full p-1 z-10';
-                    check.innerHTML = '<span class="material-symbols-outlined text-sm font-bold">check</span>';
-                    imgContainer.appendChild(check);
+                    imgContainer.appendChild(create('div', {
+                        className: 'check-indicator absolute top-2 right-2 bg-primary text-slate-900 rounded-full p-1 z-10',
+                        innerHTML: '<span class="material-symbols-outlined text-sm font-bold">check</span>'
+                    }));
                 }
                 itemEl.classList.remove('opacity-50');
             } else {
@@ -347,10 +348,10 @@ function toggleItemSelection(id) {
 let currentModalItemId = null;
 
 function setupModal() {
-    const itemModal = document.getElementById('item-modal');
-    const closeItemModalBtn = document.getElementById('close-item-modal');
-    const deleteItemBtn = document.getElementById('delete-item-btn');
-    const editItemBtn = document.getElementById('edit-item-btn');
+    const itemModal = byId('item-modal');
+    const closeItemModalBtn = byId('close-item-modal');
+    const deleteItemBtn = byId('delete-item-btn');
+    const editItemBtn = byId('edit-item-btn');
 
     if (closeItemModalBtn) {
         closeItemModalBtn.addEventListener('click', () => itemModal.classList.add('hidden'));
@@ -396,27 +397,28 @@ function setupModal() {
         // Inject extra buttons if needed
         const actionContainer = editItemBtn.parentElement;
         if (actionContainer) {
-             // Safe way to check/prevent duplicates: Search within container
-             const existingFav = actionContainer.querySelector('#toggle-favorite-btn');
-             const existingWear = actionContainer.querySelector('#log-usage-btn');
+             const existingFav = $('#toggle-favorite-btn', actionContainer);
+             const existingWear = $('#log-usage-btn', actionContainer);
 
              if (!existingFav) {
                 // Favorite Button
-                const favBtn = document.createElement('button');
-                favBtn.id = 'toggle-favorite-btn';
-                favBtn.className = 'flex-none bg-gray-100 dark:bg-gray-800 text-gray-400 hover:text-red-500 font-bold py-2 px-3 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors flex items-center justify-center';
-                favBtn.innerHTML = '<span class="material-symbols-outlined">favorite_border</span>';
-                favBtn.onclick = handleToggleFavorite;
+                const favBtn = create('button', {
+                    id: 'toggle-favorite-btn',
+                    className: 'flex-none bg-gray-100 dark:bg-gray-800 text-gray-400 hover:text-red-500 font-bold py-2 px-3 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors flex items-center justify-center',
+                    innerHTML: '<span class="material-symbols-outlined">favorite_border</span>',
+                    onclick: handleToggleFavorite
+                });
                 actionContainer.insertBefore(favBtn, editItemBtn);
              }
 
              if (!existingWear) {
                 // Log Usage Button
-                const wearBtn = document.createElement('button');
-                wearBtn.id = 'log-usage-btn';
-                wearBtn.className = 'flex-1 bg-primary/10 text-primary font-bold py-2 rounded-lg hover:bg-primary/20 transition-colors';
-                wearBtn.textContent = 'Usar';
-                wearBtn.onclick = handleLogUsage;
+                const wearBtn = create('button', {
+                    id: 'log-usage-btn',
+                    className: 'flex-1 bg-primary/10 text-primary font-bold py-2 rounded-lg hover:bg-primary/20 transition-colors',
+                    textContent: 'Usar',
+                    onclick: handleLogUsage
+                });
                 actionContainer.insertBefore(wearBtn, editItemBtn);
              }
         }
@@ -432,7 +434,7 @@ async function handleLogUsage() {
         renderMostWorn();
         showToast(`Usou ${item.name}! (Contagem: ${item.usageCount})`, 'success');
 
-        const itemModal = document.getElementById('item-modal');
+        const itemModal = byId('item-modal');
         if (itemModal) itemModal.classList.add('hidden');
         renderGallery();
     }
@@ -444,7 +446,7 @@ async function handleToggleFavorite() {
         item.isFavorite = !item.isFavorite;
         await store.saveWardrobeItems();
 
-        const favBtn = document.getElementById('toggle-favorite-btn');
+        const favBtn = byId('toggle-favorite-btn');
         if (favBtn) {
             updateFavoriteBtnState(favBtn, item.isFavorite);
         }
@@ -454,7 +456,7 @@ async function handleToggleFavorite() {
 }
 
 function updateFavoriteBtnState(btn, isFav) {
-    const icon = btn.querySelector('span');
+    const icon = $('span', btn);
     if (isFav) {
         btn.classList.add('text-red-500');
         btn.classList.remove('text-gray-400');
@@ -474,11 +476,11 @@ function updateFavoriteBtnState(btn, isFav) {
 
 export function openItemModal(item) {
     currentModalItemId = item.id;
-    const itemModal = document.getElementById('item-modal');
-    const modalImage = document.getElementById('modal-image');
-    const modalTitle = document.getElementById('modal-title');
-    const modalDetailsText = document.getElementById('modal-details-text');
-    const favBtn = document.getElementById('toggle-favorite-btn');
+    const itemModal = byId('item-modal');
+    const modalImage = byId('modal-image');
+    const modalTitle = byId('modal-title');
+    const modalDetailsText = byId('modal-details-text');
+    const favBtn = byId('toggle-favorite-btn');
 
     if (modalImage) modalImage.src = item.image || 'https://via.placeholder.com/200?text=No+Image';
     if (modalTitle) modalTitle.textContent = item.name;
@@ -499,16 +501,14 @@ export function openItemModal(item) {
         ];
 
         details.forEach(detail => {
-            const p = document.createElement('div');
-            p.className = 'mb-1';
-            const strong = document.createElement('strong');
-            strong.className = 'font-medium text-gray-900 dark:text-white mr-1';
-            strong.textContent = detail.label + ':';
-            const span = document.createElement('span');
-            span.textContent = detail.value;
-            p.appendChild(strong);
-            p.appendChild(span);
-            modalDetailsText.appendChild(p);
+            const row = create('div', { className: 'mb-1' }, [
+                create('strong', {
+                    className: 'font-medium text-gray-900 dark:text-white mr-1',
+                    textContent: detail.label + ':'
+                }),
+                create('span', { textContent: detail.value })
+            ]);
+            modalDetailsText.appendChild(row);
         });
     }
 
